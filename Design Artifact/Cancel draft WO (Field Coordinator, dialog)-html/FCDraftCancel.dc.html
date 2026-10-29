@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Cancel draft WO (Field Coordinator)</title><script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script></head>
+<body><x-dc><helmet><style>
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#1F2937;font-size:13px}
+.sb{width:200px;background:#14262E;color:#CBD5DA;padding:16px 12px;box-sizing:border-box;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.sb b{color:#fff;font-size:15px;padding:4px 8px 14px}.sb a{padding:9px 10px;border-radius:6px;color:#CBD5DA;text-decoration:none;display:flex;justify-content:space-between}.sb a.on{background:#AD2713;color:#fff}.sb i{font-style:normal;background:#B91C1C;color:#fff;border-radius:999px;padding:0 7px;font-size:12px;font-weight:700}
+.card{background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:14px}
+.pill{border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;white-space:nowrap}.g{background:#DCFCE7;color:#14532D}.a{background:#FEF3C7;color:#78350F}.r{background:#FEE2E2;color:#7F1D1D}.n{background:#E5E7EB;color:#374151}.b{background:#DCEBEF;color:#1F4E5F}
+.btn{border:0;border-radius:6px;padding:8px 14px;font-weight:600;background:#AD2713;color:#fff;font-size:14px;font-family:inherit}.btn2{background:#fff;color:#1F2937;border:1px solid #9CA3AF}.btn3{background:#fff;color:#B91C1C;border:1px solid #B91C1C}.sm{padding:4px 10px;font-size:12px}
+input,select,textarea{border:1px solid #9CA3AF;border-radius:6px;padding:7px 8px;font-size:13px;background:#fff;font-family:inherit;font-weight:400}
+label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:13px}
+.kv{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #F3F4F6}.kv span:first-child{color:#4B5563}
+.hint{color:#4B5563;font-weight:400}h1{margin:0;font-size:22px}
+.warn{padding:10px;border-radius:8px;background:#FEF3C7;color:#78350F}
+.stamp{border:1px dashed #9CA3AF;border-radius:8px;padding:8px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid #E5E7EB;font-size:14px}.tabs a{padding:8px 12px;color:#4B5563;text-decoration:none}.tabs a.on{color:#AD2713;font-weight:700;border-bottom:2px solid #AD2713}
+table{border-collapse:collapse;width:100%}th{text-align:left;font-size:12px;color:#4B5563;padding:7px 6px;border-bottom:1px solid #E5E7EB}td{padding:8px 6px;border-bottom:1px solid #F3F4F6;vertical-align:top}tr.sel td{background:#E6EFF1}
+::selection{background:#F2D98A;color:#14262E}:focus-visible{outline:2px solid #AD2713;outline-offset:2px}input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #AD2713;outline-offset:0;border-color:#AD2713}.n-num{font-variant-numeric:tabular-nums}button{cursor:pointer}.btn:hover{background:#8A1D0C}.btn.btn2:hover{background:#E6EFF1}.btn.btn3:hover{background:#FEF2F2}button:disabled,.btn:disabled{opacity:.5;cursor:not-allowed}.sb a:not(.on):hover{background:#1F3640;color:#fff}.btn,button{transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .1s ease}.btn:active,button:active{transform:translateY(1px) scale(.98)}@keyframes ovl{from{opacity:0}}@keyframes dlg{from{opacity:0;transform:translateY(10px) scale(.98)}}.ovl{animation:ovl .2s ease-out}.ovl>.card{animation:dlg .32s cubic-bezier(.16,1,.3,1)}@media (prefers-reduced-motion:reduce){.ovl>.card{animation:none}.btn:active,button:active{transform:none}}</style></helmet>
+<div style="width:1200px;height:760px;display:flex;background:#F4F7F8;position:relative">
+<nav class="sb" aria-label="Main"><b>BMI Stooring System</b><a href="#" title="Dashboard"><span>Dashboard</span></a><a class="on" href="#" title="Requests" aria-current="page"><span>Requests</span><i>3</i></a><a href="#" title="Schedule"><span>Schedule</span></a><a href="#" title="Vehicles"><span>Vehicles</span></a><a href="#" title="Documents"><span>Documents</span></a></nav>
+<main style="flex:1;padding:22px;display:flex;flex-direction:column;gap:12px;min-width:0">
+<div><h1>Requests <span class="hint" style="font-size:13px">draft WOs from drivers</span></h1><div class="hint" style="margin-top:4px">Field Coordinator · Fajar</div></div>
+<div class="tabs"><a class="on" href="#">To review (3)</a><a href="#">Sent to Planner</a><a href="#">All</a></div>
+<div class="card" style="flex:1;padding:4px 14px">
+<table><thead><tr><th>Source</th><th>Vehicle</th><th>Reported</th><th>Summary</th><th>Status</th></tr></thead>
+<tbody><tr class="sel"><td>Driver breakdown</td><td class="n-num">B 1234 ABC</td><td class="n-num">2026-10-29 07:14</td><td>Brake warning light, pulls left</td><td><span class="pill n">Draft</span></td></tr>
+<tr><td>Driver DVIR fail</td><td class="n-num">F 7712 MN</td><td class="n-num">2026-10-29 06:20</td><td>Left mirror cracked</td><td><span class="pill n">Draft</span></td></tr>
+<tr><td>Field finding</td><td class="n-num">D 4410 KL</td><td class="n-num">2026-10-28 16:40</td><td>Spare tyre worn</td><td><span class="pill n">Draft</span></td></tr></tbody></table>
+</div>
+<div class="ovl" style="position:absolute;inset:0;background:rgba(20,38,46,.55);display:flex;align-items:center;justify-content:center">
+<div class="card" style="width:520px;display:flex;flex-direction:column;gap:10px;box-shadow:0 10px 30px rgba(0,0,0,.25)"><b style="font-size:17px">Cancel this draft WO?</b>
+<div class="kv"><span>Source</span><span>Driver breakdown · B 1234 ABC</span></div>
+<div class="kv"><span>Reported by</span><span>Driver Andi · 2026-10-29 07:14</span></div>
+<div class="kv"><span>Status now</span><span class="pill n">Draft</span></div>
+<label>Reason (required)<textarea rows="3">Duplicate of WO-0142, already in progress.</textarea></label>
+<div class="warn">Cancelling marks the draft Cancelled and notifies the reporter. The original report stays in the vehicle history; nothing is billed and no WO is created.</div>
+<div class="stamp"><span class="hint">Your stamp</span><br><b>Cancelled by Field Coordinator: Fajar</b></div>
+<div style="display:flex;justify-content:flex-end;gap:8px"><button class="btn btn2">Keep the draft</button><button class="btn btn3">Cancel draft</button></div></div></div>
+</main></div></x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1200,"height":760}}'>
+class Component extends DCLogic { renderVals(){ return {}; } }
+</script></body></html>

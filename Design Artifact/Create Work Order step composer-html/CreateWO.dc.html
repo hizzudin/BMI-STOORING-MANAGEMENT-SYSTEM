@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Create Work Order</title><script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script></head>
+<body><x-dc><helmet><style>
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#1F2937;font-size:13px}
+.sb{width:200px;background:#14262E;color:#CBD5DA;padding:16px 12px;box-sizing:border-box;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.sb b{color:#fff;font-size:15px;padding:4px 8px 14px}.sb a{padding:9px 10px;border-radius:6px;color:#CBD5DA;text-decoration:none;display:flex;justify-content:space-between}.sb a.on{background:#AD2713;color:#fff}.sb i{font-style:normal;background:#B91C1C;color:#fff;border-radius:999px;padding:0 7px;font-size:12px;font-weight:700}
+.card{background:#fff;border:1px solid #E5E7EB;border-radius:8px;padding:14px}
+.pill{border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;white-space:nowrap}.g{background:#DCFCE7;color:#14532D}.a{background:#FEF3C7;color:#78350F}.r{background:#FEE2E2;color:#7F1D1D}.n{background:#E5E7EB;color:#374151}.b{background:#DCEBEF;color:#1F4E5F}
+.btn{border:0;border-radius:6px;padding:8px 14px;font-weight:600;background:#AD2713;color:#fff;font-size:14px;font-family:inherit}.btn2{background:#fff;color:#1F2937;border:1px solid #9CA3AF}.btn3{background:#fff;color:#B91C1C;border:1px solid #B91C1C}.sm{padding:4px 10px;font-size:12px}
+input,select,textarea{border:1px solid #9CA3AF;border-radius:6px;padding:7px 8px;font-size:13px;background:#fff;font-family:inherit;font-weight:400}
+label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:13px}
+.v{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;border:1px solid #E5E7EB;margin-bottom:8px}.v.sel{background:#E6EFF1;border-color:#AD2713}
+.tabs{display:flex;gap:4px;border-bottom:1px solid #E5E7EB;font-size:14px}.tabs a{padding:8px 12px;color:#4B5563;text-decoration:none}.tabs a.on{color:#AD2713;font-weight:700;border-bottom:2px solid #AD2713}
+table{border-collapse:collapse;width:100%}th{text-align:left;font-size:12px;color:#4B5563;padding:7px 6px;border-bottom:1px solid #E5E7EB}td{padding:8px 6px;border-bottom:1px solid #F3F4F6;vertical-align:top}td.n,th.n{text-align:right}tr.sel td{background:#E6EFF1}
+.kv{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #F3F4F6}.kv span:first-child{color:#4B5563}
+.k{font-size:20px;font-weight:700}.hint{color:#4B5563;font-weight:400}h2{margin:0 0 8px;font-size:15px}
+.ok{padding:10px;border-radius:8px;background:#E6EFF1}.warn{padding:10px;border-radius:8px;background:#FEF3C7;color:#78350F}.bad{padding:10px;border-radius:8px;background:#FEE2E2;color:#7F1D1D}
+.stamp{border:1px dashed #9CA3AF;border-radius:8px;padding:8px}.ph{width:96px;height:68px;border-radius:8px;background:#E5E7EB;display:flex;align-items:center;justify-content:center;color:#4B5563;font-size:12px}
+.st{flex:1;border:1px solid #E5E7EB;border-radius:8px;padding:10px;background:#fff;display:flex;flex-direction:column;gap:4px}.sec{}.sh{display:flex;align-items:center;gap:8px;margin-bottom:6px}.sh i{width:24px;height:24px;border-radius:50%;background:#AD2713;color:#fff;font-style:normal;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.sh small{color:#4B5563;font-weight:400}.req{color:#B91C1C;font-size:12px;font-weight:600}.none{display:flex;align-items:center;gap:8px;color:#4B5563}.none i{width:24px;height:24px;border-radius:50%;background:#9CA3AF;color:#fff;font-style:normal;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+td select,td input{width:100%;box-sizing:border-box}
+::selection{background:#F2D98A;color:#14262E}:focus-visible{outline:2px solid #AD2713;outline-offset:2px}input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #AD2713;outline-offset:0;border-color:#AD2713}td.n,th.n,.k,.n-num{font-variant-numeric:tabular-nums}button{cursor:pointer}.btn:hover{background:#8A1D0C}.btn.btn2:hover{background:#E6EFF1}.btn.btn3:hover{background:#FEF2F2}button:disabled,.btn:disabled{opacity:.5;cursor:not-allowed}.pill{align-self:center}td.nw{white-space:nowrap}.mh{display:flex;align-items:center;gap:6px}.mh svg{width:16px;height:16px;color:#1F4E5F}.it .iti{width:32px;height:32px;border-radius:8px;background:#E6EFF1;color:#1F4E5F;display:flex;align-items:center;justify-content:center;flex:none}.it .iti svg{width:18px;height:18px}.tabs a{display:inline-flex;align-items:center;gap:6px}.tabs a svg{width:16px;height:16px}.btn svg{width:16px;height:16px;vertical-align:-3px;margin-right:4px}.sbc{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}.sb{flex:none;overflow:hidden;transition:width .2s cubic-bezier(.2,.8,.2,1),padding .2s cubic-bezier(.2,.8,.2,1)}.sb .brand{display:flex;align-items:center;gap:8px;color:#fff;font-size:14px;line-height:1.15;padding:2px 6px 14px;white-space:nowrap}.sb .lt{background:#fff;border-radius:6px;padding:2px;display:flex;flex:none}.sb a{display:flex;align-items:center;gap:10px;white-space:nowrap;position:relative}.sb a svg{width:18px;height:18px;opacity:.8}.sb a.on svg{opacity:1}.sb a i{margin-left:auto}.sb a:not(.on):hover,.sbt:hover{background:#1F3640;color:#fff}.sbt{margin-top:auto;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;color:#93A4AC;font-size:13px;font-weight:400;cursor:pointer;white-space:nowrap}.sbt svg{width:18px;height:18px;transition:transform .2s cubic-bezier(.2,.8,.2,1)}.sbc:focus-visible+.sb .sbt{outline:2px solid #F2D98A;outline-offset:-2px}.sb a{justify-content:flex-start}.sb .sbt{flex-direction:row}.sbc:checked+.sb{width:64px;padding:16px 10px}.sbc:checked+.sb .lb{display:none}.sbc:checked+.sb .brand{padding:2px 0 14px;justify-content:center}.sbc:checked+.sb a,.sbc:checked+.sb .sbt{justify-content:center;padding:10px 0}.sbc:checked+.sb a i{position:absolute;top:2px;right:2px;margin:0;padding:0 5px;font-size:10px;line-height:16px}.sbc:checked+.sb .sbt svg{transform:rotate(180deg)}@media (prefers-reduced-motion:reduce){.sb,.sbt svg{transition:none}}button:has(svg){white-space:nowrap}.sb a.on i{background:#fff;color:#8A1D0C}.sbc:checked+.sb a i{box-shadow:0 0 0 2px #14262E}.btn,button{transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .1s ease}.btn:active,button:active{transform:translateY(1px) scale(.98)}input,select,textarea{transition:border-color .15s ease,box-shadow .15s ease}input:hover:not(:disabled):not([type=checkbox]):not([type=radio]),select:hover,textarea:hover{border-color:#6B7280}input[type=checkbox],input[type=radio]{accent-color:#AD2713}a{text-underline-offset:2px}tbody tr td{transition:background-color .12s ease}tbody tr:not(.sel):hover td{background:#F0F5F6}.v{transition:border-color .15s ease,background-color .15s ease}.v:not(.sel):hover{border-color:#A9BEC5;background:#F7FAFB;cursor:pointer}.it{transition:background-color .15s ease,box-shadow .15s ease}.it:hover{background:#F0F5F6;box-shadow:-8px 0 0 #F0F5F6,8px 0 0 #F0F5F6;cursor:pointer}.tabs a{transition:color .15s ease,box-shadow .15s ease}.tabs a:not(.on):hover{color:#14262E;box-shadow:inset 0 -2px #CBD5DA}.chip{transition:border-color .15s ease,background-color .15s ease}.chip:hover{border-color:#AD2713;background:#F7FAFB;cursor:grab}@keyframes nudge{0%{box-shadow:0 0 0 0 rgba(173,39,19,.32)}100%{box-shadow:0 0 0 10px rgba(173,39,19,0)}}.st.open{animation:nudge 1.4s ease-out .4s 2}@keyframes ovl{from{opacity:0}}@keyframes dlg{from{opacity:0;transform:translateY(10px) scale(.98)}}.ovl{animation:ovl .2s ease-out}.ovl>.card{animation:dlg .32s cubic-bezier(.16,1,.3,1)}.apv{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}.dec .a2,.dec .stamp-at{display:none}.apl{cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.dec:has(.apv:checked) .a1{display:none}.dec:has(.apv:checked) .a2{display:inline}.dec:has(.apv:checked) .apl{background:#8A1D0C}.dec:has(.apv:focus-visible) .apl{outline:2px solid #AD2713;outline-offset:2px}.dec:has(.apv:checked) .stamp{border:2px solid #AD2713!important;background:#F0F5F6!important;animation:stamp .45s cubic-bezier(.16,1,.3,1);transform-origin:30% 50%}.dec:has(.apv:checked) .stamp-at{display:block;color:#8A1D0C;font-weight:600;margin-top:2px}.dec:has(.apv:checked) .pre{display:none}.dec:has(.apv:checked) .rej{opacity:.4;pointer-events:none}@keyframes stamp{0%{opacity:0;transform:scale(1.07) rotate(-1.5deg);filter:blur(2px)}55%{opacity:1;transform:scale(.985) rotate(0);filter:none}100%{transform:none}}@keyframes fadein{from{opacity:0}}@media (prefers-reduced-motion:reduce){.st.open{animation:none;box-shadow:0 0 0 3px rgba(173,39,19,.25)}.ovl>.card{animation:fadein .2s ease-out}.dec:has(.apv:checked) .stamp{animation:fadein .25s ease-out}.btn:active,button:active{transform:none}}u{color:#1F4E5F;text-underline-offset:2px;cursor:pointer}.cmp{display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px;align-items:start}.lbl{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:13px}.lbl input,.lbl select,.lbl textarea{width:100%;box-sizing:border-box}.tgl{display:flex;flex-direction:row;align-items:flex-start;gap:8px;font-weight:600;font-size:13px;cursor:pointer}.tgl input{width:18px;height:18px;margin:1px 0 0}.pal{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.chipm{display:inline-flex;align-items:center;gap:5px;border:1px solid #9CA3AF;border-radius:8px;padding:5px 8px;background:#fff;font-weight:600;font-size:12px;white-space:nowrap;color:#1F2937;cursor:grab;user-select:none;transition:border-color .15s ease,background-color .15s ease}.chipm svg{color:#1F4E5F}.chipm:hover{border-color:#1F4E5F;background:#F0F5F6}.chipm:active{cursor:grabbing}.stp{border:1px solid #E5E7EB;border-radius:8px;background:#fff;transition:box-shadow .15s ease,opacity .15s ease,border-color .15s ease}.stp.dragging{opacity:.45}.stp:focus-within{border-color:#A9BEC5}.sth{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #F3F4F6;cursor:grab;user-select:none}.sth:active{cursor:grabbing}.grip{color:#6B7280;display:flex}.num{width:24px;height:24px;border-radius:50%;background:#1F4E5F;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}.mname{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;color:#1F2937}.mname svg{color:#1F4E5F}.mdesc{color:#4B5563;font-size:12px;font-weight:400}.ibtn{border:1px solid #D1D5DB;background:#fff;border-radius:6px;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;color:#374151;padding:0;cursor:pointer}.ibtn:hover{background:#F0F5F6;border-color:#9CA3AF}.ibtn:disabled{opacity:.35;cursor:not-allowed}.ibtn.del{color:#B91C1C}.ibtn.del:hover{background:#FEF2F2;border-color:#FCA5A5}.stb{display:grid;grid-template-columns:180px minmax(0,1fr);gap:12px;padding:8px 10px 10px}.roles{display:flex;flex-direction:column;gap:6px}.roles select{font-size:12px;padding:5px 6px}.det{display:flex;flex-direction:column;gap:6px;min-width:0}.dl{display:flex;gap:6px;align-items:center}.dl select{flex:1;min-width:0;font-size:12px;padding:5px 6px}.dl input{width:56px;font-size:12px;padding:5px 6px;text-align:right}.lnk{background:none;border:0;padding:2px 0;color:#1F4E5F;font-weight:600;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;align-self:flex-start}.lnk:hover{text-decoration:underline;text-underline-offset:2px}.pos{display:flex;flex-wrap:wrap;gap:6px}.posb{border:1px solid #9CA3AF;border-radius:999px;background:#fff;padding:3px 10px;font-size:12px;font-weight:600;color:#374151;cursor:pointer}.posb.on{background:#1F4E5F;border-color:#1F4E5F;color:#fff}.zone{height:6px;border-radius:8px;transition:height .15s ease,background-color .15s ease}.zone.show{height:34px;border:2px dashed #A9BEC5;background:#F7FAFB;display:flex;align-items:center;justify-content:center;color:#4B5563;font-size:12px;font-weight:600}.zone.hot{border-color:#1F4E5F;background:#E6EFF1;color:#1F4E5F}.menu{position:absolute;left:0;top:calc(100% + 6px);background:#fff;border:1px solid #E5E7EB;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:6px;display:flex;flex-direction:column;min-width:220px;z-index:5}.menu button{display:flex;align-items:center;gap:8px;border:0;background:#fff;padding:8px 10px;border-radius:6px;font:inherit;font-size:13px;font-weight:600;color:#1F2937;text-align:left;cursor:pointer}.menu button svg{color:#1F4E5F}.menu button:hover{background:#F0F5F6}.chk{display:flex;gap:8px;align-items:flex-start;font-size:12px;padding:5px 0;border-bottom:1px solid #F3F4F6}.chk:last-child{border-bottom:0}.toast{background:#14262E;color:#fff;border-radius:8px;padding:8px 12px;font-size:13px;display:flex;align-items:center;gap:8px;animation:fadein .2s ease-out}.empty{border:2px dashed #A9BEC5;border-radius:8px;padding:22px;text-align:center;color:#4B5563;font-size:13px}.srow{display:flex;flex-direction:row;gap:8px;align-items:center}.srow input{flex:1;min-width:0}@media (prefers-reduced-motion:reduce){.zone,.stp{transition:none}}td.n,th.n{background:none;color:inherit}main [style*="grid-template-columns"]>*{min-width:0}main input:not([type=checkbox]):not([type=radio]),main select,main textarea{max-width:100%;box-sizing:border-box}</style></helmet>
+<div style="width:1200px;height:1180px;display:flex;background:#F4F7F8;position:relative">
+<input type="checkbox" id="sbc" class="sbc" aria-label="Collapse menu"><nav class="sb" aria-label="Main"><b class="brand"><span class="lt"><img src="bmi-logo.png" alt="BMI" width="30" height="30"></span><span class="lb">BMI Stooring<br>System</span></b><a href="#" title="Dashboard"><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg><span class="lb">Dashboard</span></a><a class="on" href="#" title="Work Orders" aria-current="page"><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="8" y="2" width="8" height="4" rx="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"></path></svg><span class="lb">Work Orders</span></a><a href="#" title="Schedule"><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg><span class="lb">Schedule</span></a><a href="#" title="Approvals"><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M8.5 12l2.5 2.5 4.5-5"></path></svg><span class="lb">Approvals</span></a><a href="#" title="Inventory"><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg><span class="lb">Inventory</span></a><a href="#" title="Vehicles"><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg><span class="lb">Vehicles</span></a><a href="#" title="Documents"><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"></path></svg><span class="lb">Documents</span></a><a href="#" title="Reports"><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M3 3v18h18"></path><path d="M18 17V9M13 17V5M8 17v-3"></path></svg><span class="lb">Reports</span></a><a href="#" title="Settings"><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"></path></svg><span class="lb">Settings</span></a><label for="sbc" class="sbt" title="Collapse or expand the menu"><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><rect x="3" y="3" width="18" height="18" rx="2"></rect><path d="M9 3v18M16 15l-3-3 3-3"></path></svg><span class="lb">Collapse menu</span></label></nav>
+
+
+
+<main style="flex:1;padding:22px;display:flex;flex-direction:column;gap:12px;min-width:0">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+<h1 style="margin:0;font-size:22px">New Work Order <span class="pill n">Draft</span></h1>
+<div style="display:flex;align-items:center;gap:8px">
+<label class="srow" style="font-weight:600;font-size:13px">Start from preset<select aria-label="Start from preset" value="{{preset}}" onChange="{{pickPreset}}" style="min-width:190px"><option>Blank</option><option>PM-1 Service</option><option>Tyre service</option><option>Corrective repair</option><option>Brake check</option><option>Document renewal</option></select></label>
+<button class="btn btn2" onClick="{{toggleSave}}">Save as preset</button>
+</div></div>
+<sc-if value="{{saving}}" hint-placeholder-val="{{ false }}"><div class="card srow" style="padding:10px 14px"><b style="font-size:13px;white-space:nowrap">Preset name</b><input aria-label="Preset name" defaultValue="PM-1 Service, Hino 500"><span class="hint" style="font-size:12px;white-space:nowrap">Saves the steps, their roles and details; not the vehicle.</span><button class="btn" onClick="{{savePreset}}">Save preset</button><button class="btn btn2" onClick="{{toggleSave}}">Cancel</button></div></sc-if>
+<sc-if value="{{toast}}" hint-placeholder-val="{{ false }}"><div class="toast" role="status"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F2D98A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>{{toast}}</div></sc-if>
+<div class="cmp">
+<div style="display:flex;flex-direction:column;gap:12px">
+<div class="card" style="display:flex;flex-direction:column;gap:10px">
+<h2 style="margin:0">Work Order</h2>
+<label class="lbl">Title<input value="{{title}}" onChange="{{setTitle}}"></label>
+<label class="lbl">Vehicle<select><option>B 1234 ABC · Hino 500 · Medium truck</option></select></label>
+<div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill g">Active</span><span class="pill n">48.210 km</span><span class="pill a">KIR in 12 days</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<label class="lbl">Category<select value="{{category}}" onChange="{{setCategory}}"><option>PM</option><option>Corrective</option><option>Tyre</option><option>Document</option><option>Other</option></select></label>
+<label class="lbl">Priority<select><option>Normal</option><option>High</option><option>Urgent</option></select></label></div>
+<label class="tgl"><input type="checkbox" checked="{{workshop}}" onChange="{{toggleWorkshop}}"><span>Vehicle goes to the workshop<br><span class="mdesc">Shows the vehicle as Repair while work runs</span></span></label>
+<label class="lbl">Description<textarea rows="3" value="{{descr}}" onChange="{{setDescr}}"></textarea></label>
+</div>
+<div class="card">
+<h2 style="margin:0 0 4px">Checks</h2>
+<sc-for list="{{checks}}" as="c" hint-placeholder-count="3"><div class="chk"><sc-if value="{{c.ok}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if><sc-if value="{{c.warn}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9v4M12 17h.01"></path></svg></sc-if><sc-if value="{{c.err}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B91C1C" stroke-width="2.4" stroke-linecap="round" style="flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6M12 16.5h.01"></path></svg></sc-if><span>{{c.text}}</span></div></sc-for>
+</div>
+<div class="hint" style="font-size:12px">Only the Planner and the System Admin build steps. Drafts from the Field Coordinator, mechanics and drivers arrive here without steps.</div>
+</div>
+<div class="card" style="display:flex;flex-direction:column;gap:10px;min-width:0">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><h2 style="margin:0">Steps <span class="mdesc">run in this order; drag to reorder</span></h2><span class="hint" style="font-size:12px">{{stepCount}}</span></div>
+<div class="pal" aria-label="Modules"><span class="hint" style="font-size:12px;font-weight:600">Drag a module in:</span><span class="chipm" draggable="true" onDragStart="{{pal_stock.start}}" onDragEnd="{{dragEnd}}" title="Drag into the steps"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg>Stock</span><span class="chipm" draggable="true" onDragStart="{{pal_purchase.start}}" onDragEnd="{{dragEnd}}" title="Drag into the steps"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2 2h3l2.7 12.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"></path></svg>Part Purchase</span><span class="chipm" draggable="true" onDragStart="{{pal_mech.start}}" onDragEnd="{{dragEnd}}" title="Drag into the steps"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"></path></svg>Mechanic Action</span><span class="chipm" draggable="true" onDragStart="{{pal_replace.start}}" onDragEnd="{{dragEnd}}" title="Drag into the steps"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="3.5"></circle><path d="M12 3v5.5M12 15.5V21M3 12h5.5M15.5 12H21"></path></svg>Part Replacement</span><span class="chipm" draggable="true" onDragStart="{{pal_doc.start}}" onDragEnd="{{dragEnd}}" title="Drag into the steps"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"></path></svg>Document</span><span class="chipm" draggable="true" onDragStart="{{pal_check.start}}" onDragEnd="{{dragEnd}}" title="Drag into the steps"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>Part Check</span></div>
+<div onDragOver="{{zoneFirst.over}}" onDrop="{{zoneFirst.drop}}" onDragLeave="{{zoneFirst.leave}}" class="{{zoneFirst.cls}}">{{zoneFirst.label}}</div>
+<sc-if value="{{noSteps}}" hint-placeholder-val="{{ false }}"><div class="empty">No steps yet. Drag a module here or use Add step. Pick a preset above to start from a saved sequence.</div></sc-if>
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="3">
+<div class="{{s.cls}}">
+<div class="sth" draggable="true" onDragStart="{{s.dragStart}}" onDragEnd="{{dragEnd}}" title="Drag to reorder">
+<span class="grip"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" style="flex:none"><g fill="currentColor"><circle cx="9" cy="6" r="1.6"></circle><circle cx="15" cy="6" r="1.6"></circle><circle cx="9" cy="12" r="1.6"></circle><circle cx="15" cy="12" r="1.6"></circle><circle cx="9" cy="18" r="1.6"></circle><circle cx="15" cy="18" r="1.6"></circle></g></svg></span><span class="num">{{s.n}}</span>
+<span class="mname"><sc-if value="{{s.is_stock}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg></sc-if><sc-if value="{{s.is_purchase}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2 2h3l2.7 12.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"></path></svg></sc-if><sc-if value="{{s.is_mech}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"></path></svg></sc-if><sc-if value="{{s.is_replace}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="3.5"></circle><path d="M12 3v5.5M12 15.5V21M3 12h5.5M15.5 12H21"></path></svg></sc-if><sc-if value="{{s.is_doc}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"></path></svg></sc-if><sc-if value="{{s.is_check}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg></sc-if>{{s.name}}</span><span class="mdesc" style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{s.desc}}</span>
+<label class="tgl" style="font-size:12px;font-weight:600;align-items:center;white-space:nowrap"><input type="checkbox" checked="{{s.optional}}" onChange="{{s.toggleOptional}}" style="width:15px;height:15px;margin:0">Optional</label>
+<button class="ibtn" aria-label="Move step up" title="Move up" disabled="{{s.first}}" onClick="{{s.up}}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"></path></svg></button>
+<button class="ibtn" aria-label="Move step down" title="Move down" disabled="{{s.last}}" onClick="{{s.down}}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></button>
+<button class="ibtn del" aria-label="Remove step" title="Remove step" onClick="{{s.remove}}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<div class="stb">
+<div class="roles">
+<label class="lbl" style="font-size:12px">Executed by<select value="{{s.exec}}" onChange="{{s.setExec}}"><sc-for list="{{s.execOpts}}" as="o"><option>{{o}}</option></sc-for></select></label>
+<label class="lbl" style="font-size:12px">Verified by<select value="{{s.verifier}}" onChange="{{s.setVerifier}}"><option>Planner or System Admin</option><option>Planner</option><option>System Admin</option></select></label>
+</div>
+<div class="det">
+<sc-if value="{{s.is_stock}}" hint-placeholder-val="{{ false }}">
+<span class="mdesc" style="font-weight:600">Parts and quantities from the warehouse</span>
+<sc-for list="{{s.lines}}" as="l"><div class="dl"><select aria-label="Part" value="{{l.part}}" onChange="{{l.setPart}}"><option>SKU-1029 Engine oil 15W-40</option><option>SKU-2210 Oil filter</option><option>SKU-3110 Air brake hose</option><option>SKU-3118 Brake chamber T30</option><option>SKU-4410 Wiper blade 22"</option><option>SKU-7010 Fuel water separator</option><option>Tyre 11R22.5 (by size)</option></select><input aria-label="Quantity" inputmode="numeric" value="{{l.qty}}" onChange="{{l.setQty}}"><button class="ibtn del" aria-label="Remove part" onClick="{{l.remove}}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></div></sc-for>
+<button class="lnk" onClick="{{s.addLine}}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 5v14M5 12h14"></path></svg>Add part</button>
+</sc-if>
+<sc-if value="{{s.is_purchase}}" hint-placeholder-val="{{ false }}">
+<span class="mdesc" style="font-weight:600">Parts to buy, from the catalog; the buyer types quantity and price after buying</span>
+<sc-for list="{{s.lines}}" as="l"><div class="dl"><select aria-label="Part to buy" value="{{l.part}}" onChange="{{l.setPart}}"><option>SKU-1029 Engine oil 15W-40</option><option>SKU-2210 Oil filter</option><option>SKU-3110 Air brake hose</option><option>SKU-3118 Brake chamber T30</option><option>SKU-4410 Wiper blade 22"</option><option>SKU-7010 Fuel water separator</option><option>Tyre 11R22.5 (by size)</option></select><button class="ibtn del" aria-label="Remove part" onClick="{{l.remove}}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></div></sc-for>
+<button class="lnk" onClick="{{s.addLine}}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 5v14M5 12h14"></path></svg>Add part to buy</button>
+</sc-if>
+<sc-if value="{{s.is_mech}}" hint-placeholder-val="{{ false }}">
+<label class="lbl" style="font-size:12px">Work to do<textarea rows="2" value="{{s.work}}" onChange="{{s.setWork}}" style="font-size:12px"></textarea></label>
+<label class="lbl" style="font-size:12px;flex-direction:row;align-items:center;gap:8px">Assign to<select style="flex:1;font-size:12px;padding:5px 6px"><option>Not assigned (first mechanic to open it)</option><option>Agus (Mechanic)</option><option>Bengkel Sinar Motor (external)</option></select></label>
+</sc-if>
+<sc-if value="{{s.is_replace}}" hint-placeholder-val="{{ false }}">
+<span class="mdesc" style="font-weight:600">Positions to change on B 1234 ABC (Medium truck 4×2); the mechanic confirms on the chassis map</span>
+<div class="pos"><sc-for list="{{s.positions}}" as="p"><button class="{{p.cls}}" aria-pressed="{{p.on}}" onClick="{{p.toggle}}">{{p.code}}</button></sc-for></div>
+</sc-if>
+<sc-if value="{{s.is_check}}" hint-placeholder-val="{{ false }}">
+<span class="mdesc" style="font-weight:600">Parts to check; the mechanic writes the condition, decides Good, Repair or Replace, and adds at least one photo per part</span>
+<sc-for list="{{s.checks}}" as="c"><div class="dl"><select aria-label="Part to check" value="{{c.part}}" onChange="{{c.setPart}}"><option>Brake pads, front</option><option>Brake pads, rear</option><option>Air brake hose, axle 2</option><option>Brake chamber T30</option><option>Clutch plate</option><option>Battery</option><option>Alternator belt</option><option>Other (describe in What to check)</option></select><input aria-label="What to check" placeholder="What to check" value="{{c.what}}" onChange="{{c.setWhat}}" style="flex:1;width:auto;text-align:left"><button class="ibtn del" aria-label="Remove part" onClick="{{c.remove}}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></div></sc-for>
+<button class="lnk" onClick="{{s.addCheck}}"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 5v14M5 12h14"></path></svg>Add part to check</button>
+<span class="mdesc">The mechanic adds the check service from the catalog (Diagnosis) in the step; it is billed with this WO. Parts marked Repair or Replace become a Draft WO for you to activate or discard.</span>
+</sc-if>
+<sc-if value="{{s.is_doc}}" hint-placeholder-val="{{ false }}">
+<label class="lbl" style="font-size:12px">Document to renew<select value="{{s.doc}}" onChange="{{s.setDoc}}"><option>Choose a document</option><option>KIR · expires 2026-11-03</option><option>STNK annual · expires 2027-03-14</option><option>Insurance · expires 2027-01-20</option></select></label>
+<span class="mdesc">The new number, expiry, scan and cost are entered in the step.</span>
+</sc-if>
+</div>
+</div>
+</div>
+<div onDragOver="{{s.zone.over}}" onDrop="{{s.zone.drop}}" onDragLeave="{{s.zone.leave}}" class="{{s.zone.cls}}">{{s.zone.label}}</div>
+</sc-for>
+<div style="position:relative;align-self:flex-start">
+<button class="btn btn2" onClick="{{toggleAdd}}" aria-expanded="{{addOpen}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M12 5v14M5 12h14"></path></svg>Add step</button>
+<sc-if value="{{addOpen}}" hint-placeholder-val="{{ false }}"><div class="menu" role="menu"><button onClick="{{pal_stock.add}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"></path><path d="M3 8l9 5 9-5M12 13v8"></path></svg>Stock</button><button onClick="{{pal_purchase.add}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2 2h3l2.7 12.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"></path></svg>Part Purchase</button><button onClick="{{pal_mech.add}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"></path></svg>Mechanic Action</button><button onClick="{{pal_replace.add}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="3.5"></circle><path d="M12 3v5.5M12 15.5V21M3 12h5.5M15.5 12H21"></path></svg>Part Replacement</button><button onClick="{{pal_doc.add}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"></path></svg>Document</button><button onClick="{{pal_check.add}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>Part Check</button></div></sc-if>
+</div>
+</div>
+</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto">
+<span class="hint" style="font-size:12px">Submit sends the WO with these steps to a Supervisor or GM. After approval the steps are fixed; changes go through a change request.</span>
+<div style="display:flex;gap:8px;flex:none;white-space:nowrap"><button class="btn btn2">Cancel</button><button class="btn btn2">Save draft</button><button class="btn" disabled="{{blocked}}">Submit for approval</button></div>
+</div>
+</main></div></x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1200,"height":1180}}'>
+var MODS = {
+  stock: {name:'Stock', desc:'parts and quantities from the warehouse', exec:['Warehouse Manager','Field Coordinator','System Admin']},
+  purchase: {name:'Part Purchase', desc:'parts bought outside, from the catalog', exec:['Field Coordinator','Warehouse Manager','System Admin']},
+  mech: {name:'Mechanic Action', desc:'work by an internal or external mechanic', exec:['Mechanic','System Admin']},
+  replace: {name:'Part Replacement', desc:'tyre and part positions on the chassis map', exec:['Mechanic','System Admin']},
+  doc: {name:'Document', desc:'renewal of one vehicle document', exec:['System Admin']},
+  check: {name:'Part Check', desc:'condition, decision and photo per part', exec:['Mechanic','System Admin']}
+};
+var POS = ['FL','FR','RLO','RLI','RRI','RRO'];
+var uid = 100;
+function mk(mod, extra) {
+  var s = {id: uid++, mod: mod, exec: MODS[mod].exec[0], verifier: 'Planner or System Admin', optional: false,
+           lines: [], work: '', pos: [], doc: 'Choose a document', checks: []};
+  for (var k in (extra || {})) s[k] = extra[k];
+  s.lines = (s.lines || []).map(function (l) { return {id: uid++, part: l[0], qty: l[1] || 1}; });
+  s.checks = (s.checks || []).map(function (c) { return {id: uid++, part: c[0], what: c[1] || ''}; });
+  return s;
+}
+var PRESETS = {
+  'Blank': {title:'', descr:'', category:'Other', workshop:true, steps:function(){ return []; }},
+  'PM-1 Service': {title:'PM-1 Service', descr:'Routine PM-1 at 50.000 km: oil and filters, fluid check, tyre pressure check.', category:'PM', workshop:true, steps:function(){ return [
+     mk('stock', {lines:[['SKU-1029 Engine oil 15W-40',8],['SKU-2210 Oil filter',1]]}),
+     mk('purchase', {lines:[['SKU-4410 Wiper blade 22"']]}),
+     mk('mech', {work:'PM-1: change oil and filters, check fluids, check tyre pressure.'}),
+     mk('replace', {optional:true}) ]; }},
+  'Tyre service': {title:'Tyre service', descr:'Replace the two rear left tyres; tread below 3 mm.', category:'Tyre', workshop:true, steps:function(){ return [
+     mk('stock', {lines:[['Tyre 11R22.5 (by size)',2]]}),
+     mk('replace', {pos:['RLO','RLI']}) ]; }},
+  'Corrective repair': {title:'Corrective repair', descr:'Air brake leaking on axle 2.', category:'Corrective', workshop:true, steps:function(){ return [
+     mk('purchase', {lines:[['SKU-3110 Air brake hose']]}),
+     mk('mech', {work:'Replace the air brake hose and test the brake system.'}) ]; }},
+  'Brake check': {title:'Brake check, axle 2', descr:'Driver reports brake noise and a soft pedal; check before deciding the repair.', category:'Corrective', workshop:true, steps:function(){ return [
+     mk('check', {checks:[['Brake pads, front','thickness, uneven wear'],['Brake pads, rear','thickness'],['Air brake hose, axle 2','leak or cracks'],['Brake chamber T30','push rod stroke']]}) ]; }},
+  'Document renewal': {title:'KIR renewal', descr:'KIR expires 2026-11-03.', category:'Document', workshop:false, steps:function(){ return [
+     mk('doc', {doc:'KIR · expires 2026-11-03'}) ]; }}
+};
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    var p = PRESETS['PM-1 Service'];
+    this.state = {preset:'PM-1 Service', title:p.title, descr:p.descr, category:p.category, workshop:p.workshop, steps:p.steps(),
+                  drag:null, hot:-1, addOpen:false, saving:false, toast:''};
+  }
+  say(t) { var me = this; this.setState({toast:t}); clearTimeout(this._t); this._t = setTimeout(function(){ me.setState({toast:''}); }, 3200); }
+  patch(id, fn) { this.setState({steps: this.state.steps.map(function (s) { if (s.id !== id) return s; var c = Object.assign({}, s); fn(c); return c; })}); }
+  insertAt(i, step) { var a = this.state.steps.slice(); a.splice(i, 0, step); this.setState({steps:a}); }
+  move(from, to) {
+    var a = this.state.steps.slice(); var it = a.splice(from, 1)[0];
+    if (to > from) to -= 1; a.splice(to, 0, it); this.setState({steps:a});
+  }
+  dropAt(i) {
+    var d = this.state.drag;
+    if (d && d.kind === 'new') { this.insertAt(i, mk(d.mod)); this.say(MODS[d.mod].name + ' step added as step ' + (i + 1) + '.'); }
+    else if (d && d.kind === 'move' && d.from !== i && d.from + 1 !== i) { this.move(d.from, i); }
+    this.setState({drag:null, hot:-1});
+  }
+  zone(i) {
+    var me = this, st = this.state, show = !!st.drag;
+    if (show && st.drag.kind === 'move' && (st.drag.from === i || st.drag.from + 1 === i)) show = false;
+    return {
+      cls: 'zone' + (show ? ' show' : '') + (show && st.hot === i ? ' hot' : ''),
+      label: show ? 'Drop here as step ' + (i + 1) : '',
+      over: function (e) { if (!me.state.drag) return; e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'; if (me.state.hot !== i) me.setState({hot:i}); },
+      leave: function () { if (me.state.hot === i) me.setState({hot:-1}); },
+      drop: function (e) { e.preventDefault(); me.dropAt(i); }
+    };
+  }
+  renderVals() {
+    var me = this, st = this.state, steps = st.steps, n = steps.length;
+    var vals = {
+      preset: st.preset, title: st.title, category: st.category, workshop: st.workshop,
+      addOpen: st.addOpen, saving: st.saving, toast: st.toast, noSteps: n === 0,
+      stepCount: n === 1 ? '1 step' : n + ' steps',
+      zoneFirst: this.zone(0),
+      dragEnd: function () { setTimeout(function(){ me.setState({drag:null, hot:-1}); }, 0); },
+      setTitle: function (e) { me.setState({title:e.target.value}); },
+      setDescr: function (e) { me.setState({descr:e.target.value}); }, descr: st.descr,
+      setCategory: function (e) { me.setState({category:e.target.value}); },
+      toggleWorkshop: function () { me.setState({workshop:!me.state.workshop}); },
+      toggleAdd: function () { me.setState({addOpen:!me.state.addOpen}); },
+      toggleSave: function () { me.setState({saving:!me.state.saving}); },
+      savePreset: function () { me.setState({saving:false}); me.say('Saved as preset "PM-1 Service, Hino 500" with ' + me.state.steps.length + ' steps. It appears in Start from preset and in PM packages.'); },
+      pickPreset: function (e) {
+        var name = e.target.value, p = PRESETS[name];
+        me.setState({preset:name, title:p.title, descr:p.descr, category:p.category, workshop:p.workshop, steps:p.steps()});
+        me.say(name === 'Blank' ? 'Steps cleared. Add modules in any order.' : 'Steps loaded from preset "' + name + '". Change them freely for this WO.');
+      }
+    };
+    MODS && Object.keys(MODS).forEach(function (k) {
+      vals['pal_' + k] = {
+        start: function (e) { if (e.dataTransfer) { e.dataTransfer.effectAllowed = 'copyMove'; e.dataTransfer.setData('text/plain', 'new:' + k); }
+                              setTimeout(function(){ me.setState({drag:{kind:'new', mod:k}, addOpen:false}); }, 0); },
+        add: function () { me.setState({addOpen:false}); me.insertAt(me.state.steps.length, mk(k)); me.say(MODS[k].name + ' step added at the end.'); }
+      };
+    });
+    vals.steps = steps.map(function (s, i) {
+      var m = MODS[s.mod], dragging = st.drag && st.drag.kind === 'move' && st.drag.from === i;
+      var o = {n: i + 1, name: m.name, desc: '· ' + m.desc, exec: s.exec, execOpts: m.exec, verifier: s.verifier, optional: s.optional,
+        cls: 'stp' + (dragging ? ' dragging' : ''), first: i === 0, last: i === n - 1, work: s.work, doc: s.doc, zone: me.zone(i + 1),
+        dragStart: function (e) { if (e.dataTransfer) { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', 'step:' + s.id); }
+                                  setTimeout(function(){ me.setState({drag:{kind:'move', from:i}}); }, 0); },
+        up: function () { if (i > 0) me.move(i, i - 1); },
+        down: function () { if (i < n - 1) me.move(i, i + 2); },
+        remove: function () { me.setState({steps: me.state.steps.filter(function (x) { return x.id !== s.id; })}); me.say('Step ' + (i + 1) + ' (' + m.name + ') removed.'); },
+        toggleOptional: function () { me.patch(s.id, function (c) { c.optional = !c.optional; }); },
+        setExec: function (e) { var v = e.target.value; me.patch(s.id, function (c) { c.exec = v; }); },
+        setVerifier: function (e) { var v = e.target.value; me.patch(s.id, function (c) { c.verifier = v; }); },
+        setWork: function (e) { var v = e.target.value; me.patch(s.id, function (c) { c.work = v; }); },
+        setDoc: function (e) { var v = e.target.value; me.patch(s.id, function (c) { c.doc = v; }); },
+        addCheck: function () { me.patch(s.id, function (c) { c.checks = c.checks.concat([{id: uid++, part: 'Battery', what: ''}]); }); },
+        checks: s.checks.map(function (l) { return {part: l.part, what: l.what,
+          setPart: function (e) { var v = e.target.value; me.patch(s.id, function (c) { c.checks = c.checks.map(function (x) { return x.id === l.id ? Object.assign({}, x, {part: v}) : x; }); }); },
+          setWhat: function (e) { var v = e.target.value; me.patch(s.id, function (c) { c.checks = c.checks.map(function (x) { return x.id === l.id ? Object.assign({}, x, {what: v}) : x; }); }); },
+          remove: function () { me.patch(s.id, function (c) { c.checks = c.checks.filter(function (x) { return x.id !== l.id; }); }); } }; }),
+        addLine: function () { me.patch(s.id, function (c) { c.lines = c.lines.concat([{id: uid++, part: s.mod === 'stock' ? 'SKU-2210 Oil filter' : 'SKU-3110 Air brake hose', qty: 1}]); }); },
+        lines: s.lines.map(function (l) { return {part: l.part, qty: l.qty,
+          setPart: function (e) { var v = e.target.value; me.patch(s.id, function (c) { c.lines = c.lines.map(function (x) { return x.id === l.id ? Object.assign({}, x, {part: v}) : x; }); }); },
+          setQty: function (e) { var v = e.target.value; me.patch(s.id, function (c) { c.lines = c.lines.map(function (x) { return x.id === l.id ? Object.assign({}, x, {qty: v}) : x; }); }); },
+          remove: function () { me.patch(s.id, function (c) { c.lines = c.lines.filter(function (x) { return x.id !== l.id; }); }); } }; }),
+        positions: POS.map(function (code) { var on = s.pos.indexOf(code) >= 0; return {code: code, on: on, cls: 'posb' + (on ? ' on' : ''),
+          toggle: function () { me.patch(s.id, function (c) { c.pos = on ? c.pos.filter(function (x) { return x !== code; }) : c.pos.concat([code]); }); } }; })
+      };
+      Object.keys(MODS).forEach(function (k) { o['is_' + k] = s.mod === k; });
+      return o;
+    });
+    // checks: only rules the engine needs; everything else is the Planner's choice
+    var checks = [], blocked = false;
+    if (!n) { checks.push({err:true, text:'Add at least one step.'}); blocked = true; }
+    else checks.push({ok:true, text:n + (n === 1 ? ' step' : ' steps') + ', run in order; each opens when the one before is submitted.'});
+    var stockSeen = false;
+    steps.forEach(function (s, i) {
+      if (s.mod === 'stock') { stockSeen = true; if (!s.lines.length) { checks.push({err:true, text:'Step ' + (i + 1) + ' Stock has no parts.'}); blocked = true; }
+        s.lines.forEach(function (l) { if (!(Number(l.qty) > 0)) { checks.push({err:true, text:'Step ' + (i + 1) + ': every quantity must be above 0.'}); blocked = true; } }); }
+      if (s.mod === 'purchase' && !s.lines.length) { checks.push({err:true, text:'Step ' + (i + 1) + ' Part Purchase lists no part to buy.'}); blocked = true; }
+      if (s.mod === 'replace' && !stockSeen) checks.push({warn:true, text:'Step ' + (i + 1) + ' Part Replacement comes before any Stock step: new tyres must be issued to the WO first.'});
+      if (s.mod === 'check' && !s.checks.length) { checks.push({err:true, text:'Step ' + (i + 1) + ' Part Check lists no part to check.'}); blocked = true; }
+      if (s.mod === 'check' && i < n - 1) checks.push({warn:true, text:'Step ' + (i + 1) + ' Part Check is followed by other steps. Repairs from its findings go to a new Draft WO, not to the steps after it.'});
+      if (s.mod === 'doc' && s.doc === 'Choose a document') { checks.push({err:true, text:'Step ' + (i + 1) + ': choose the document to renew.'}); blocked = true; }
+    });
+    var docs = steps.filter(function (s) { return s.mod === 'doc'; }).length;
+    if (docs > 1) { checks.push({err:true, text:'Only one Document step per WO.'}); blocked = true; }
+    if (!st.title.trim()) { checks.push({err:true, text:'Give the WO a title.'}); blocked = true; }
+    if (!blocked) checks.push({ok:true, text:'Ready to submit for approval.'});
+    vals.checks = checks; vals.blocked = blocked;
+    return vals;
+  }
+}
+</script></body></html>

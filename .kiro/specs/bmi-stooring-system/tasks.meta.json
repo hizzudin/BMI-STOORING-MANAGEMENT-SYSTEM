@@ -1,0 +1,17 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "**TASK-001** [NFR-SECURITY, DEC-66]: Initialize git and the monorepo skeleton (pnpm + turbo workspaces: `apps/api`, `apps/web`, `apps/mobile`, `packages/shared`, `packages/data-gateway`, `packages/config`, `db`, `docs`, `infra`), with `.gitignore` (node_modules, .env, build output, R2 keys), `.editorconfig`, and root `README.md`.": [
+      {
+        "executionId": "bb28ddee-8ceb-4c2a-96ae-250cdbad9951",
+        "chatSessionId": "sess_ac21911b-e3b1-43d4-8040-676c7368f044",
+        "timestamp": 1793299280224
+      },
+      {
+        "executionId": "10aca13c-69e0-4232-8412-9f26e5dc6d0b",
+        "chatSessionId": "sess_ac21911b-e3b1-43d4-8040-676c7368f044",
+        "timestamp": 1793299695637
+      }
+    ]
+  }
+}

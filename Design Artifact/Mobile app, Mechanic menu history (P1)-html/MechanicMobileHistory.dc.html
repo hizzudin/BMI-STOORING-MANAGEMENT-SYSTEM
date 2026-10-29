@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Mechanic app: history</title><script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script></head>
+<body><x-dc><helmet><style>
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#1F2937;font-size:15px}
+.card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:14px}
+.pill{border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;white-space:nowrap}.g{background:#DCFCE7;color:#14532D}.a{background:#FEF3C7;color:#78350F}.r{background:#FEE2E2;color:#7F1D1D}.n{background:#E5E7EB;color:#374151}.b{background:#DCEBEF;color:#1F4E5F}
+.btn{border:0;border-radius:8px;padding:13px 14px;font-weight:700;background:#AD2713;color:#fff;font-size:16px;font-family:inherit;width:100%}.btn2{background:#fff;color:#1F2937;border:1px solid #9CA3AF;font-size:15px;padding:11px 12px}
+.l{color:#4B5563;font-size:13px}
+.kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F3F4F6;font-size:14px}.kv span:first-child{color:#4B5563}
+.nav{display:flex;justify-content:space-around;border-top:1px solid #E5E7EB;background:#fff;padding:10px 0 18px;font-size:12px;color:#4B5563}.nav span{display:flex;flex-direction:column;align-items:center;gap:3px}.nav .on{color:#AD2713;font-weight:700}
+::selection{background:#F2D98A;color:#14262E}:focus-visible{outline:2px solid #AD2713;outline-offset:2px}.k,.n-num{font-variant-numeric:tabular-nums}button{cursor:pointer}.btn:hover{background:#8A1D0C}.btn.btn2:hover{background:#E6EFF1}.btn{min-height:48px}.nav svg{width:24px;height:24px}.nav span{min-width:56px;position:relative;transition:color .15s ease}.nav .on::before{content:"";position:absolute;top:-10px;left:50%;width:28px;height:3px;border-radius:0 0 3px 3px;background:#AD2713;transform:translateX(-50%)}.btn,button{transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .1s ease}.btn:active,button:active{transform:translateY(1px) scale(.98)}@media (prefers-reduced-motion:reduce){.btn:active,button:active{transform:none}}</style></helmet>
+<div style="width:390px;height:844px;display:flex;flex-direction:column;background:#F4F7F8">
+<header style="background:#14262E;color:#fff;padding:14px 16px"><div style="font-size:13px;color:#CBD5DA">Mechanic · Agus</div><div style="font-size:19px;font-weight:700;margin-top:2px">My history</div></header>
+<main style="flex:1;padding:14px 16px;display:flex;flex-direction:column;gap:12px;overflow:auto">
+<span class="pill n" style="align-self:flex-start">BMI Stooring mobile · Mechanic menu · release 2 (P1)</span>
+<div style="display:flex;gap:6px;flex-wrap:wrap"><span class="pill g">All</span><span class="pill n">Steps done</span><span class="pill n">Returned</span><span class="pill n">Field findings</span></div>
+<div class="card" style="padding:4px 14px">
+<div class="kv"><span>2026-10-28 15:40<br><b style="color:#1F2937">WO-0139 · B 9087 XY · Mechanic Action</b></span><span class="pill g">Verified</span></div>
+<div class="kv"><span>2026-10-28 11:12<br><b style="color:#1F2937">WO-0136 · D 4410 KL · Part Replacement</b></span><span class="pill g">Verified</span></div>
+<div class="kv"><span>2026-10-27 16:55<br><b style="color:#1F2937">WO-0142 · B 1234 ABC · Mechanic Action</b></span><span class="pill r">Returned · price mismatch</span></div>
+<div class="kv"><span>2026-10-27 09:30<br><b style="color:#1F2937">F 7712 MN · Field finding</b></span><span class="pill a">Draft WO-0147</span></div>
+<div class="kv"><span>2026-10-25 14:02<br><b style="color:#1F2937">WO-0131 · D 4410 KL · Part Check</b></span><span class="pill g">Verified</span></div>
+<div class="kv" style="border-bottom:0"><span>2026-10-24 10:18<br><b style="color:#1F2937">WO-0128 · B 1234 ABC · Mechanic Action</b></span><span class="pill g">Verified</span></div>
+</div>
+<div class="l">Tap a row to open the step read only, with its stamps, times and photos.</div>
+</main>
+<nav class="nav" aria-label="Main"><span><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M3 17l2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"></path></svg>My steps</span><span><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9v4M12 17h.01"></path></svg>Report</span><span class="on" aria-current="page"><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>History</span><span><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>Profile</span></nav>
+</div></x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic { renderVals(){ return {}; } }
+</script></body></html>

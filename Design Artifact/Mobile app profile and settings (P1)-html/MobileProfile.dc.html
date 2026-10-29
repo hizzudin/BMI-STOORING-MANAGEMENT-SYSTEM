@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Mobile app: profile and settings</title><script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script></head>
+<body><x-dc><helmet><style>
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#1F2937;font-size:15px}
+.card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:14px}
+.pill{border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;white-space:nowrap}.g{background:#DCFCE7;color:#14532D}.a{background:#FEF3C7;color:#78350F}.r{background:#FEE2E2;color:#7F1D1D}.n{background:#E5E7EB;color:#374151}.b{background:#DCEBEF;color:#1F4E5F}
+.btn{border:0;border-radius:8px;padding:13px 14px;font-weight:700;background:#AD2713;color:#fff;font-size:16px;font-family:inherit;width:100%}.btn2{background:#fff;color:#1F2937;border:1px solid #9CA3AF;font-size:15px;padding:11px 12px}.btn3{background:#fff;color:#B91C1C;border:1px solid #B91C1C;font-size:15px;padding:11px 12px}
+.l{color:#4B5563;font-size:13px}
+input,select,textarea{border:1px solid #9CA3AF;border-radius:8px;padding:10px;font-size:15px;background:#fff;font-family:inherit;width:100%;box-sizing:border-box}
+label{display:flex;flex-direction:column;gap:5px;font-weight:600;font-size:14px}
+.kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F3F4F6;font-size:14px}.kv span:first-child{color:#4B5563}
+.row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #F3F4F6}.row:last-child{border-bottom:0}
+.sw{width:42px;height:24px;border-radius:999px;background:#AD2713;position:relative;flex:none}.sw.off{background:#CBD5DA}.sw b{position:absolute;top:2px;left:20px;width:20px;height:20px;border-radius:999px;background:#fff;display:block}.sw.off b{left:2px}
+.seg{display:flex;border:1px solid #9CA3AF;border-radius:8px;overflow:hidden;width:auto}.seg span{padding:8px 16px;font-weight:600;font-size:14px}.seg .on{background:#1F4E5F;color:#fff}
+.nav{display:flex;justify-content:space-around;border-top:1px solid #E5E7EB;background:#fff;padding:10px 0 18px;font-size:12px;color:#4B5563}.nav span{display:flex;flex-direction:column;align-items:center;gap:3px}.nav .on{color:#AD2713;font-weight:700}
+::selection{background:#F2D98A;color:#14262E}:focus-visible{outline:2px solid #AD2713;outline-offset:2px}input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #AD2713;outline-offset:0;border-color:#AD2713}td.n,th.n,.k,.n-num{font-variant-numeric:tabular-nums}button{cursor:pointer}.btn:hover{background:#8A1D0C}.btn.btn2:hover{background:#E6EFF1}.btn.btn3:hover{background:#FEF2F2}button:disabled,.btn:disabled{opacity:.5;cursor:not-allowed}.btn{min-height:48px}.btn2,.btn3{min-height:48px}.nav svg{width:24px;height:24px}.nav span{min-width:56px}.nav .on::before{content:"";position:absolute;top:-10px;left:50%;width:28px;height:3px;border-radius:0 0 3px 3px;background:#AD2713;transform:translateX(-50%)}.nav span{position:relative;transition:color .15s ease}.btn,button{transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .1s ease}.btn:active,button:active{transform:translateY(1px) scale(.98)}input[type=checkbox],input[type=radio]{accent-color:#AD2713}.av{width:52px;height:52px;border-radius:999px;background:#1F4E5F;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;flex:none}@media (prefers-reduced-motion:reduce){.btn:active,button:active{transform:none}}</style></helmet>
+<div style="width:390px;height:844px;display:flex;flex-direction:column;background:#F4F7F8">
+<header style="background:#14262E;color:#fff;padding:14px 16px"><div style="font-size:13px;color:#CBD5DA">Mechanic · Agus</div><div style="font-size:19px;font-weight:700;margin-top:2px">Profile</div><div style="margin-top:6px"><span style="background:#E5E7EB;color:#374151;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600">BMI Stooring mobile · release 2 (P1)</span></div></header>
+<main style="flex:1;padding:14px 16px;display:flex;flex-direction:column;gap:12px;overflow:auto">
+<div class="card" style="display:flex;align-items:center;gap:12px"><span class="av">AG</span><div><b style="font-size:16px">Agus Santoso</b><div class="l">Mechanic · agus@bmi.co.id</div></div></div>
+
+<div class="card">
+<div class="l" style="font-weight:700;color:#1F2937;margin-bottom:4px">Notifications (DQ-01)</div>
+<div class="row"><span>Push notifications</span><span class="sw" role="switch" aria-checked="true" aria-label="Push notifications on"><b></b></span></div>
+<div class="row"><span>My step opens or is returned</span><span class="sw" role="switch" aria-checked="true" aria-label="Step alerts on"><b></b></span></div>
+<div class="row"><span>Field finding decided</span><span class="sw off" role="switch" aria-checked="false" aria-label="Field finding alerts off"><b></b></span></div>
+</div>
+
+<div class="card">
+<div class="l" style="font-weight:700;color:#1F2937;margin-bottom:8px">Language</div>
+<div class="seg" role="group" aria-label="Language"><span class="on">Indonesia</span><span>English</span></div>
+<div class="l" style="margin-top:8px">Indonesian is the default. The choice is saved to your account.</div>
+</div>
+
+<div class="card" style="padding:4px 14px">
+<div class="kv"><span>App version</span><span>1.0.0 (R1 step 7)</span></div>
+<div class="kv"><span>Signed in since</span><span class="n-num">2026-10-29 06:02</span></div>
+<div class="kv" style="border-bottom:0"><span>Offline queue</span><span>0 items waiting</span></div>
+</div>
+
+<button class="btn btn2">Change password</button>
+<button class="btn btn3">Sign out</button>
+<div class="l" style="text-align:center">Your role decides the menu. Signing out returns to the sign-in screen.</div>
+</main>
+<nav class="nav" aria-label="Main"><span><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M3 17l2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"></path></svg>My steps</span><span><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><path d="M12 9v4M12 17h.01"></path></svg>Report</span><span><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>History</span><span class="on" aria-current="page"><svg aria-hidden="true" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>Profile</span></nav>
+</div></x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic { renderVals(){ return {}; } }
+</script></body></html>
