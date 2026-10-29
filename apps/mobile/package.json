@@ -1,0 +1,11 @@
+{
+  "name": "@bmi/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Expo React Native app (placeholder — framework setup in later tasks).",
+  "scripts": {
+    "build": "echo \"@bmi/mobile: no-op build\"",
+    "lint": "echo \"@bmi/mobile: no-op lint\"",
+    "test": "echo \"@bmi/mobile: no-op test\""
+  }
+}

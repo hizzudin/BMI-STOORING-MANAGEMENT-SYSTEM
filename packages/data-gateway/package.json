@@ -1,0 +1,11 @@
+{
+  "name": "@bmi/data-gateway",
+  "version": "0.0.0",
+  "private": true,
+  "description": "DataGateway interface + dummy/postgres implementations (placeholder — TASK-102).",
+  "scripts": {
+    "build": "echo \"@bmi/data-gateway: no-op build\"",
+    "lint": "echo \"@bmi/data-gateway: no-op lint\"",
+    "test": "echo \"@bmi/data-gateway: no-op test\""
+  }
+}

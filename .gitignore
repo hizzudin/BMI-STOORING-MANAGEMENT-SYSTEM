@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Build output
+dist/
+build/
+coverage/
+.next/
+.turbo/
+.expo/
+out/
+*.tsbuildinfo
+
+# Cloud / R2 / object-store secrets
+*.r2.json
+r2-keys*
+*.pem
+.secrets/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+*.swp

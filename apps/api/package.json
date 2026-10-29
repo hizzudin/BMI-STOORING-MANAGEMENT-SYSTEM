@@ -1,0 +1,11 @@
+{
+  "name": "@bmi/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "NestJS API (placeholder — framework setup in TASK-103+).",
+  "scripts": {
+    "build": "echo \"@bmi/api: no-op build\"",
+    "lint": "echo \"@bmi/api: no-op lint\"",
+    "test": "echo \"@bmi/api: no-op test\""
+  }
+}

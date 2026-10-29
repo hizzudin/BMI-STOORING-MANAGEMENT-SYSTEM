@@ -1,0 +1,11 @@
+{
+  "name": "@bmi/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Next.js web app (placeholder — framework setup in later tasks).",
+  "scripts": {
+    "build": "echo \"@bmi/web: no-op build\"",
+    "lint": "echo \"@bmi/web: no-op lint\"",
+    "test": "echo \"@bmi/web: no-op test\""
+  }
+}
