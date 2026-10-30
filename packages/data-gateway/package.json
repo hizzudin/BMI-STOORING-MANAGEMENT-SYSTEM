@@ -6,6 +6,7 @@
   "scripts": {
     "build": "echo \"@bmi/data-gateway: no-op build\"",
     "lint": "echo \"@bmi/data-gateway: no-op lint\"",
+    "typecheck": "echo \"@bmi/data-gateway: no-op typecheck\"",
     "test": "echo \"@bmi/data-gateway: no-op test\""
   }
 }

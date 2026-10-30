@@ -6,6 +6,7 @@
   "scripts": {
     "build": "echo \"@bmi/config: no-op build\"",
     "lint": "echo \"@bmi/config: no-op lint\"",
+    "typecheck": "echo \"@bmi/config: no-op typecheck\"",
     "test": "echo \"@bmi/config: no-op test\""
   }
 }

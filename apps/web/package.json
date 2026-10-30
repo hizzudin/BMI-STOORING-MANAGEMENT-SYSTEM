@@ -6,6 +6,7 @@
   "scripts": {
     "build": "echo \"@bmi/web: no-op build\"",
     "lint": "echo \"@bmi/web: no-op lint\"",
+    "typecheck": "echo \"@bmi/web: no-op typecheck\"",
     "test": "echo \"@bmi/web: no-op test\""
   }
 }

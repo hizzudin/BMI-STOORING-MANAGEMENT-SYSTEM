@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+coverage/
+.next/
+.turbo/
+.expo/
+out/
+pnpm-lock.yaml
+Design Artifact/
+*.tsbuildinfo
