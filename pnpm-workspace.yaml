@@ -1,3 +1,7 @@
 packages:
   - "apps/*"
   - "packages/*"
+# esbuild (pulled in by vitest) ships a native binary via a postinstall build script.
+# Allow it so installs run its build without the ignored-builds warning.
+allowBuilds:
+  esbuild: true

@@ -2,11 +2,27 @@
   "name": "@bmi/config",
   "version": "0.0.0",
   "private": true,
-  "description": "Numbering, money, time, format helpers (placeholder — TASK-003).",
+  "description": "Cross-cutting helpers: Indonesian number/date/time format (NFR-09), UTC↔WIB (NFR-14), never-reused running numbers (NFR-15), money rounding half-up (NFR-16).",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "src"],
   "scripts": {
-    "build": "echo \"@bmi/config: no-op build\"",
-    "lint": "echo \"@bmi/config: no-op lint\"",
-    "typecheck": "echo \"@bmi/config: no-op typecheck\"",
-    "test": "echo \"@bmi/config: no-op test\""
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "echo \"@bmi/config: linted at repo root via eslint apps packages\"",
+    "lint:eslint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
   }
 }
