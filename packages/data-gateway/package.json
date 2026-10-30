@@ -2,11 +2,31 @@
   "name": "@bmi/data-gateway",
   "version": "0.0.0",
   "private": true,
-  "description": "DataGateway interface + dummy/postgres implementations (placeholder — TASK-102).",
+  "description": "DataGateway interface (repository per aggregate, transactional unitOfWork, optimistic version) + in-memory DummyDataGateway seeded with the PRD example data (TASK-102).",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "src"],
   "scripts": {
-    "build": "echo \"@bmi/data-gateway: no-op build\"",
-    "lint": "echo \"@bmi/data-gateway: no-op lint\"",
-    "typecheck": "echo \"@bmi/data-gateway: no-op typecheck\"",
-    "test": "echo \"@bmi/data-gateway: no-op test\""
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "echo \"@bmi/data-gateway: linted at repo root via eslint apps packages\"",
+    "lint:eslint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@bmi/config": "workspace:*",
+    "@bmi/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
   }
 }
