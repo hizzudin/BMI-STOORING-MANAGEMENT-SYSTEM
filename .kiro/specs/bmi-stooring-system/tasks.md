@@ -1,4 +1,4 @@
-# tasks.md
+# Implementation Plan: BMI Stooring System
 > BMI Stooring System — Version 1.0 — 2026-10-30
 
 ## Legend
@@ -14,12 +14,130 @@
 - **Git discipline (every task)**: work on a short-lived branch `type/phaseN-taskNNN-slug`, commit with a Conventional-Commit message referencing the TASK and REQ IDs, then open/merge a PR to `develop` (Phase 1–2) or `main` (Phase 3). The explicit `git` steps are written into each task's _Git_ line. Never commit secrets; `db/seed` dummy data only.
 - **Task-closing protocol (spec-driven-development skill)**: before marking `[x]`, run _Verify_; if the implementation diverged from `design.md`, update `design.md` first, then close. Record the session in `CONTEXT.md`.
 
+## Task Dependency Graph
+
+This graph reflects the phase/task ordering implied by the plan above: each phase depends on the one before it, and the intra-phase edges capture the real build order (types → gateway → API scaffold → engines → feature groups → clients → E2E). Grouped by phase with subgraphs.
+
+```mermaid
+graph TD
+  subgraph P0["Phase 0 — Foundation"]
+    T001["TASK-001"] --> T002["TASK-002"] --> T003["TASK-003"]
+  end
+
+  subgraph P1["Phase 1 — Dev (dummy DB)"]
+    T101["TASK-101"]
+    T102["TASK-102"]
+    T103["TASK-103"]
+    T101 --> T103
+    T102 --> T103
+    T103 --> T104["TASK-104"]
+    T103 --> T105["TASK-105"]
+    T103 --> T106["TASK-106"]
+    T103 --> T107["TASK-107"]
+    T107 --> T108["TASK-108"]
+    T108 --> T109["TASK-109"]
+    T108 --> T110["TASK-110"]
+    T108 --> T110a["TASK-110a"]
+    T107 --> T110a
+    T108 --> T111["TASK-111"]
+    T108 --> T112["TASK-112"]
+    T108 --> T113["TASK-113"]
+    T108 --> T114["TASK-114"]
+    T108 --> T115["TASK-115"]
+    T103 --> T116["TASK-116"]
+    T104 --> T117["TASK-117"]
+    T106 --> T117
+    T108 --> T117
+    T109 --> T117
+    T111 --> T117
+    T112 --> T117
+    T113 --> T117
+    T114 --> T117
+    T104 --> T118["TASK-118"]
+    T108 --> T118
+    T110a --> T118
+    T114 --> T118
+    T116 --> T117
+    T116 --> T118
+    T117 --> T119["TASK-119"]
+    T118 --> T119
+  end
+
+  subgraph P2["Phase 2 — Setup (real Postgres)"]
+    T201["TASK-201"] --> T202["TASK-202"]
+    T202 --> T203["TASK-203"]
+    T202 --> T204["TASK-204"]
+    T202 --> T205["TASK-205"]
+    T202 --> T206["TASK-206"]
+    T202 --> T207["TASK-207"]
+    T202 --> T208["TASK-208"]
+    T203 --> T209["TASK-209"]
+    T204 --> T209
+    T205 --> T209
+    T206 --> T209
+    T207 --> T209
+    T208 --> T209
+    T209 --> T210["TASK-210"]
+    T210 --> T211["TASK-211"]
+    T211 --> T212["TASK-212"]
+  end
+
+  subgraph P3["Phase 3 — Go live (production)"]
+    T301["TASK-301 (blocked: Q-03)"] --> T302["TASK-302"]
+    T302 --> T303["TASK-303"]
+    T303 --> T304["TASK-304"]
+    T304 --> T305["TASK-305"]
+    T305 --> T306["TASK-306"]
+    T306 --> T307["TASK-307"]
+    T307 --> T308["TASK-308"]
+  end
+
+  T003 --> T101
+  T003 --> T102
+  T119 --> T201
+  T212 --> T301
+```
+
+Execution waves (tasks in the same wave are independent and may run in parallel; a wave starts only after all earlier waves complete):
+
+```json
+{
+  "waves": [
+    { "id": 0, "tasks": ["TASK-001"] },
+    { "id": 1, "tasks": ["TASK-002"] },
+    { "id": 2, "tasks": ["TASK-003"] },
+    { "id": 3, "tasks": ["TASK-101", "TASK-102"] },
+    { "id": 4, "tasks": ["TASK-103"] },
+    { "id": 5, "tasks": ["TASK-104", "TASK-105", "TASK-106", "TASK-107", "TASK-116"] },
+    { "id": 6, "tasks": ["TASK-108"] },
+    { "id": 7, "tasks": ["TASK-109", "TASK-110", "TASK-110a", "TASK-111", "TASK-112", "TASK-113", "TASK-114", "TASK-115"] },
+    { "id": 8, "tasks": ["TASK-117", "TASK-118"] },
+    { "id": 9, "tasks": ["TASK-119"] },
+    { "id": 10, "tasks": ["TASK-201"] },
+    { "id": 11, "tasks": ["TASK-202"] },
+    { "id": 12, "tasks": ["TASK-203", "TASK-204", "TASK-205", "TASK-206", "TASK-207", "TASK-208"] },
+    { "id": 13, "tasks": ["TASK-209"] },
+    { "id": 14, "tasks": ["TASK-210"] },
+    { "id": 15, "tasks": ["TASK-211"] },
+    { "id": 16, "tasks": ["TASK-212"] },
+    { "id": 17, "tasks": ["TASK-301"] },
+    { "id": 18, "tasks": ["TASK-302"] },
+    { "id": 19, "tasks": ["TASK-303"] },
+    { "id": 20, "tasks": ["TASK-304"] },
+    { "id": 21, "tasks": ["TASK-305"] },
+    { "id": 22, "tasks": ["TASK-306"] },
+    { "id": 23, "tasks": ["TASK-307"] },
+    { "id": 24, "tasks": ["TASK-308"] }
+  ]
+}
+```
+
 ---
 
 ## Phase 0: Repository & spec foundation (precedes all)
 *Goal*: a version-controlled monorepo skeleton and the AI/spec guardrails, so every later task is documented in git.
 
-- [-] **TASK-001** [NFR-SECURITY, DEC-66]: Initialize git and the monorepo skeleton (pnpm + turbo workspaces: `apps/api`, `apps/web`, `apps/mobile`, `packages/shared`, `packages/data-gateway`, `packages/config`, `db`, `docs`, `infra`), with `.gitignore` (node_modules, .env, build output, R2 keys), `.editorconfig`, and root `README.md`.
+- [x] **TASK-001** [NFR-SECURITY, DEC-66]: Initialize git and the monorepo skeleton (pnpm + turbo workspaces: `apps/api`, `apps/web`, `apps/mobile`, `packages/shared`, `packages/data-gateway`, `packages/config`, `db`, `docs`, `infra`), with `.gitignore` (node_modules, .env, build output, R2 keys), `.editorconfig`, and root `README.md`.
   - _Skill_: `spec-driven-development`, `typescript-pro`.
   - _Output_: repo tree per design.md "File Structure"; `pnpm install` resolves.
   - _Verify_: `git status` clean after commit; `pnpm -w run build` runs (even if no-op); `.env` is git-ignored.
@@ -75,21 +193,26 @@
   - _Output_: registry + preset + composer-check services.
   - _Verify_: AC-REG-001..005; adding a 7th dummy module appears in the designer with no engine edit.
   - _Git_: `feat(registry): modules, presets, composer checks [TASK-107]`.
-- [ ] **TASK-108** [FG-1, FG-2, REQ-WO, REQ-ENG, SM-WO, SM-STEP, DEC-87]: WO lifecycle + assignment engine — create/submit/approve/reject/cancel/amend; step open-on-submit, claim/assign/reassign/release, Start/Pause/Resume time events, verify/return, completion gate. Four-eyes (BR-03), scope lock (BR-02).
+- [ ] **TASK-108** [FG-1, FG-2, REQ-WO, REQ-ENG, REQ-MBL-001, SM-WO, SM-STEP, DEC-87]: WO lifecycle + assignment engine — create/submit/approve/reject/cancel/amend; step open-on-submit, claim/assign/reassign/release, Start/Pause/Resume time events, verify/return, completion gate. Four-eyes (BR-03), scope lock (BR-02). Draft-only discipline: Field Coordinator / Mechanic / Driver create Draft WOs only (never activate); Planner activates, Supervisor approves. A `Driver_Breakdown` draft WO is auto-created pre-seeded with exactly one Mobilisasi step (REQ-MBL-001) at the driver's captured location.
   - _Skill_: `nestjs-expert`, `fullstack-guardian`, `typescript-pro`.
-  - _Output_: WO + engine endpoints against dummy.
-  - _Verify_: AC-WO-001..006, AC-ENG-001..009; every SM-WO/SM-STEP transition.
+  - _Output_: WO + engine endpoints against dummy, incl. breakdown→auto-draft-with-one-Mobilisasi-step.
+  - _Verify_: AC-WO-001..006, AC-ENG-001..009; every SM-WO/SM-STEP transition; a `Driver_Breakdown` draft carries exactly one Mobilisasi step at the captured location.
   - _Git_: `feat(wo): lifecycle + assignment engine + timing [TASK-108]`.
 - [ ] **TASK-109** [FG-4, REQ-STK, REQ-PUR, BR-01, BR-06, DEC-60]: Stock step (atomic goods issue + stock card + moving-average cost; shortfall; verified reversal) and Part Purchase step (typed qty/price, totals, receipt photo, no stock change).
   - _Skill_: `nestjs-expert`, `fullstack-guardian`, `typescript-pro`.
   - _Output_: STK/PUR submit handlers against dummy (transaction simulated in unit-of-work).
   - _Verify_: AC-STK-001..006, AC-PUR-001..006.
   - _Git_: `feat(stock): stock step + part purchase [TASK-109]`.
-- [ ] **TASK-110** [FG-5, REQ-MEC, REQ-CHK, DEC-52, DEC-88, DEC-89]: Mechanic Action (internal/external, labor, photos), Part Check (Good/Repair/Replace → follow-up Draft WO on verify), one-time position capture at submit, stooring fee once per WO/region/day.
+- [ ] **TASK-110** [FG-5, REQ-MEC, REQ-CHK, DEC-88, DEC-89, DEC-90]: Mechanic Action (internal/external, labor, photos), Part Check (Good/Repair/Replace → follow-up Draft WO on verify). Mechanic Action no longer captures device position and no longer charges stooring (REQ-MEC-007..009 retired, DEC-90); stooring moves to the Mobilisasi module (TASK-110a).
   - _Skill_: `nestjs-expert`, `fullstack-guardian`, `typescript-pro`.
-  - _Output_: MEC/CHK handlers + stooring calc.
-  - _Verify_: AC-MEC-001..005, AC-CHK-001..004.
-  - _Git_: `feat(mechanic): mechanic action, part check, stooring [TASK-110]`.
+  - _Output_: MEC/CHK handlers against dummy (no location capture, no stooring calc).
+  - _Verify_: AC-MEC-001..005 (AC-MEC-004/005 now assert NO location captured and Rp 0 stooring on Mechanic Action), AC-CHK-001..004.
+  - _Git_: `feat(mechanic): mechanic action + part check [TASK-110]`.
+- [ ] **TASK-110a** [FG-5a, REQ-MBL, SM-STEP, PR-6, RSK-09, DEC-90]: Mobilisasi module — implement the mobilisation assignment module as data-driven master data (registry row, no engine change): executor Mechanic; Start opens a route/map to the driver's captured destination; auto-submit on arrival with a manual "Finish stooring" fallback; record the mechanic's location trail only while In_Progress (`mobilisation_location_trail`); compute the stooring fee once per WO/region/day from the stooring-rates master; Planner/System-Admin-only access to the trail with every access logged (RSK-09 / UU-PDP).
+  - _Skill_: `nestjs-expert`, `fullstack-guardian`, `typescript-pro`.
+  - _Output_: Mobilisasi module handlers (start/finish/route/trail) + stooring calc against the dummy gateway.
+  - _Verify_: AC-MBL-001..004; trail recorded only while In_Progress and stops at submit; stooring charged once per WO/region/day.
+  - _Git_: `feat(mobilisasi): mobilisation module + stooring + location trail [TASK-110a]`.
 - [ ] **TASK-111** [FG-6, REQ-PLC, BR-11, SM-TYRE, DEC-68, DEC-73]: Part Replacement + data-generated chassis map (replace/rotate/demount within scope lock), placement history, trailer/spare layouts, placement snapshot.
   - _Skill_: `nestjs-expert`, `fullstack-guardian`, `typescript-pro`.
   - _Output_: PLC endpoints + map model.
@@ -105,10 +228,10 @@
   - _Output_: CR/APR endpoints.
   - _Verify_: AC-CR-001..005, AC-APR-001..005.
   - _Git_: `feat(approvals): change requests + approvals inbox [TASK-113]`.
-- [ ] **TASK-114** [FG-12, REQ-PM, REQ-SCH, REQ-NTF, REQ-DSH, SM-SCH, DEC-86]: PM/alert engine (alert rules → draft WO), maintenance schedule (plan-only), in-app notifications, role dashboards (data), simulated daily job.
+- [ ] **TASK-114** [FG-12, REQ-PM, REQ-SCH, REQ-NTF, REQ-DSH, REQ-MBL-002, SM-SCH, DEC-86]: PM/alert engine (alert rules → draft WO), maintenance schedule (plan-only), in-app notifications, role dashboards (data), simulated daily job. Breakdown drafting: a `Driver_Breakdown` report auto-creates a Draft WO pre-seeded with exactly one Mobilisasi step at the driver's captured breakdown location (REQ-MBL-002 feeds the destination).
   - _Skill_: `nestjs-expert`, `fullstack-guardian`, `typescript-pro`.
-  - _Output_: PM/SCH/NTF/DSH endpoints + a runnable daily-job function.
-  - _Verify_: AC-PM-001..003, AC-SCH-001..004; daily job idempotent on re-run.
+  - _Output_: PM/SCH/NTF/DSH endpoints + a runnable daily-job function + breakdown→auto-draft-with-one-Mobilisasi-step.
+  - _Verify_: AC-PM-001..003, AC-SCH-001..004; daily job idempotent on re-run; a breakdown report yields a single-Mobilisasi-step Draft WO at the captured location.
   - _Git_: `feat(pm): alerts, schedule, notifications, dashboards [TASK-114]`.
 - [ ] **TASK-115** [FG-11, REQ-WOD, REQ-BIL, SM-INV, BR-15]: WO document renderer (approval block, execution-time table, B/W placement snapshot) and invoices (daily per vehicle, markup/PPN, numbering, Draft→Issued→Paid→Void).
   - _Skill_: `nestjs-expert`, `fullstack-guardian`, `typescript-pro`, `code-documenter`.
@@ -125,10 +248,10 @@
   - _Output_: clickable web flows against dummy-backed API.
   - _Verify_: core flows navigable; status carries text; a11y scan clean on built screens.
   - _Git_: `feat(web): app shell + core WO/inventory/approval flows [TASK-117]`.
-- [ ] **TASK-118** [FG-15, REQ-MOB, §7.11, NFR-A11Y]: Mobile app shell (Expo RN) + R1 field flows (MobileLogin role menu, Driver inspection/odometer/breakdown/history, Field Coordinator requests/purchase, System Admin field menu, shared MobileProfile with notification settings DQ-01) against the API.
+- [ ] **TASK-118** [FG-15, REQ-MOB, REQ-MBL-002, §7.11, NFR-A11Y]: Mobile app shell (Expo RN) + R1 field flows (MobileLogin role menu, Driver inspection/odometer/breakdown/history, Field Coordinator requests/purchase, System Admin field menu, shared MobileProfile with notification settings DQ-01) against the API. Driver breakdown flow: the app captures the driver's location once on breakdown report and triggers the auto-drafted WO (pre-seeded with one Mobilisasi step at that location). The mechanic's continuous GPS trail belongs only to an In_Progress Mobilisasi step (R2 mechanic mobile), not the driver app.
   - _Skill_: `react-native-expert`, `impeccable`, `typescript-pro`.
   - _Output_: Android app running in Expo against dummy-backed API.
-  - _Verify_: AC-MOB-001..004 happy paths; 48px targets; menu follows role.
+  - _Verify_: AC-MOB-001..004 happy paths; 48px targets; menu follows role; breakdown report captures location once and triggers the auto-drafted Mobilisasi WO.
   - _Git_: `feat(mobile): Expo shell + R1 field flows [TASK-118]`.
 - [ ] **TASK-119** [all P0 FGs]: Dev-phase E2E smoke suite — one scripted end-to-end per functional group against the dummy gateway (create→approve→execute→verify→complete→invoice).
   - _Skill_: `test-master`.
@@ -181,7 +304,7 @@
   - _Output_: integration suite + CI gate on `develop`.
   - _Verify_: 100% of P0 `AC-*` covered and green; task-link rate 100%.
   - _Git_: `test(integration): AC + state-machine coverage [TASK-208]`.
-- [ ] **TASK-209** [NFR-SECURITY, NFR-AUDIT, RSK-09]: Security review gate — run the security-reviewer audit across API+web+mobile (authz on every mutating endpoint, input validation, parameterized queries, secret handling, signed links, position-capture privacy), fix findings.
+- [ ] **TASK-209** [NFR-SECURITY, NFR-AUDIT, RSK-09]: Security review gate — run the security-reviewer audit across API+web+mobile (authz on every mutating endpoint, input validation, parameterized queries, secret handling, signed links, Mobilisasi In_Progress location-trail privacy per RSK-09 / UU-PDP: scoped to the active step, stops at submit, Planner/System-Admin-only, every access logged), fix findings.
   - _Skill_: `security-reviewer`, `fullstack-guardian`.
   - _Output_: security audit report in `docs/`; findings resolved.
   - _Verify_: zero High/Critical findings; every mutating endpoint has a role-guard test.

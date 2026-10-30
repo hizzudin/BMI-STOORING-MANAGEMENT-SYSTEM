@@ -1,11 +1,11 @@
-# requirements.md
+# Requirements Document
 > BMI Stooring System — Version 1.0 — 2026-10-30
 
 > **Source of truth.** This file is the spec-level index of *what the system must do*. The exhaustive, ID-level statements live in the root **`PRD.md`** (SDD Spec v2) and its state machines (§3), business rules (§5), data model (§9) and NFRs (§8). Every requirement below carries the authoritative PRD IDs it consolidates; when detail is needed, read the named PRD IDs. Where this file and `PRD.md` ever disagree, **`PRD.md` wins** (PRD §0.1). No requirement here is invented — each maps to existing PRD IDs.
 >
 > **Design artifacts are examples, not law.** The 153 screens in `Design Artifact/` (indexed in PRD §7.3) are *reference mockups that show how the system behaves*, not a binding front-end specification. Build the UI to satisfy the requirements and the design system in `DESIGN.md`; treat each artboard as an illustrative example of layout and flow, free to improve.
 
-## Overview
+## Introduction
 
 BMI Stooring System is a Work Order–driven preventive-maintenance platform for BMI's logistics fleet (~100 units, ~15 users, 10 roles). Its central invariant: **no action that changes stock, tyres, cost or part age happens on a vehicle unless an approved Work Order (WO) authorizes it, executed through ordered, verified steps** (PR-1…PR-6, BR-01…BR-16). It runs as a desktop web app plus an Android field app, backed by one API and one database.
 
@@ -23,13 +23,19 @@ BMI Stooring System is a Work Order–driven preventive-maintenance platform for
 
 Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, BR-14).
 
+## Glossary
+
+> This spec indexes the authoritative glossary rather than duplicating it. For all defined system terms and abbreviations, see **`PRD.md` §1.5** (source of truth per PRD §0.1).
+
+## Requirements
+
 ## Functional Requirements
 
 > Each group names its PRD requirement range. Acceptance criteria are the PRD's `AC-*` rows and the state-machine transitions in PRD §3. "Done" for a group means its `REQ-*` are implemented and its `AC-*` pass.
 
 ### FG-1 Work Order lifecycle
-- **REQ-WO**: The system shall let a Planner/System Admin create a WO (and a Mechanic/Field Coordinator a review draft) for one vehicle with title, category, workshop flag, priority, steps and part/tyre lines, and move it through Draft → Pending_Approval → Active → In_Progress → Pending_Verification → Completed, with Rejected/Pending_Amendment/Cancelled side paths.
-  - _PRD_: REQ-WO-001…017; SM-WO (T1–T15); BR-01, BR-03, BR-04, BR-05, BR-16.
+- **REQ-WO**: The system shall let a Planner/System Admin create a WO (and a Mechanic/Field Coordinator a review draft) for one vehicle with title, category, workshop flag, priority, steps and part/tyre lines, and move it through Draft → Pending_Approval → Active → In_Progress → Pending_Verification → Completed, with Rejected/Pending_Amendment/Cancelled side paths. Every field request from a Field Coordinator, Mechanic or Driver creates a Draft WO only (never activates one); a `Driver_Breakdown` draft is pre-seeded with exactly one Mobilisasi step (FG-5a) at the driver's captured location, and the Planner composes the remaining steps.
+  - _PRD_: REQ-WO-001…017 (002, 003, 014 breakdown→auto-draft-with-Mobilisasi); SM-WO (T1–T15); BR-01, BR-03, BR-04, BR-05, BR-16; DEC-90.
   - _Acceptance_: AC-WO-001…006, and every SM-WO transition behaves as tabled.
 
 ### FG-2 Assignment engine & step lifecycle
@@ -38,8 +44,8 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
   - _Acceptance_: AC-ENG-001…009.
 
 ### FG-3 Module registry, step composer & WO presets
-- **REQ-REG**: The system shall offer step modules only from an active registry (Stock, Part_Purchase, Mechanic_Action, Part_Replacement, Document, Part_Check), let Planner/System Admin compose a WO's steps in Create WO via a module palette, save/version presets and PM packages, run live composer checks, and add a new module with no engine change.
-  - _PRD_: REQ-REG-001…007; PR-6; DEC-85, DEC-88.
+- **REQ-REG**: The system shall offer step modules only from an active registry (Stock, Part_Purchase, Mechanic_Action, Mobilisasi, Part_Replacement, Document, Part_Check), let Planner/System Admin compose a WO's steps in Create WO via a module palette, save/version presets and PM packages, run live composer checks, and add a new module with no engine change. Mobilisasi (FG-5a) is a registry row, added with no engine change (PR-6).
+  - _PRD_: REQ-REG-001…007; REQ-MBL-001; PR-6; DEC-85, DEC-88, DEC-90.
   - _Acceptance_: AC-REG-001…005.
 
 ### FG-4 Stock step & Part Purchase step
@@ -47,10 +53,16 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
   - _PRD_: REQ-STK-001…012; REQ-PUR-001…009; BR-01, BR-02, BR-06, BR-07; DEC-60…64.
   - _Acceptance_: AC-STK-001…006; AC-PUR-001…006.
 
-### FG-5 Mechanic Action, Part Check & stooring
-- **REQ-MEC**: The system shall run Mechanic Action (internal catalog services or external workshop, repair photos, labor) and Part Check (per-part Good/Repair/Replace with photos that generate a follow-up Draft WO on verification), capture device position once at submit, and charge one stooring fee per WO per region per day from the stooring rates master.
-  - _PRD_: REQ-MEC-001…010; REQ-CHK-001…007; DEC-40, DEC-52, DEC-53, DEC-71, DEC-88, DEC-89.
+### FG-5 Mechanic Action & Part Check
+- **REQ-MEC**: The system shall run Mechanic Action (internal catalog services or external workshop, repair photos, labor) and Part Check (per-part Good/Repair/Replace with photos that generate a follow-up Draft WO on verification). Mechanic Action no longer captures device position and no longer charges stooring (REQ-MEC-007…009 retired, DEC-90); the stooring fee moves to the Mobilisasi module (FG-5a).
+  - _PRD_: REQ-MEC-001…010 (007…009 retired); REQ-CHK-001…007; DEC-88, DEC-89, DEC-90.
   - _Acceptance_: AC-MEC-001…005; AC-CHK-001…004.
+
+### FG-5a Mobilisasi (mobilisation) module
+- **REQ-MBL**: The system shall offer Mobilisasi as a registered, data-driven assignment module (peer of Stock, Part Purchase, Mechanic Action, Part Replacement, Document; master data, PR-6) executed by a Mechanic (or System Admin) who travels to the driver's location. The step shall show a route to the driver's captured destination, auto-submit on arrival with a manual "Finish stooring" fallback, record the mechanic's location trail only while In_Progress, and produce the stooring fee of its region (one charge per WO per region per day) from the stooring rates master.
+  - _PRD_: REQ-MBL-001…006; REQ-MEC-010 (stooring rates master); SM-STEP; PR-6; BR-07; DEC-90; RSK-09.
+  - _Acceptance_: AC-MBL-001…004.
+  - _Privacy_: the In_Progress location trail is continuous (broader than the old one-time capture); it is scoped strictly to the active step, stops at submit, is visible only to Planner and System Admin, and every access is logged (RSK-09 / UU PDP; NFR-SECURITY).
 
 ### FG-6 Part Replacement & chassis map
 - **REQ-PLC**: The system shall draw a data-generated chassis map per unit type, replace/rotate/demount tyres by position within scope lock, track placement history, and support towed (trailer) layouts with spares counted in days.
@@ -98,8 +110,8 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
   - _Acceptance_: AC-IAM-006; AC-INV-006.
 
 ### FG-15 Mobile app (Android, R1 step 7)
-- **REQ-MOB**: The system shall ship one Android app whose menu follows the role (Driver, Field Coordinator, System Admin field menu in R1; Mechanic, Supervisor/GM in R2), with offline drafts/photos, push, GPS work location, and a shared Profile/history (MobileProfile, MechanicMobileHistory, SupervisorMobileHistory, FCDraftCancel per §7.11 DQ-01/03/04/11).
-  - _PRD_: REQ-MOB-001…009; RL-6; NFR-18; DEC-41, DEC-66; §7.11.
+- **REQ-MOB**: The system shall ship one Android app whose menu follows the role (Driver, Field Coordinator, System Admin field menu in R1; Mechanic, Supervisor/GM in R2), with offline drafts/photos, push, and a shared Profile/history (MobileProfile, MechanicMobileHistory, SupervisorMobileHistory, FCDraftCancel per §7.11 DQ-01/03/04/11). When a Driver files a breakdown report, the app captures the driver's location once and the system auto-drafts a WO pre-seeded with one Mobilisasi step at that location (FG-1, FG-5a); the mechanic's continuous GPS trail is recorded only while a Mobilisasi step is In_Progress, not on other steps.
+  - _PRD_: REQ-MOB-001…009 (003 breakdown location capture); REQ-MBL-002, REQ-MBL-005; RL-6; NFR-18; DEC-41, DEC-66, DEC-90; §7.11.
   - _Acceptance_: AC-MOB-001…004.
 
 ### FG-16 File upload & compression
@@ -168,3 +180,4 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
 | Version | Date | Change |
 |---|---|---|
 | 1.0 | 2026-10-30 | Initial spec, consolidating PRD.md SDD Spec v2 (incl. §7.11 DQ decisions and new mobile/dialog artifacts). |
+| 1.1 | 2026-10-31 | Stooring moved out of Mechanic Action into a new data-driven Mobilisasi module (FG-5a / REQ-MBL-\*, PRD DEC-90). Mechanic Action no longer captures GPS or charges stooring (REQ-MEC-007…009 retired). Driver breakdown now captures location once and auto-drafts a WO pre-seeded with one Mobilisasi step (FG-1, FG-15). Mobilisasi records a continuous mechanic location trail only while In_Progress (privacy per RSK-09 / UU PDP). Updated FG-1, FG-3, FG-5, FG-5a (new), FG-15. |

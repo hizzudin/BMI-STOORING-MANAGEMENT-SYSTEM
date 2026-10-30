@@ -3,11 +3,11 @@
 
 > Governed by `requirements.md` (this folder) and the authoritative `PRD.md` (SDD Spec v2) at the repo root. `PRD.md` §9 is the final PostgreSQL schema; `DESIGN.md` is the binding visual design system. **Design artifacts in `Design Artifact/` are example mockups of behaviour, not a strict front-end contract** — implement to the requirements and `DESIGN.md`, using each artboard as an illustrative reference only.
 
-## Architecture Overview
+## Overview
 
 A TypeScript monorepo. One NestJS API server owns all business rules, the state machines (PRD §3) and the database; the Next.js web app and the Expo/React Native Android app are clients that reach data **only through the API** (NFR-18, DEC-66). PostgreSQL is the system of record; Cloudflare R2 holds files; Redis backs jobs/queues and sessions. A daily job (00:30 WIB) runs document/PM/alert/schedule recomputation (NFR-12, NFR-14).
 
-The engine is **data-driven**: assignment modules, WO presets, vehicle classes, chassis layouts, tyre statuses, document types and alert rules are master data, so a new module or unit type is added without touching engine, designer, WO-document, scope-lock or permission code (PR-6, REQ-REG-006).
+The engine is **data-driven**: assignment modules (Stock, Part Purchase, Mechanic Action, Mobilisasi, Part Replacement, Document, Part Check), WO presets, vehicle classes, chassis layouts, tyre statuses, document types and alert rules are master data, so a new module or unit type is added without touching engine, designer, WO-document, scope-lock or permission code (PR-6, REQ-REG-006). Mobilisasi is one such registered assignment module (master data, added with no engine change).
 
 **Stack**: TypeScript monorepo (pnpm/turbo) · NestJS API · Next.js (App Router) web · Expo React Native (Android APK) · PostgreSQL · Redis · Cloudflare R2 (S3-compatible). (DEC-66)
 **Deployment**: Google Cloud, Jakarta region — Cloud Run (API, workers, web), Cloud SQL (PostgreSQL), Memorystore (Redis), Secret Manager; Cloudflare R2 for files; Cloudflare DNS/TLS/WAF in front. Android APK distributed signed, outside the Play Store. (DEC-67, NFR-18)
@@ -20,7 +20,9 @@ The engine is **data-driven**: assignment modules, WO presets, vehicle classes, 
 
 The **repository/`DataGateway` interface is the seam** that makes this phasing clean: services and business rules are written once against the interface; only the backing implementation changes (dummy → local Postgres → Cloud SQL). This is a hard design rule — business logic must never import a concrete DB driver directly.
 
-## System Diagram
+## Architecture
+
+### System Diagram
 
 ```mermaid
 flowchart TB
@@ -57,14 +59,14 @@ The complete, final schema is **PRD §9** (PostgreSQL syntax, dependency-ordered
 | Vehicle document | `document_types`, `vehicle_documents`, `document_renewals`, `document_corrections` | DOC |
 | WO preset / module | `wo_presets`, `wo_preset_steps`, `assignment_modules` | REG |
 | Work Order | `work_orders`, `work_order_approvals` | WO |
-| Step | `work_order_assignments`, `step_time_events`, `step_time_corrections` | ENG |
+| Step | `work_order_assignments`, `step_time_events`, `step_time_corrections`, `mobilisation_location_trail` | ENG |
 | WO content | `work_order_parts`, `work_order_services`, `work_order_purchases`, `work_order_purchase_lines`, `wo_attachments` | STK/MEC/PUR |
 | Change request | `wo_change_requests` | CR |
 | Parts & warehouse | `parts_catalog`, `stock_cards`, `goods_receipts`, `gr_corrections`, `goods_issues`, `goods_issue_items`, `stock_adjustments` | INV |
 | Tyres | `tyres`, `tyre_statuses`, `tyre_events`, `tyre_receipts`, `retread_orders`, `tyre_counts` | TYR |
 | Placement | `part_positions`, `part_placements`, `part_placement_logs`, `placement_map_snapshots` | PLC |
 | Part items | `part_item_types`, `vehicle_part_items`, `early_failure_events` | BSL |
-| Alerts & PM | `maintenance_alerts`, `pm_packages`, `pm_tasks`, `vehicle_pm_schedule`, `dvir_logs`, `breakdown_reports` | PM |
+| Alerts & PM | `maintenance_alerts`, `pm_packages`, `pm_tasks`, `vehicle_pm_schedule`, `dvir_logs`, `breakdown_reports` (now carries the driver's captured location — `location_lat`/`location_lng`/`location_captured_at` — feeding the auto-drafted WO's Mobilisasi step) | PM |
 | Schedule | `wo_schedule`, `wo_schedule_log`, `schedule_alerts` | SCH |
 | Notifications | `notifications`, `notification_deliveries`, `push_devices` | NTF |
 | Customers & invoices | `customers`, `invoices`, `invoice_lines`, `invoice_payments`, `invoice_wos` | BIL |
@@ -73,9 +75,9 @@ The complete, final schema is **PRD §9** (PostgreSQL syntax, dependency-ordered
 
 **Invariants enforced at both service and DB layers** (PRD §5): BR-01 (WO-gated changes), BR-02 (scope lock), BR-03 (four-eyes), BR-06 (stock-change channels), BR-10 (append-only/soft-delete), BR-11 (tyre count channels), BR-14 (one System Admin, one role per user), BR-15 (bill once). Optimistic locking via a `version` column (NFR-03).
 
-**State machines** (implement exactly as tabled, PRD §3): SM-WO, SM-STEP, SM-VEH, SM-DOC, SM-TYRE, SM-GR, SM-SA, SM-TR, SM-RD, SM-CR, SM-SCH, SM-INV, SM-TC. A transition not listed is refused.
+**State machines** (implement exactly as tabled, PRD §3): SM-WO, SM-STEP, SM-VEH, SM-DOC, SM-TYRE, SM-GR, SM-SA, SM-TR, SM-RD, SM-CR, SM-SCH, SM-INV, SM-TC. A transition not listed is refused. The **Mobilisasi** module contract runs on the standard **SM-STEP** with no new states (ref PRD §3.3, REQ-MBL-*): Start opens a map/route to the driver's captured destination, arrival auto-submits the step with a manual Finish-stooring fallback, and an In_Progress-only mechanic location trail (`mobilisation_location_trail`) is recorded for the step's duration and stops at submit.
 
-## API / Interface Design
+## Components and Interfaces
 
 REST over HTTPS, versioned (`/api/v1`), JSON. Every mutating endpoint: server-side role guard (NFR-04), optimistic-lock check (NFR-03), idempotency key support (NFR-01), and an audit write (NFR-02). The endpoint catalog is derived from the functional groups; it is authored with the **api-designer** skill into an OpenAPI document during the Dev phase and kept in sync (code-documenter skill). Representative resources:
 
@@ -83,6 +85,7 @@ REST over HTTPS, versioned (`/api/v1`), JSON. Every mutating endpoint: server-si
 |---|---|---|
 | WO | `POST /work-orders`, `POST /work-orders/{id}/submit|approve|reject|cancel` | REQ-WO |
 | Steps | `POST /assignments/{id}/start|pause|resume|submit|verify|return|assign` | REQ-ENG |
+| Mobilisasi | `POST /assignments/{id}/start|finish`, `GET /assignments/{id}/route`, `POST /assignments/{id}/trail` (In_Progress only) | REQ-MBL |
 | Stock/Purchase | `POST /assignments/{id}/stock-issue`, `/purchase-lines` | REQ-STK, REQ-PUR |
 | Placement | `POST /assignments/{id}/placement` (replace/rotate/demount) | REQ-PLC |
 | Approvals | `GET /approvals`, `POST /approvals/{id}/decide` | REQ-APR |
@@ -90,6 +93,8 @@ REST over HTTPS, versioned (`/api/v1`), JSON. Every mutating endpoint: server-si
 | Invoices | `POST /invoices`, `/invoices/{id}/issue|pay|void` | REQ-BIL |
 | Files | `POST /uploads/sign`, worker finalize | REQ-FUP |
 | IAM | `POST /auth/login`, `/auth/reset` (email), `/users`, `/roles` | REQ-IAM |
+
+A Mobilisasi step's generic lifecycle (start/submit/verify) still flows through the `/assignments` Steps endpoints; the route/trail/auto-submit specifics have their own resource above. A Driver breakdown report (`POST` from the mobile app, capturing the driver's location once) creates a **Draft WO pre-seeded with exactly one Mobilisasi step** at the captured location, which the Planner then composes out (REQ-WO-003/014, REQ-MBL-001/002, FG-5a).
 
 Front-end: Next.js app per the web screen inventory (PRD §7.3) using the `DESIGN.md` tokens/components; Expo RN for the mobile screens. The 153 artboards in `Design Artifact/` (incl. `MobileProfile`, `MechanicMobileHistory`, `SupervisorMobileHistory`, `FCDraftCancel`, and the `SettingsIntegrations` placeholder) are **example references**; build to behaviour and `DESIGN.md`, not pixel-for-pixel.
 
@@ -118,7 +123,7 @@ BMI Stooring System/
 
 ## Security Design
 
-Per NFR-04/05 and the **security-reviewer** + **fullstack-guardian** skills: server-authoritative role checks on every action (the PRD §2.2 matrix, with locked cells), server-side validation, parameterized queries only, secrets in Secret Manager (encrypted at rest), signed expiring links for files, append-only audit, optimistic locking, and the AI assistant on a read-only DB account. Position capture is one-time at step submit for verification only, with the UU-PDP handling of RSK-09 (privacy notice, access logged). A security review is a required gate in the Setup and Go-live phases.
+Per NFR-04/05 and the **security-reviewer** + **fullstack-guardian** skills: server-authoritative role checks on every action (the PRD §2.2 matrix, with locked cells), server-side validation, parameterized queries only, secrets in Secret Manager (encrypted at rest), signed expiring links for files, append-only audit, optimistic locking, and the AI assistant on a read-only DB account. Location handling follows the approved Mobilisasi design: the driver's location is captured once from the breakdown report (seeding the Mobilisasi destination), and the Mobilisasi step records a **continuous mechanic location trail only while the step is In_Progress** (it stops at submit), for verification only, visible to **Planner and System Admin only**, with every access logged, all covered by the RSK-09 / UU-PDP privacy notice. Mechanic Action no longer captures position (DEC-90). A security review is a required gate in the Setup and Go-live phases.
 
 ## Skill Integration (referenced by tasks.md)
 
@@ -148,3 +153,4 @@ Per NFR-04/05 and the **security-reviewer** + **fullstack-guardian** skills: ser
 | Version | Date | Change |
 |---|---|---|
 | 1.0 | 2026-10-30 | Initial design: monorepo, DataGateway phasing (dummy→local→Cloud SQL), schema/state-machine mapping to PRD, skill integration. |
+| 1.1 | 2026-10-31 | Mobilisasi added to the data-driven engine (PR-6, no engine change); `mobilisation_location_trail` table (Step aggregate) + `breakdown_reports` location fields summarized; Mobilisasi API resource (`start/finish/route/trail`) added; SM-STEP note for the Mobilisasi contract (auto-submit-on-arrival + manual Finish, In_Progress-only trail); corrected location-privacy design (continuous In_Progress trail, Planner/System-Admin scoped, access-logged); breakdown→auto-draft-with-one-Mobilisasi-step flow. Ref PRD §3.3, §4.5a REQ-MBL-*, §9, RSK-09, DEC-90. |
