@@ -2,11 +2,42 @@
   "name": "@bmi/api",
   "version": "0.0.0",
   "private": true,
-  "description": "NestJS API (placeholder — framework setup in TASK-103+).",
+  "description": "BMI Stooring System NestJS API — module-per-functional-group, DI DataGateway (dummy in dev), global role guard (PRD §2.2), request validation, idempotency middleware, audit interceptor (TASK-103).",
+  "type": "module",
+  "main": "./dist/main.js",
   "scripts": {
-    "build": "echo \"@bmi/api: no-op build\"",
-    "lint": "echo \"@bmi/api: no-op lint\"",
-    "typecheck": "echo \"@bmi/api: no-op typecheck\"",
-    "test": "echo \"@bmi/api: no-op test\""
+    "build": "nest build",
+    "start": "node dist/main.js",
+    "start:dev": "nest start --watch",
+    "lint": "echo \"@bmi/api: linted at repo root via eslint apps packages\"",
+    "lint:eslint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@bmi/config": "workspace:*",
+    "@bmi/data-gateway": "workspace:*",
+    "@bmi/shared": "workspace:*",
+    "@nestjs/common": "^10.4.15",
+    "@nestjs/core": "^10.4.15",
+    "@nestjs/platform-express": "^10.4.15",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.4.9",
+    "@nestjs/schematics": "^10.2.3",
+    "@nestjs/testing": "^10.4.15",
+    "@swc/core": "^1.10.7",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.5",
+    "supertest": "^7.0.0",
+    "@types/supertest": "^6.0.2",
+    "typescript": "^5.7.2",
+    "unplugin-swc": "^1.5.1",
+    "vitest": "^2.1.8"
   }
 }

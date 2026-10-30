@@ -4,4 +4,8 @@ packages:
 # esbuild (pulled in by vitest) ships a native binary via a postinstall build script.
 # Allow it so installs run its build without the ignored-builds warning.
 allowBuilds:
+  # @swc/core ships a native binary used by the API's vitest transform (decorator
+  # metadata); @nestjs/core runs a postinstall. Allow both so installs run clean.
+  '@nestjs/core': true
+  '@swc/core': true
   esbuild: true

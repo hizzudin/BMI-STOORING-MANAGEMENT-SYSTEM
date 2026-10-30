@@ -51,6 +51,17 @@ export default tseslint.config(
       eqeqeq: ['error', 'always'],
     },
   },
+  {
+    // NestJS (apps/api) DI relies on reflected decorator metadata
+    // (`emitDecoratorMetadata`): a constructor parameter's type must be a *value*
+    // import so `design:paramtypes` is emitted. `consistent-type-imports` would
+    // rewrite those to `import type` and erase the metadata, breaking DI — so it
+    // is disabled for API source only. Every other rule still applies.
+    files: ['apps/api/**/*.ts'],
+    rules: {
+      '@typescript-eslint/consistent-type-imports': 'off',
+    },
+  },
   // Keep ESLint and Prettier from fighting over formatting — must be last.
   prettier,
 );
