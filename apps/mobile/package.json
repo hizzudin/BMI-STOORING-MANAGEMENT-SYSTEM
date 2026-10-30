@@ -6,6 +6,7 @@
   "scripts": {
     "build": "echo \"@bmi/mobile: no-op build\"",
     "lint": "echo \"@bmi/mobile: no-op lint\"",
+    "typecheck": "echo \"@bmi/mobile: no-op typecheck\"",
     "test": "echo \"@bmi/mobile: no-op test\""
   }
 }
