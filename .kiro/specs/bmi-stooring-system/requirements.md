@@ -34,8 +34,9 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
 > Each group names its PRD requirement range. Acceptance criteria are the PRD's `AC-*` rows and the state-machine transitions in PRD §3. "Done" for a group means its `REQ-*` are implemented and its `AC-*` pass.
 
 ### FG-1 Work Order lifecycle
-- **REQ-WO**: The system shall let a Planner/System Admin create a WO (and a Mechanic/Field Coordinator a review draft) for one vehicle with title, category, workshop flag, priority, steps and part/tyre lines, and move it through Draft → Pending_Approval → Active → In_Progress → Pending_Verification → Completed, with Rejected/Pending_Amendment/Cancelled side paths. Every field request from a Field Coordinator, Mechanic or Driver creates a Draft WO only (never activates one); a `Driver_Breakdown` draft is pre-seeded with exactly one Mobilisasi step (FG-5a) at the driver's captured location, and the Planner composes the remaining steps.
-  - _PRD_: REQ-WO-001…017 (002, 003, 014 breakdown→auto-draft-with-Mobilisasi); SM-WO (T1–T15); BR-01, BR-03, BR-04, BR-05, BR-16; DEC-90.
+- **REQ-WO**: The system shall let a Planner/System Admin create a WO (and a Mechanic/Field Coordinator a review draft) for one vehicle with title, category, workshop flag, priority, steps and part/tyre lines, and move it through Draft → Pending_Approval → Active → In_Progress → Pending_Verification → Completed, with Rejected/Pending_Amendment/Cancelled side paths. Every field request from a Field Coordinator, Mechanic or Driver creates a Draft WO only (never activates one); a `Driver_Breakdown` draft is pre-seeded with exactly one Mobilisasi step (FG-5a) at the driver's captured location, and the Planner composes the remaining steps. Every Driver/Field Coordinator/Mechanic field request carries a mandatory field-finding note (`work_orders.finding_note`) describing the field finding or breakdown — auto-copied from the breakdown description (`Driver_Breakdown`) or inspection note (`Driver_DVIR`) for driver drafts, typed and required for Field Coordinator and Mechanic drafts — which the Planner sees as read-only context preserved even when the Planner rewrites `description`.
+- **REQ-WO-priority**: The WO's `priority` (Low/Normal/High/Urgent, set by the Planner in Create WO) is the WO's urgency label: it sorts Urgent/High first in every list and inbox, orders the Mechanic mobile task list (FG-15), and is shown everywhere as a colour-coded urgency pill that always carries its text label (Urgent → danger, High → warning, Normal → info/neutral, Low → neutral; NFR-A11Y, DESIGN.md).
+  - _PRD_: REQ-WO-001…017 (002, 003, 014 breakdown→auto-draft-with-Mobilisasi; 015 priority = urgency label + colour pill; 016 finding note required for FC/Mechanic drafts); SM-WO (T1–T15); BR-01, BR-03, BR-04, BR-05, BR-16; DEC-90, DEC-91, DEC-92.
   - _Acceptance_: AC-WO-001…006, and every SM-WO transition behaves as tabled.
 
 ### FG-2 Assignment engine & step lifecycle
@@ -54,8 +55,8 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
   - _Acceptance_: AC-STK-001…006; AC-PUR-001…006.
 
 ### FG-5 Mechanic Action & Part Check
-- **REQ-MEC**: The system shall run Mechanic Action (internal catalog services or external workshop, repair photos, labor) and Part Check (per-part Good/Repair/Replace with photos that generate a follow-up Draft WO on verification). Mechanic Action no longer captures device position and no longer charges stooring (REQ-MEC-007…009 retired, DEC-90); the stooring fee moves to the Mobilisasi module (FG-5a).
-  - _PRD_: REQ-MEC-001…010 (007…009 retired); REQ-CHK-001…007; DEC-88, DEC-89, DEC-90.
+- **REQ-MEC**: The system shall run Mechanic Action (internal catalog services or external workshop, repair photos, labor) and Part Check (per-part Good/Repair/Replace with photos that generate a follow-up Draft WO on verification). Mechanic Action no longer captures device position and no longer charges stooring (REQ-MEC-007…009 retired, DEC-90); the stooring fee moves to the Mobilisasi module (FG-5a). A Mechanic field-finding draft (source `Manual_Mechanic`) carries a mandatory field-finding note (`work_orders.finding_note`, FG-1) that the Planner sees as preserved context.
+  - _PRD_: REQ-MEC-001…010 (007…009 retired); REQ-CHK-001…007; REQ-MOB-004 (field finding → finding note); DEC-88, DEC-89, DEC-90, DEC-91.
   - _Acceptance_: AC-MEC-001…005; AC-CHK-001…004.
 
 ### FG-5a Mobilisasi (mobilisation) module
@@ -70,9 +71,9 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
   - _Acceptance_: AC-PLC-001…010.
 
 ### FG-7 Vehicles, documents & odometer
-- **REQ-VEH / REQ-DOC**: The system shall manage vehicles (class, layout, derived status), documents (first entry, correction, renewal via Document WO, Missing/Valid/Warning/Expired), and odometer readings (manual/driver, void with reason, jump warning).
-  - _PRD_: REQ-VEH-001…010; REQ-DOC-001…013; SM-VEH, SM-DOC; BR-08, BR-09, BR-10.
-  - _Acceptance_: AC-VEH-001…004; AC-DOC-001…006.
+- **REQ-VEH / REQ-DOC**: The system shall manage vehicles (class, layout, derived status), documents (first entry, correction, renewal via Document WO, Missing/Valid/Warning/Expired), and odometer readings (manual/driver, void with reason, jump warning). The derived vehicle status now includes **OFF** — a scheduled WO ran past its planned day while the vehicle was already in Repair — added to SM-VEH as an escalation of Repair, with precedence Inactive (1) > OFF (2) > Blocked (3) > Repair (4) > Active (5); OFF holds until that WO is Completed or Cancelled and, unlike Inactive, never blocks WO creation or amendment.
+  - _PRD_: REQ-VEH-001…010; REQ-DOC-001…013; SM-VEH (OFF status + precedence), SM-DOC; BR-08, BR-09, BR-10; DEC-92.
+  - _Acceptance_: AC-VEH-001…004; AC-DOC-001…006; SM-VEH transitions (incl. OFF) behave as tabled.
 
 ### FG-8 Parts baseline, inventory & tyres
 - **REQ-BSL / REQ-INV / REQ-TYR**: The system shall record a parts baseline per vehicle; manage the parts catalog, Goods Receipts & corrections, stock cards & export, low/dead-stock alerts and approved stock opname; and manage tyres end-to-end (receive, issue, mount, rotate, demount, retread, worn-out, scrap, approved tyre count) with codes and events.
@@ -90,13 +91,13 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
   - _Acceptance_: AC-APR-001…005.
 
 ### FG-11 WO document & invoices
-- **REQ-WOD / REQ-BIL**: The system shall render a print-ready WO document (approval block, execution-time table, black-and-white placement snapshot) and daily customer invoices (one per vehicle per day, part markup +50%, services at cost, stooring at cost, PPN 11%, running number NNNN/BMI/dd-mm-yy, Draft→Issued→Paid→Void).
-  - _PRD_: REQ-WOD-001…008; REQ-BIL-001…012; SM-INV; BR-15; DEC-42…46, DEC-50, DEC-89.
+- **REQ-WOD / REQ-BIL**: The system shall render a print-ready WO document (approval block, execution-time table, black-and-white placement snapshot) and daily customer invoices (one per vehicle per day, part markup +50%, services at cost, stooring at cost, PPN 11%, running number NNNN/BMI/dd-mm-yy, Draft→Issued→Paid→Void). WHERE a WO ran past its scheduled day (`work_orders.off_days` > 0), the invoice shall add an **`Off_Unit`** line = off_days × the OFF-unit daily rate (a single global rate in `app_settings.off_unit_daily_rate`, maintained by the System Admin in Settings), billed to the vehicle's customer at cost with no markup and included in subtotal/PPN like any other line.
+  - _PRD_: REQ-WOD-001…008; REQ-BIL-001…012 (003 Off_Unit line; 004 subtotal/PPN; 012 OFF-unit rate master); SM-INV; BR-15; DEC-42…46, DEC-50, DEC-89, DEC-92.
   - _Acceptance_: AC-WOD-008; AC-BIL-001…005.
 
 ### FG-12 PM engine, schedule, dashboards & notifications
-- **REQ-PM / REQ-SCH / REQ-DSH / REQ-NTF**: The system shall generate PM/part-item/tyre/document alerts (per Alert rules) that can draft WOs, provide the Planner maintenance schedule (plan only, never blocking), role dashboards, and in-app + push notifications.
-  - _PRD_: REQ-PM-001…010; REQ-SCH-001…007; REQ-DSH-001…010; REQ-NTF-001…005; BR-13; SM-SCH; DEC-86.
+- **REQ-PM / REQ-SCH / REQ-DSH / REQ-NTF**: The system shall generate PM/part-item/tyre/document alerts (per Alert rules) that can draft WOs, provide the Planner maintenance schedule (plan only, never blocking), role dashboards, and in-app + push notifications. The idempotent daily job (00:30 WIB) now, besides marking a missed card Missed, **automatically rolls the schedule card forward to the next day and keeps doing so each day with no limit** until the WO is Completed or Cancelled, flagging the card rolled-over / late (`wo_schedule.is_rolled_over`); it also **recalculates the OFF vehicle status** and increments `work_orders.off_days` once per WIB day (idempotent, guarded by `off_last_counted_date`). The schedule still never blocks or cancels a WO (BR-13); the only consequence of each overrun is the OFF-unit cost (FG-11).
+  - _PRD_: REQ-PM-001…010; REQ-SCH-001…007 (003 auto roll-forward + rolled-over flag + OFF-day count); REQ-DSH-001…010 (003 Mechanic dashboard); REQ-NTF-001…005; BR-13; SM-SCH (auto roll-forward), SM-VEH (OFF recalculated by the daily job); NFR-14; DEC-86, DEC-92.
   - _Acceptance_: AC-PM-001…003; AC-SCH-001…004.
 
 ### FG-13 Accounts, access & audit
@@ -110,9 +111,9 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
   - _Acceptance_: AC-IAM-006; AC-INV-006.
 
 ### FG-15 Mobile app (Android, R1 step 7)
-- **REQ-MOB**: The system shall ship one Android app whose menu follows the role (Driver, Field Coordinator, System Admin field menu in R1; Mechanic, Supervisor/GM in R2), with offline drafts/photos, push, and a shared Profile/history (MobileProfile, MechanicMobileHistory, SupervisorMobileHistory, FCDraftCancel per §7.11 DQ-01/03/04/11). When a Driver files a breakdown report, the app captures the driver's location once and the system auto-drafts a WO pre-seeded with one Mobilisasi step at that location (FG-1, FG-5a); the mechanic's continuous GPS trail is recorded only while a Mobilisasi step is In_Progress, not on other steps.
-  - _PRD_: REQ-MOB-001…009 (003 breakdown location capture); REQ-MBL-002, REQ-MBL-005; RL-6; NFR-18; DEC-41, DEC-66, DEC-90; §7.11.
-  - _Acceptance_: AC-MOB-001…004.
+- **REQ-MOB**: The system shall ship one Android app whose menu follows the role (Driver, Field Coordinator, System Admin field menu in R1; Mechanic, Supervisor/GM in R2), with offline drafts/photos, push, and a shared Profile/history (MobileProfile, MechanicMobileHistory, SupervisorMobileHistory, FCDraftCancel per §7.11 DQ-01/03/04/11). When a Driver files a breakdown report, the app captures the driver's location once and the system auto-drafts a WO pre-seeded with one Mobilisasi step at that location (FG-1, FG-5a); the mechanic's continuous GPS trail is recorded only while a Mobilisasi step is In_Progress, not on other steps. The mandatory breakdown and inspection notes captured on the phone flow into the draft's field-finding note (`work_orders.finding_note`, FG-1, DEC-91); a Mechanic field finding (R2) likewise requires its note. The Mechanic mobile task list (R2 menu, REQ-MOB-010) shows only the WOs scheduled for today (WIB day) and assigned to that mechanic (their Open/Returned steps), ordered by urgency descending (`work_orders.priority`: Urgent→High→Normal→Low) with rolled-over / late WOs rising to the top within their urgency level, each WO shown with its colour-coded urgency pill (text label always present) and a rolled-over / late flag; it is consistent with the schedule (REQ-SCH) and the Mechanic dashboard (REQ-DSH-003).
+  - _PRD_: REQ-MOB-001…010 (003 breakdown location capture; 004 field finding → finding note; 010 mechanic task list = scheduled-today + urgency-ordered + rolled-over flag + urgency pills); REQ-MBL-002, REQ-MBL-005; REQ-WO-015, REQ-WO-016; REQ-SCH-003, REQ-DSH-003; RL-6; NFR-18; NFR-A11Y; DEC-41, DEC-66, DEC-90, DEC-91, DEC-92; §7.11.
+  - _Acceptance_: AC-MOB-001…005.
 
 ### FG-16 File upload & compression
 - **REQ-FUP**: The system shall compress images on device, upload directly to object storage via signed links, re-check/compress server-side, show three states, keep files append-only, and serve through expiring signed links.
@@ -120,8 +121,8 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
   - _Acceptance_: AC-FUP-001…006.
 
 ### FG-17 Settings & integrations (deferred/P1 parts flagged)
-- **REQ-SET**: The system shall provide all Settings masters (WO presets, service catalog, vehicle classes & chassis layouts, document types, part item types, PM packages, alert rules/thresholds, tyre statuses, stooring rates, vendors, invoices & tax) and a Settings: Integrations screen to connect WhatsApp, Protrack/Cartrack odometer API and other external tools (DQ-05, P1).
-  - _PRD_: REQ-REG-007, REQ-MEC-005/010, REQ-INV-014, REQ-TYR-003, REQ-PM-006…010, REQ-BIL-004/007, REQ-DOC-002, REQ-PLC-013; §7.11 (DQ-05).
+- **REQ-SET**: The system shall provide all Settings masters (WO presets, service catalog, vehicle classes & chassis layouts, document types, part item types, PM packages, alert rules/thresholds, tyre statuses, stooring rates, OFF-unit daily rate, vendors, invoices & tax) and a Settings: Integrations screen to connect WhatsApp, Protrack/Cartrack odometer API and other external tools (DQ-05, P1). The OFF-unit daily rate is a single global rate (`app_settings.off_unit_daily_rate`) maintained by the System Admin in Settings > Invoices and tax, used for the `Off_Unit` invoice line (FG-11).
+  - _PRD_: REQ-REG-007, REQ-MEC-005/010, REQ-INV-014, REQ-TYR-003, REQ-PM-006…010, REQ-BIL-004/007/012, REQ-DOC-002, REQ-PLC-013; §2.2 (Other master data incl. OFF-unit rate); DEC-92; §7.11 (DQ-05).
   - _Acceptance_: per each named REQ.
 
 ### FG-18 Reports & AI assistant (deferred to R2)
@@ -157,8 +158,8 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
   - _Measurement_: smoke test on Android 8 emulator; no direct DB access from clients.
 - **NFR-CAPACITY** (NFR-19): Sized for ~100 vehicles/15 users/100–500 WOs per month, holding targets at 3× load.
   - _Measurement_: load test at 3× keeps p95 within target.
-- **NFR-A11Y** (PRODUCT.md): WCAG 2.2 AA; status never by colour alone; mobile targets ≥48 px, Pass/Fail ≥44 px; sunlight-readable contrast.
-  - _Measurement_: automated a11y scan + manual check of status pills and tap targets.
+- **NFR-A11Y** (PRODUCT.md): WCAG 2.2 AA; status never by colour alone — including the WO urgency pills (Urgent/High/Normal/Low), which always carry their text label alongside the colour (DEC-92, DESIGN.md); mobile targets ≥48 px, Pass/Fail ≥44 px; sunlight-readable contrast.
+  - _Measurement_: automated a11y scan + manual check of status and urgency pills and tap targets.
 
 ## Out of Scope (v1.0 / Release 1)
 
@@ -181,3 +182,4 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
 |---|---|---|
 | 1.0 | 2026-10-30 | Initial spec, consolidating PRD.md SDD Spec v2 (incl. §7.11 DQ decisions and new mobile/dialog artifacts). |
 | 1.1 | 2026-10-31 | Stooring moved out of Mechanic Action into a new data-driven Mobilisasi module (FG-5a / REQ-MBL-\*, PRD DEC-90). Mechanic Action no longer captures GPS or charges stooring (REQ-MEC-007…009 retired). Driver breakdown now captures location once and auto-drafts a WO pre-seeded with one Mobilisasi step (FG-1, FG-15). Mobilisasi records a continuous mechanic location trail only while In_Progress (privacy per RSK-09 / UU PDP). Updated FG-1, FG-3, FG-5, FG-5a (new), FG-15. |
+| 1.2 | 2026-11-02 | OFF unit + schedule roll-forward + OFF-unit cost + urgency change (PRD DEC-92). New derived vehicle status **OFF** (escalation of Repair; precedence Inactive>OFF>Blocked>Repair>Active; does not replace Inactive, never blocks WO creation). Schedule daily job now **auto-rolls the card forward each day with no limit** until Complete/Cancel and flags rolled-over / late; it also recalculates OFF and counts `work_orders.off_days`. New **`Off_Unit`** invoice line = off_days × a global `off_unit_daily_rate` (System-Admin Settings master), at cost no markup. Mechanic mobile task list (new REQ-MOB-010) = WOs scheduled today + assigned, urgency-ordered with rolled-over first. WO `priority` is the urgency label shown as a colour-coded pill that always carries text (NFR-A11Y). Updated FG-1, FG-7, FG-11, FG-12, FG-15, FG-17, NFR-A11Y. |

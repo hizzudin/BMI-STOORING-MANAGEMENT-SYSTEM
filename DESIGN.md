@@ -296,6 +296,7 @@ Firm and tidy: one filled red button per region, everything else outlined.
 
 ### Chips and Pills
 - **Status pill:** fully round, 12px 600 text, soft status background with dark same-hue text. Always contains the status word.
+- **Urgency / WO priority pill:** the WO's priority (urgency) label is shown as a status pill that always carries its text label (The Words First Rule; status is never colour alone). Map the four priorities onto the existing pills: **Urgent** → `pill-danger` (red) with the word "Urgent"; **High** → `pill-warning` (amber) with "High"; **Normal** → `pill-info` (petrol) with "Normal"; **Low** → `pill-neutral` with "Low". Alarm red on the Urgent pill still appears only beside its status word (The Two Reds Rule).
 - **Module chip (WO designer):** white, Pencil Line border, 8px corners, the module icon in Harbour Petrol beside its name and a one-line description; hover shows a red border and a grab cursor.
 
 ### Cards / Containers
