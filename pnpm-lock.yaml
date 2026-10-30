@@ -214,7 +214,14 @@ importers:
 
   packages/data-gateway: {}
 
-  packages/shared: {}
+  packages/shared:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@26.6.6)(supports-color@7.2.0)
 
 packages:
 

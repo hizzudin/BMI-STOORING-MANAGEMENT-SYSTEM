@@ -2,11 +2,27 @@
   "name": "@bmi/shared",
   "version": "0.0.0",
   "private": true,
-  "description": "Shared types, DTOs, branded IDs, design tokens, enums (placeholder — TASK-101).",
+  "description": "Shared domain types, DTOs, branded IDs, and state-machine enums/guards (PRD §3/§9) for the BMI Stooring System.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "src"],
   "scripts": {
-    "build": "echo \"@bmi/shared: no-op build\"",
-    "lint": "echo \"@bmi/shared: no-op lint\"",
-    "typecheck": "echo \"@bmi/shared: no-op typecheck\"",
-    "test": "echo \"@bmi/shared: no-op test\""
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "echo \"@bmi/shared: linted at repo root via eslint apps packages\"",
+    "lint:eslint": "eslint src",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
   }
 }
