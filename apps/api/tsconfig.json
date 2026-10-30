@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "noEmit": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+
+    // NestJS relies on decorators + reflected design-type metadata for DI.
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+
+    // The strict base turns these on, but decorator metadata emission and
+    // class-validator/transformer DTOs need them relaxed for Nest to work.
+    "verbatimModuleSyntax": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "exactOptionalPropertyTypes": false,
+
+    "types": ["node", "reflect-metadata", "vitest/globals"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "build", ".turbo", "coverage"]
+}

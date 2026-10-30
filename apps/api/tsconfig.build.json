@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": false,
+    "declarationMap": false,
+    // nest-cli deletes dist before each build (`deleteOutDir`), but an
+    // incremental .tsbuildinfo would then tell tsc "nothing changed" and skip
+    // emit, leaving dist empty. Disable incremental so every build re-emits.
+    "incremental": false,
+    "types": ["node", "reflect-metadata"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "src/**/*.test.ts", "src/**/*.e2e.test.ts"]
+}
