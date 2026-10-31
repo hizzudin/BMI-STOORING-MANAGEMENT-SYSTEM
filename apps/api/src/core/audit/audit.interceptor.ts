@@ -8,6 +8,7 @@ import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import type { AuthenticatedRequest } from '../auth/current-user.js';
 import { AuditService } from './audit.service.js';
+import { readAuditContext } from './audit-context.js';
 
 /** HTTP methods that do not change state and therefore need no audit record. */
 const READ_ONLY_METHODS: ReadonlySet<string> = new Set(['GET', 'HEAD', 'OPTIONS']);
@@ -44,11 +45,21 @@ export class AuditInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap(() => {
+        // A handler/service may have enriched the record with precise domain
+        // fields (before/after/reason/entity/self_decision). Absent enrichment,
+        // fall back to the generic scaffold record (method + path). Either way
+        // this is the ONE record for the call (AC-IAM-002).
+        const ctx = readAuditContext(request);
         this.audit.append({
-          entity: path,
+          entity: ctx?.entity ?? path,
+          entityId: ctx?.entityId,
           action: `${method} ${path}`,
+          before: ctx?.before,
+          after: ctx?.after,
+          reason: ctx?.reason,
           userId: principal?.userId ?? null,
-          userRole: principal?.role ?? null,
+          userRole: ctx?.userRole ?? principal?.role ?? null,
+          selfDecision: ctx?.selfDecision,
         });
       }),
     );

@@ -52,12 +52,32 @@ export type IsoTimestamp = string;
 /** ISO-8601 calendar date (YYYY-MM-DD), interpreted on WIB-day boundaries. */
 export type IsoDate = string;
 
-/** User account — exactly one role (BR-14). */
+/**
+ * User account — exactly one role (BR-14). Indexes the PRD §9.2 `users` row
+ * together with the single `user_roles.role` the account holds; the auth
+ * columns (`email`, `password_hash`, `failed_logins`, `must_change_password`,
+ * `locked_until`) carry the sign-in / lockout / first-change state the IAM
+ * module (FG-13, NFR-05) needs. `fullName` indexes `users.name`.
+ */
 export interface UserDto {
   readonly id: UserId;
   readonly fullName: string;
   readonly role: Role;
   readonly isActive: boolean;
+  /** Login identity (PRD §9.2 `users.email`, UNIQUE). */
+  readonly email: string;
+  /**
+   * Hashed password only — never a plaintext value (PRD §9.2
+   * `users.password_hash`, NFR-05). The algorithm/format is the IAM hasher's
+   * concern; the gateway only stores and returns the opaque string.
+   */
+  readonly passwordHash: string;
+  /** Force a new password at next sign-in (PRD §9.2 `must_change_password`, REQ-IAM-009). */
+  readonly mustChangePassword: boolean;
+  /** Consecutive failed sign-ins (PRD §9.2 `failed_logins`); 5 locks the account. */
+  readonly failedLogins: number;
+  /** Lockout expiry (PRD §9.2 `locked_until`), ISO-8601 UTC, or `null` when unlocked. */
+  readonly lockedUntil: IsoTimestamp | null;
   readonly version: number;
 }
 
