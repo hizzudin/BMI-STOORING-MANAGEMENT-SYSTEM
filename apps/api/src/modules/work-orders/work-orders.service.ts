@@ -447,6 +447,63 @@ export class WorkOrdersService {
 
   // --- step → WO callbacks (invoked by AssignmentsService inside its txn) ---
 
+  /**
+   * Add a Part Purchase step right after the Stock step that confirmed a
+   * shortfall (REQ-STK-004 / REQ-PUR-008), unless an open Part Purchase step
+   * already follows it. The new step is inserted at `stockSequence + 1` and the
+   * later steps shift down; it opens at once (its lines are the shortfall
+   * quantities as hints). The module is resolved from the registry — never a
+   * hard-coded code (REQ-REG-006). Runs inside the caller's transaction so it is
+   * atomic with the goods issue that revealed the shortfall.
+   *
+   * Returns the created Part Purchase step, so the caller can seed its hint
+   * lines, or `null` if a Part Purchase step already follows the Stock step.
+   */
+  async addPartPurchaseStepForShortfall(
+    workOrderId: number,
+    stockSequence: number,
+    shortfalls: readonly { sku: string; partName: string; hintQty: number; unit: string }[],
+    ctx: UnitOfWorkContext,
+  ): Promise<AssignmentDto | null> {
+    const steps = [...(await ctx.repos.assignments.findBy('workOrderId', toId<'WorkOrderId'>(workOrderId)))].sort(
+      (a, b) => a.sequence - b.sequence,
+    );
+    // Already a Part Purchase step right after the Stock step? Do nothing (REQ-PUR-008).
+    const immediatelyAfter = steps.find((s) => s.sequence === stockSequence + 1);
+    if (immediatelyAfter && immediatelyAfter.moduleCode === 'Part_Purchase') {
+      return null;
+    }
+    const module = this.registry.require('Part_Purchase');
+    // Shift every step after the Stock step down by one to make room.
+    for (const s of steps.filter((s) => s.sequence > stockSequence).sort((a, b) => b.sequence - a.sequence)) {
+      await ctx.repos.assignments.update({ ...s, sequence: s.sequence + 1 });
+    }
+    const inserted = await ctx.repos.assignments.insert(
+      this.newAssignmentRow({
+        workOrderId,
+        moduleId: module.id,
+        moduleCode: module.code,
+        sequence: stockSequence + 1,
+        executorRoles: [...module.executorRoles],
+        verifierRole: Role.Planner,
+        stepConfig: {
+          shortfallHints: shortfalls.map((s) => ({
+            sku: s.sku,
+            partName: s.partName,
+            hintQty: s.hintQty,
+            unit: s.unit,
+          })),
+        },
+      }),
+    );
+    // The shortfall-added step opens at once so the buyer can act (REQ-PUR-008).
+    return ctx.repos.assignments.update({
+      ...inserted,
+      status: smStep.transition(inserted.status, StepEvent.WoApprovedOrPrevSubmitted),
+      openedAt: new Date().toISOString(),
+    });
+  }
+
   /** SM-WO T7: first step started drives the WO to In_Progress. */
   async onFirstStepStarted(workOrderId: number, ctx: UnitOfWorkContext): Promise<void> {
     const wo = await ctx.repos.workOrders.requireById(workOrderId);
