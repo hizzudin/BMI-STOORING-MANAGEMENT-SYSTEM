@@ -18,6 +18,7 @@ import type {
   DocumentTypeId,
   VehicleDocumentId,
   WorkOrderId,
+  WoPresetId,
   AssignmentId,
   AssignmentModuleId,
   TyreId,
@@ -105,7 +106,14 @@ export interface VehicleDocumentDto {
   readonly version: number;
 }
 
-/** Work Order aggregate (SM-WO). */
+/**
+ * Work Order aggregate (SM-WO). Indexes the PRD §9.6 `work_orders` row; the
+ * lifecycle columns the engine (TASK-108) walks are modelled faithfully to §9.6
+ * (an extension of the TASK-103 scaffold shape, not a re-derivation of the
+ * schema). Cost columns, the OFF/invoice columns beyond `offDays`, the Part
+ * Check / Document / alert source keys and the mobilisation columns stay in the
+ * DB migrations until the task that needs them comes online.
+ */
 export interface WorkOrderDto {
   readonly id: WorkOrderId;
   /** Running number, e.g. `WO-0142`. */
@@ -115,29 +123,90 @@ export interface WorkOrderDto {
   readonly source: WorkOrderSource;
   readonly category: WorkOrderCategory;
   readonly priority: WorkOrderPriority;
+  /** Vehicle goes to the workshop — drives SM-VEH Repair (REQ-WO-009). */
+  readonly requiresDowntime: boolean;
   readonly description: string;
   /** Originator's field-finding narrative (REQ-WO-016, DEC-91). */
   readonly findingNote: string | null;
+  /** The preset version the steps started from; `null` = built from blank. Never followed afterwards (REQ-ENG-004). */
+  readonly presetId: WoPresetId | null;
+  /** Set when a Mechanic/Field Coordinator sends the draft for review (REQ-WO-016). */
+  readonly sentForReviewAt: IsoTimestamp | null;
+  /** Saved origin status while Pending_Amendment (SM-WO T8); restored on T9/T10. */
+  readonly statusBeforeAmendment: WorkOrderStatus | null;
+  /** Amendment counter (SM-WO T9). */
+  readonly amendmentNo: number;
   /** OFF-unit day counter (DEC-92). */
   readonly offDays: number;
   readonly createdBy: UserId;
   readonly createdAt: IsoTimestamp;
+  /** Four-eyes approver of creation (BR-03); `null` until approved. */
+  readonly approvedBy: UserId | null;
+  readonly approvedAt: IsoTimestamp | null;
+  /** When the WO went Active (T3). */
+  readonly activatedAt: IsoTimestamp | null;
+  /** When the first step was started (T7). */
+  readonly startedAt: IsoTimestamp | null;
+  /** When completion was requested — only when every step is Verified/Skipped (REQ-ENG-006). */
+  readonly completionRequestedAt: IsoTimestamp | null;
+  readonly completedAt: IsoTimestamp | null;
+  readonly cancelledBy: UserId | null;
+  readonly cancelReason: string | null;
   readonly version: number;
 }
 
-/** One WO step / assignment (SM-STEP). */
+/**
+ * One WO step / assignment (SM-STEP). Indexes the PRD §9.6
+ * `work_order_assignments` row; the engine (TASK-108) reads the module, the
+ * executor/verifier identity rules, the claim/assign/time fields and the verify
+ * stamps from here. `moduleCode` carries `assignment_modules.code` — the engine
+ * resolves the module's rules from its registry row and never branches on a
+ * code (REQ-REG-006). `step_time_events` and the mobilisation trail live in the
+ * API layer (Phase 1) / their own tables (later).
+ */
 export interface AssignmentDto {
   readonly id: AssignmentId;
   readonly workOrderId: WorkOrderId;
   readonly moduleId: AssignmentModuleId;
+  /** `assignment_modules.code` — the module registry key (REQ-REG-006). */
+  readonly moduleCode: string;
   readonly sequence: number;
   readonly status: StepStatus;
+  /** Saved step details rendered from the module's creation section (REQ-WO-017). */
+  readonly stepConfig: Readonly<Record<string, unknown>>;
+  /** Only an optional step may be Skipped (REQ-ENG-009). */
+  readonly isOptional: boolean;
+  /** Roles that may execute this step (set per step in Create WO, REQ-ENG-003). */
+  readonly executorRoles: readonly Role[];
+  /** Verifier role — Planner or System Admin (REQ-ENG-005). */
+  readonly verifierRole: Role;
   /** Set only while Paused (presentation flag, not a state). */
   readonly isPaused: boolean;
   readonly team: Team;
+  /** Named executor (REQ-ENG-011); set by Planner/SA or by the first claim. */
   readonly assigneeId: UserId | null;
+  readonly claimedAt: IsoTimestamp | null;
+  /** Locked → Open; waiting-to-start counts from here (DEC-87). */
   readonly openedAt: IsoTimestamp | null;
+  /** Who actually ran the current attempt (REQ-ENG-007 verifier ≠ executor). */
+  readonly executedBy: UserId | null;
+  /** Set only by Start, of the current attempt (REQ-ENG-012). */
   readonly startedAt: IsoTimestamp | null;
+  /** Start was entered from an earlier time (REQ-ENG-014). */
+  readonly startEntered: boolean;
+  /** +1 after each return (REQ-ENG-015). */
+  readonly attemptNo: number;
+  /** Cached from step_time_events at submit (all attempts). */
+  readonly workedSeconds: number | null;
+  readonly pausedSeconds: number | null;
+  readonly submittedAt: IsoTimestamp | null;
+  readonly verifiedBy: UserId | null;
+  readonly verifiedAt: IsoTimestamp | null;
+  /** Self-verified when System Admin verifies own step (REQ-ENG-007). */
+  readonly selfVerified: boolean;
+  /** Set when returned; shown as Returned (REQ-ENG-005). */
+  readonly returnNote: string | null;
+  readonly skipReason: string | null;
   readonly version: number;
 }
 
