@@ -8,11 +8,18 @@ import { roundAverageCost } from '@bmi/config';
  */
 export interface Part {
   readonly sku: string;
-  readonly partName: string;
-  readonly unit: string;
+  partName: string;
+  unit: string;
   stockQty: number;
   /** Moving average, 4 dp (PRD §9.8, DEC-60, NFR-16). */
   averageCost: number;
+  /** Catalog fields (REQ-INV-001): optional category/brand/reorder point/rack. */
+  category?: string | null;
+  brand?: string | null;
+  reorderPoint?: number;
+  rack?: string | null;
+  /** Deactivated parts stay in the catalog but cannot be used (REQ-INV-003). */
+  isActive?: boolean;
 }
 
 /** A stock-card movement row (`stock_cards`, PRD §9.8; BR-06). */
@@ -118,8 +125,14 @@ export class PartsLedgerService {
     return this.parts.get(sku.trim())?.averageCost ?? 0;
   }
 
-  /** The stock-card rows for a SKU, in order (read-only). */
+  /** Whether a SKU exists in the catalog. */
+  hasPart(sku: string): boolean {
+    return this.parts.has(sku.trim());
+  }
+
+  /** The stock-card rows for a SKU, newest first (REQ-INV-007). */
   stockCardFor(sku: string): readonly StockCardRow[] {
+    // Return in chronological order; the REST layer presents newest-first.
     return this.stockCards.filter((r) => r.sku === sku.trim());
   }
 
@@ -168,6 +181,101 @@ export class PartsLedgerService {
     }
     const weighted = oldQty * oldCost + qty * unitPrice;
     return roundAverageCost(weighted / totalQty);
+  }
+
+  // --- catalog master data (REQ-INV-001/002/003, TASK-112) -----------------
+
+  /**
+   * Add a catalog part (REQ-INV-002). A new part opens with quantity 0 — stock
+   * only ever enters through a Goods Receipt (or the Setup opening balance,
+   * REQ-INV-013) — so `stockQty`/`averageCost` start at 0 and no stock-card row
+   * is written here (a catalog add is not a stock movement, BR-06). Refuses a
+   * duplicate SKU.
+   */
+  addPart(input: {
+    sku: string;
+    partName: string;
+    unit: string;
+    category?: string | null;
+    brand?: string | null;
+    reorderPoint?: number;
+    rack?: string | null;
+  }): Part {
+    const sku = input.sku.trim();
+    if (this.parts.has(sku)) {
+      throw new BadRequestException(`Part ${sku} already exists.`);
+    }
+    const part: Part = {
+      sku,
+      partName: input.partName,
+      unit: input.unit,
+      stockQty: 0,
+      averageCost: 0,
+      category: input.category ?? null,
+      brand: input.brand ?? null,
+      reorderPoint: input.reorderPoint ?? 0,
+      rack: input.rack ?? null,
+      isActive: true,
+    };
+    this.parts.set(sku, part);
+    return { ...part };
+  }
+
+  /** Whether a SKU has ever moved (any stock-card row), locking SKU/unit edits. */
+  hasMoved(sku: string): boolean {
+    return this.stockCards.some((r) => r.sku === sku.trim());
+  }
+
+  /**
+   * Edit a part's mutable catalog fields (REQ-INV-002). SKU and unit are locked
+   * once the part has moved; a locked-field change is refused. Name, category,
+   * brand, reorder point and rack stay editable.
+   */
+  updatePart(
+    sku: string,
+    changes: {
+      partName?: string;
+      unit?: string;
+      category?: string | null;
+      brand?: string | null;
+      reorderPoint?: number;
+      rack?: string | null;
+    },
+  ): Part {
+    const part = this.parts.get(sku.trim());
+    if (!part) {
+      throw new BadRequestException(`Unknown part: ${sku}`);
+    }
+    if (changes.unit !== undefined && changes.unit !== part.unit && this.hasMoved(sku)) {
+      throw new BadRequestException(
+        `Unit of ${sku} is locked once the part has moved (REQ-INV-002).`,
+      );
+    }
+    if (changes.partName !== undefined) part.partName = changes.partName;
+    if (changes.unit !== undefined) part.unit = changes.unit;
+    if (changes.category !== undefined) part.category = changes.category;
+    if (changes.brand !== undefined) part.brand = changes.brand;
+    if (changes.reorderPoint !== undefined) part.reorderPoint = changes.reorderPoint;
+    if (changes.rack !== undefined) part.rack = changes.rack;
+    return { ...part };
+  }
+
+  /**
+   * Deactivate a part (REQ-INV-003). Refused when its quantity is not 0 (an open
+   * WO list / Draft GR hold is enforced by the caller against its own state).
+   */
+  deactivatePart(sku: string): Part {
+    const part = this.parts.get(sku.trim());
+    if (!part) {
+      throw new BadRequestException(`Unknown part: ${sku}`);
+    }
+    if (part.stockQty !== 0) {
+      throw new BadRequestException(
+        `Cannot deactivate ${sku}: quantity is ${part.stockQty}, not 0 (REQ-INV-003).`,
+      );
+    }
+    part.isActive = false;
+    return { ...part };
   }
 
   // --- transactional writes ------------------------------------------------
@@ -330,6 +438,133 @@ export class LedgerTransaction {
       userId: input.userId,
       txAt: input.at,
     });
+  }
+
+  /**
+   * Record a **Goods Receipt** line (REQ-INV-004, DEC-60, BR-06): raise stock,
+   * recompute the moving-average cost via {@link PartsLedgerService.recomputeAverageOnReceipt}
+   * (reusing the single DEC-60 rule, never reimplementing it) and write a GR
+   * stock-card row carrying the receipt document number. Returns the part's new
+   * average cost.
+   */
+  receiveLine(input: {
+    sku: string;
+    qty: number;
+    unitPrice: number;
+    referenceDocId: string;
+    userId: number;
+    at: string;
+  }): { balanceAfter: number; averageCost: number } {
+    const part = this.requirePart(input.sku);
+    if (input.qty <= 0) {
+      throw new BadRequestException(`Receipt quantity must be positive for ${input.sku}.`);
+    }
+    if (input.unitPrice < 0) {
+      throw new BadRequestException(`Receipt unit price cannot be negative for ${input.sku}.`);
+    }
+    const newAverage = PartsLedgerService.recomputeAverageOnReceipt(
+      part.stockQty,
+      part.averageCost,
+      input.qty,
+      input.unitPrice,
+    );
+    part.stockQty += input.qty;
+    part.averageCost = newAverage;
+    this.snapshot.stockCards.push({
+      sku: input.sku,
+      transactionType: 'GR',
+      referenceDocId: input.referenceDocId,
+      workOrderId: null,
+      vehicleId: null,
+      qtyIn: input.qty,
+      qtyOut: 0,
+      balanceAfter: part.stockQty,
+      userId: input.userId,
+      txAt: input.at,
+    });
+    return { balanceAfter: part.stockQty, averageCost: part.averageCost };
+  }
+
+  /**
+   * Record a **GR correction** line (REQ-INV-005, BR-06): a correcting movement,
+   * never a silent edit of the posted receipt. `qtyDelta` adjusts stock (may be
+   * negative) and, when positive with a `unitPrice`, feeds the moving average;
+   * a negative delta only removes quantity at the current average. Writes a GRC
+   * stock-card row. Refuses a correction that would take stock below zero.
+   */
+  correctLine(input: {
+    sku: string;
+    qtyDelta: number;
+    unitPrice: number | null;
+    referenceDocId: string;
+    userId: number;
+    at: string;
+  }): { balanceAfter: number; averageCost: number } {
+    const part = this.requirePart(input.sku);
+    const newQty = part.stockQty + input.qtyDelta;
+    if (newQty < 0) {
+      throw new BadRequestException(
+        `GR correction of ${input.sku} would take stock below zero (REQ-INV-005).`,
+      );
+    }
+    if (input.qtyDelta > 0 && input.unitPrice !== null) {
+      part.averageCost = PartsLedgerService.recomputeAverageOnReceipt(
+        part.stockQty,
+        part.averageCost,
+        input.qtyDelta,
+        input.unitPrice,
+      );
+    }
+    part.stockQty = newQty;
+    this.snapshot.stockCards.push({
+      sku: input.sku,
+      transactionType: 'GRC',
+      referenceDocId: input.referenceDocId,
+      workOrderId: null,
+      vehicleId: null,
+      qtyIn: input.qtyDelta > 0 ? input.qtyDelta : 0,
+      qtyOut: input.qtyDelta < 0 ? -input.qtyDelta : 0,
+      balanceAfter: part.stockQty,
+      userId: input.userId,
+      txAt: input.at,
+    });
+    return { balanceAfter: part.stockQty, averageCost: part.averageCost };
+  }
+
+  /**
+   * Record an **approved stock-opname adjustment** line (REQ-INV-011, BR-06):
+   * set the system quantity to the counted physical quantity and write an SA
+   * stock-card row for the variance. Posted only after approval (the caller
+   * gates this). The average cost is not recomputed — an opname corrects
+   * quantity, not valuation (REQ-INV-011: "set system quantities to the physical
+   * quantities").
+   */
+  adjustToPhysical(input: {
+    sku: string;
+    physicalQty: number;
+    referenceDocId: string;
+    userId: number;
+    at: string;
+  }): { balanceAfter: number; variance: number } {
+    const part = this.requirePart(input.sku);
+    if (input.physicalQty < 0) {
+      throw new BadRequestException(`Physical quantity cannot be negative for ${input.sku}.`);
+    }
+    const variance = input.physicalQty - part.stockQty;
+    part.stockQty = input.physicalQty;
+    this.snapshot.stockCards.push({
+      sku: input.sku,
+      transactionType: 'SA',
+      referenceDocId: input.referenceDocId,
+      workOrderId: null,
+      vehicleId: null,
+      qtyIn: variance > 0 ? variance : 0,
+      qtyOut: variance < 0 ? -variance : 0,
+      balanceAfter: part.stockQty,
+      userId: input.userId,
+      txAt: input.at,
+    });
+    return { balanceAfter: part.stockQty, variance };
   }
 
   /** Assign and consume the next goods-issue id inside the transaction. */
