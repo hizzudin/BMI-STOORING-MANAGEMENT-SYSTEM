@@ -20,5 +20,12 @@ export default defineConfig({
     environment: 'node',
     include: ['src/**/*.test.ts'],
     root: './',
+    // The e2e suites boot the full NestJS app per test; under load a single
+    // app-boot + several sequential HTTP round-trips can exceed vitest's 5s
+    // default, which surfaces as flaky `timed out` / cascading `undefined`
+    // failures unrelated to the code under test. Give every test and hook ample
+    // headroom (the assertions and logic are unchanged).
+    testTimeout: 30000,
+    hookTimeout: 30000,
   },
 });

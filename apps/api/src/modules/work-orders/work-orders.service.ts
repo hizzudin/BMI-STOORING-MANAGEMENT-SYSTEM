@@ -504,6 +504,82 @@ export class WorkOrdersService {
     });
   }
 
+  /**
+   * Create the **follow-up Draft WO from a verified Part Check** (REQ-CHK-003,
+   * DEC-88/89). Called by the Part Check step handler on the *verify* path,
+   * inside the engine's `unitOfWork`, so the draft and its steps commit or roll
+   * back atomically with the step's verification.
+   *
+   * The follow-up is always a **Draft** (source `Part_Check`, linked to the
+   * originating check step) — it is never activated here; the Planner composes
+   * and activates it later (REQ-WO-001 "never Active", REQ-CHK-004). It carries
+   * the check's vehicle, the check WO's workshop flag, and Urgent priority when
+   * any finding is Unsafe to drive, otherwise the check WO's priority
+   * (REQ-CHK-003). Steps are built from the not-good findings the caller resolved
+   * (Stock / Part_Purchase / Part_Replacement / Mechanic_Action), each module
+   * resolved from the registry — never a hard-coded code (REQ-REG-006).
+   *
+   * Returns the created draft, so the caller can record the check→draft link.
+   */
+  async createFollowUpDraftFromCheck(
+    input: {
+      vehicleId: number;
+      checkWorkOrderId: number;
+      sourceAssignmentId: number;
+      category: WorkOrderCategory;
+      priority: WorkOrderPriority;
+      requiresDowntime: boolean;
+      description: string;
+      findingNote: string;
+      createdBy: number;
+      steps: StepInput[];
+    },
+    ctx: UnitOfWorkContext,
+  ): Promise<WorkOrderDto> {
+    const built = this.buildSteps(input.steps);
+    const number = this.nextNumber();
+    const created = await ctx.repos.workOrders.insert(
+      this.newWorkOrderRow({
+        number,
+        vehicleId: input.vehicleId,
+        source: WorkOrderSource.PartCheck,
+        category: input.category,
+        priority: input.priority,
+        requiresDowntime: input.requiresDowntime,
+        description: input.description,
+        // The findings narrative is carried over as the field-finding note so the
+        // Planner sees the check context read-only (DEC-91, REQ-CHK-004).
+        findingNote: input.findingNote,
+        presetId: null,
+        createdBy: input.createdBy,
+      }),
+    );
+    const workOrderId = idValue(created.id);
+    let sequence = 1;
+    for (const s of built) {
+      await ctx.repos.assignments.insert(
+        this.newAssignmentRow({
+          workOrderId,
+          moduleId: s.moduleId,
+          moduleCode: s.moduleCode,
+          sequence,
+          executorRoles: s.executorRoles,
+          verifierRole: s.verifierRole,
+          isOptional: s.isOptional,
+          stepConfig: {
+            ...s.stepConfig,
+            // Carry the originating context so the follow-up names its check
+            // (REQ-CHK-006) and the link survives (REQ-CHK-004).
+            sourceCheckWorkOrderId: input.checkWorkOrderId,
+            sourceAssignmentId: input.sourceAssignmentId,
+          },
+        }),
+      );
+      sequence += 1;
+    }
+    return created;
+  }
+
   /** SM-WO T7: first step started drives the WO to In_Progress. */
   async onFirstStepStarted(workOrderId: number, ctx: UnitOfWorkContext): Promise<void> {
     const wo = await ctx.repos.workOrders.requireById(workOrderId);
