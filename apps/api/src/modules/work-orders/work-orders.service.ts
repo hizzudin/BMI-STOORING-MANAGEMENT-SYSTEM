@@ -334,6 +334,90 @@ export class WorkOrdersService {
   // --- amend (SM-WO T8 / T9 / T10) -----------------------------------------
 
   /**
+   * **Enter Pending_Amendment** (SM-WO T8) when the open step's executor raises
+   * a change request (REQ-CR-001). Saves the current status into
+   * `status_before_amendment` so it can be restored on decide (REQ-CR-002), and
+   * drives the WO through `smWorkOrder` — a WO not Active/In_Progress is refused
+   * by the machine (REQ-CR-007: no change request while Pending_Verification).
+   *
+   * This is the WO-lifecycle side of SM-WO T8; the change-request module
+   * (FG-9) owns SM-CR and calls this inside its own transaction so the CR row
+   * and the WO status move commit together. The freeze of the open step is the
+   * engine's job (it refuses step edits while Pending_Amendment, TASK-108).
+   */
+  async enterAmendment(workOrderId: number, ctx: UnitOfWorkContext): Promise<WorkOrderDto> {
+    const wo = await ctx.repos.workOrders.requireById(workOrderId);
+    const nextStatus = this.applyWo(wo, WorkOrderEvent.ChangeRequestSubmitted);
+    return ctx.repos.workOrders.update({
+      ...wo,
+      status: nextStatus,
+      statusBeforeAmendment: wo.status,
+    });
+  }
+
+  /**
+   * **Approve the amendment** (SM-WO T9, REQ-CR-004): apply the revision, raise
+   * the amendment number, restore the status the WO had before the amendment
+   * and let the step continue. The old step list is kept in history by the
+   * caller (the CR module snapshots it before this runs). `revisedSteps`, when
+   * given, replace the steps that are not yet submitted (the CR module has
+   * already refused a change to a submitted/verified step per REQ-CR-008).
+   *
+   * Runs inside the caller's `unitOfWork` so the revision and the status move
+   * commit or roll back together with the CR decision.
+   */
+  async applyAmendment(
+    workOrderId: number,
+    ctx: UnitOfWorkContext,
+    revision: {
+      category?: WorkOrderCategory;
+      priority?: WorkOrderPriority;
+      requiresDowntime?: boolean;
+      description?: string;
+      revisedSteps?: StepInput[];
+    },
+  ): Promise<WorkOrderDto> {
+    const wo = await ctx.repos.workOrders.requireById(workOrderId);
+    if (wo.status !== WorkOrderStatus.PendingAmendment) {
+      throw new ConflictException('The work order is not pending amendment (SM-WO T9).');
+    }
+    const restored = this.applyWo(wo, WorkOrderEvent.RevisionApproved);
+    const updated = await ctx.repos.workOrders.update({
+      ...wo,
+      status: wo.statusBeforeAmendment ?? restored,
+      statusBeforeAmendment: null,
+      amendmentNo: wo.amendmentNo + 1,
+      ...(revision.category === undefined ? {} : { category: revision.category }),
+      ...(revision.priority === undefined ? {} : { priority: revision.priority }),
+      ...(revision.requiresDowntime === undefined ? {} : { requiresDowntime: revision.requiresDowntime }),
+      ...(revision.description === undefined ? {} : { description: revision.description }),
+    });
+    if (revision.revisedSteps !== undefined) {
+      await this.replaceUnsubmittedSteps(ctx, idValue(wo.id), this.buildSteps(revision.revisedSteps));
+    }
+    return updated;
+  }
+
+  /**
+   * **Reject the amendment** (SM-WO T10, REQ-CR-005): discard the revision,
+   * restore the status the WO had before the amendment and record the rejection
+   * (the CR row carries the reason). The amendment number does NOT rise and no
+   * content changes. Runs inside the caller's `unitOfWork`.
+   */
+  async discardAmendment(workOrderId: number, ctx: UnitOfWorkContext): Promise<WorkOrderDto> {
+    const wo = await ctx.repos.workOrders.requireById(workOrderId);
+    if (wo.status !== WorkOrderStatus.PendingAmendment) {
+      throw new ConflictException('The work order is not pending amendment (SM-WO T10).');
+    }
+    const restored = this.applyWo(wo, WorkOrderEvent.RevisionRejected);
+    return ctx.repos.workOrders.update({
+      ...wo,
+      status: wo.statusBeforeAmendment ?? restored,
+      statusBeforeAmendment: null,
+    });
+  }
+
+  /**
    * Edit a draft/rejected WO's common fields and steps (REQ-WO-016). The
    * finding_note is PRESERVED even when the Planner edits description (DEC-91).
    * Once Active, the scope is locked (BR-02) — edits go through amendment, not
@@ -757,6 +841,57 @@ export class WorkOrdersService {
       await ctx.repos.assignments.remove(idValue(step.id), step.version);
     }
     let sequence = 1;
+    for (const s of built) {
+      await ctx.repos.assignments.insert(
+        this.newAssignmentRow({
+          workOrderId,
+          moduleId: s.moduleId,
+          moduleCode: s.moduleCode,
+          sequence,
+          executorRoles: s.executorRoles,
+          verifierRole: s.verifierRole,
+          isOptional: s.isOptional,
+          stepConfig: s.stepConfig,
+        }),
+      );
+      sequence += 1;
+    }
+  }
+
+  /**
+   * Replace only the **not-yet-submitted** steps of a WO during an amendment
+   * (REQ-CR-003/008): the open step (Open/In_Progress/Returned) and the Locked
+   * steps after it may change; Submitted/Verified/Skipped steps are left intact
+   * (a submitted step is corrected by a return, posted stock by a reversal).
+   * The revised steps are appended after the kept (submitted/verified) ones,
+   * preserving their relative order. Runs inside the caller's `unitOfWork`.
+   */
+  private async replaceUnsubmittedSteps(
+    ctx: UnitOfWorkContext,
+    workOrderId: number,
+    built: ReturnType<WorkOrdersService['buildSteps']>,
+  ): Promise<void> {
+    const existing = [
+      ...(await ctx.repos.assignments.findBy('workOrderId', toId<'WorkOrderId'>(workOrderId))),
+    ].sort((a, b) => a.sequence - b.sequence);
+    const kept = existing.filter(
+      (s) =>
+        s.status === StepStatus.Submitted ||
+        s.status === StepStatus.Verified ||
+        s.status === StepStatus.Skipped,
+    );
+    // Remove every editable (not-yet-submitted) step; the kept ones stay.
+    for (const s of existing.filter((e) => !kept.includes(e))) {
+      await ctx.repos.assignments.remove(idValue(s.id), s.version);
+    }
+    // Re-sequence the kept steps first, then append the revised steps after them.
+    let sequence = 1;
+    for (const s of kept) {
+      if (s.sequence !== sequence) {
+        await ctx.repos.assignments.update({ ...s, sequence });
+      }
+      sequence += 1;
+    }
     for (const s of built) {
       await ctx.repos.assignments.insert(
         this.newAssignmentRow({
