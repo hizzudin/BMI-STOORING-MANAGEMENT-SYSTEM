@@ -353,6 +353,11 @@ export class TyreRegisterService {
     return this.counts.find((c) => c.id === id);
   }
 
+  /** Tyre counts awaiting approval (for the FG-10 approvals inbox, REQ-APR-003). */
+  listCountsAwaitingApproval(): readonly TyreCount[] {
+    return this.counts.filter((c) => c.status === 'Pending_Approval');
+  }
+
   /**
    * Create a Draft tyre count (REQ-TYR-011): each warehouse tyre (In_Stock,
    * Needs_Retread, Worn_Out) is Found or Missing; Missing needs a reason. No

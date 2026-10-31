@@ -21,6 +21,7 @@ import type {
   WoPresetId,
   AssignmentId,
   AssignmentModuleId,
+  ChangeRequestId,
   TyreId,
   TyreStatusId,
   CustomerId,
@@ -36,6 +37,7 @@ import type {
   TyreStatus,
   ScheduleStatus,
   InvoiceStatus,
+  ChangeRequestStatus,
 } from './states.js';
 import type {
   Role,
@@ -254,4 +256,70 @@ export interface InvoiceDto {
   readonly customerId: CustomerId;
   readonly status: InvoiceStatus;
   readonly version: number;
+}
+
+/**
+ * A WO change request (`wo_change_requests`, §9; SM-CR §3.7). The open step's
+ * executor raises it (REQ-CR-001) and the WO creator decides the amendment
+ * (REQ-CR-004/005). It carries what the executor wants changed, the proposed
+ * revision and a reason; the revision is applied only when an Approver approves
+ * it (SM-CR Approved), which drives the WO amendment (SM-WO T9).
+ *
+ * In Phase 1 this is an API-layer in-memory record (the dummy gateway models
+ * only the nine business aggregates); TASK-201/202 re-home it behind the PRD §9
+ * `wo_change_requests` table unchanged.
+ */
+export interface ChangeRequestDto {
+  readonly id: ChangeRequestId;
+  readonly workOrderId: WorkOrderId;
+  /** The open step the CR was raised from (REQ-CR-001). */
+  readonly assignmentId: AssignmentId;
+  readonly status: ChangeRequestStatus;
+  /** Free narrative of what is wrong / what should change (REQ-CR-001). */
+  readonly whatChanges: string;
+  /** The executor's requested change (REQ-CR-001). */
+  readonly requestedChange: string;
+  /** The executor's reason (REQ-CR-001). */
+  readonly reason: string;
+  /** The executor who raised it (REQ-CR-001). */
+  readonly raisedBy: UserId;
+  readonly raisedAt: IsoTimestamp;
+  /** The WO status captured when the CR was raised (restored on decide, T9/T10). */
+  readonly statusBeforeAmendment: WorkOrderStatus;
+  /** Set when the creator opens it for revision (SM-CR Open). */
+  readonly openedBy: UserId | null;
+  /** Set when the creator sends the revision for approval (SM-CR SendRevision). */
+  readonly revisionSentAt: IsoTimestamp | null;
+  /** The Approver who decided it (SM-CR Approve/Reject). */
+  readonly decidedBy: UserId | null;
+  readonly decidedAt: IsoTimestamp | null;
+  /** Reason given on rejection (REQ-CR-005, required). */
+  readonly rejectReason: string | null;
+  readonly version: number;
+}
+
+/**
+ * The part-age / early-failure signal shown on a creation/amendment review for a
+ * part or tyre the WO will replace (REQ-APR-011, DQ-07, REQ-BSL-009). Computed
+ * from the replacement's last-replaced facts and the type's normal life:
+ * `lifeUsedPct = max(kmUsed ÷ normalLifeKm, daysUsed ÷ normalLifeDays)`; the
+ * Early-failure flag is raised when that is below the type's tolerance
+ * (default 80%, DEC-47). The flag never blocks the WO.
+ */
+export interface PartAgeSignal {
+  /** The part SKU or tyre position/code this row is about. */
+  readonly label: string;
+  readonly kind: 'Part' | 'Tyre';
+  readonly lastReplacedDate: IsoDate | null;
+  readonly lastReplacedOdometer: number | null;
+  readonly kmUsed: number | null;
+  readonly daysUsed: number | null;
+  readonly normalLifeKm: number | null;
+  readonly normalLifeDays: number | null;
+  /** Life used as a whole percent (rounded), or `null` when it cannot be computed. */
+  readonly lifeUsedPct: number | null;
+  /** The early-failure tolerance applied (percent), default 80 (DEC-47). */
+  readonly tolerancePct: number;
+  /** True when lifeUsedPct is below the tolerance (REQ-BSL-009). */
+  readonly earlyFailure: boolean;
 }
