@@ -4,11 +4,13 @@ import {
   Injectable,
   type NestInterceptor,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import type { AuthenticatedRequest } from '../auth/current-user.js';
 import { AuditService } from './audit.service.js';
 import { readAuditContext } from './audit-context.js';
+import { SKIP_AUDIT } from './skip-audit.decorator.js';
 
 /** HTTP methods that do not change state and therefore need no audit record. */
 const READ_ONLY_METHODS: ReadonlySet<string> = new Set(['GET', 'HEAD', 'OPTIONS']);
@@ -26,7 +28,10 @@ const READ_ONLY_METHODS: ReadonlySet<string> = new Set(['GET', 'HEAD', 'OPTIONS'
  */
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
-  constructor(private readonly audit: AuditService) {}
+  constructor(
+    private readonly audit: AuditService,
+    private readonly reflector: Reflector,
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     if (context.getType() !== 'http') {
@@ -37,6 +42,16 @@ export class AuditInterceptor implements NestInterceptor {
     const method = request.method.toUpperCase();
 
     if (READ_ONLY_METHODS.has(method)) {
+      return next.handle();
+    }
+
+    // A read-only computation forced onto a mutating method (e.g. the live
+    // composer check, REQ-REG-004) opts out via @SkipAudit — it changes no state.
+    const skip = this.reflector.getAllAndOverride<boolean>(SKIP_AUDIT, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (skip) {
       return next.handle();
     }
 
