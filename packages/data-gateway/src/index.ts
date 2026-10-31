@@ -25,6 +25,8 @@ export {
   createDummyDataGateway,
   createSeededStore,
   SEED_IDS,
+  SEED_PASSWORD,
+  SEED_PASSWORD_HASH,
   emptyTable,
   cloneStore,
 } from './dummy/index.js';

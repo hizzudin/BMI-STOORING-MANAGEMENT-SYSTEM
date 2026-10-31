@@ -7,7 +7,7 @@ import { AuditInterceptor } from './core/audit/audit.interceptor.js';
 import { IdempotencyModule } from './core/idempotency/idempotency.module.js';
 import { IdempotencyInterceptor } from './core/idempotency/idempotency.interceptor.js';
 import { RolesGuard } from './core/auth/roles.guard.js';
-import { DevAuthMiddleware } from './core/auth/dev-auth.middleware.js';
+import { SessionAuthMiddleware } from './modules/iam/session-auth.middleware.js';
 import { HealthModule } from './health/health.module.js';
 import { FUNCTIONAL_GROUP_MODULES } from './modules/index.js';
 
@@ -22,7 +22,8 @@ import { FUNCTIONAL_GROUP_MODULES } from './modules/index.js';
  *   - `RolesGuard`         — global guard reading the PRD §2.2 matrix.
  *   - `IdempotencyInterceptor` — global, honours the `Idempotency-Key` header.
  *   - `AuditInterceptor`   — global, appends an audit record per mutating call.
- *   - `DevAuthMiddleware`  — resolves the request principal (TASK-104 replaces it).
+ *   - `SessionAuthMiddleware` — resolves the request principal from a live
+ *     session (TASK-104), with the Phase-1 dev header shim as a fallback.
  *
  * Interceptor order matters: idempotency is registered before audit, so a
  * replayed (short-circuited) request does not produce a second audit record.
@@ -45,7 +46,8 @@ import { FUNCTIONAL_GROUP_MODULES } from './modules/index.js';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    // Resolve the principal on every route before the guard runs.
-    consumer.apply(DevAuthMiddleware).forRoutes('*');
+    // Resolve the principal (session-backed, dev-header fallback) on every route
+    // before the guard runs.
+    consumer.apply(SessionAuthMiddleware).forRoutes('*');
   }
 }

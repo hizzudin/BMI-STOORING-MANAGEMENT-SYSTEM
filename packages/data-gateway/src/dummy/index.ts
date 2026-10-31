@@ -7,7 +7,7 @@ import { DummyDataGateway } from './DummyDataGateway.js';
 import { createSeededStore } from './seed.js';
 
 export { DummyDataGateway } from './DummyDataGateway.js';
-export { createSeededStore, SEED_IDS } from './seed.js';
+export { createSeededStore, SEED_IDS, SEED_PASSWORD, SEED_PASSWORD_HASH } from './seed.js';
 export type { DummyStore, AggregateTable } from './store.js';
 export { emptyTable, cloneStore } from './store.js';
 

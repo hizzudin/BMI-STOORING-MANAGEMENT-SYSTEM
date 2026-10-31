@@ -20,6 +20,7 @@
 
 import {
   toId,
+  type UserId,
   Role,
   Team,
   TyreType,
@@ -62,7 +63,24 @@ const USER = {
   driver: toId<'UserId'>(4),
   warehouse: toId<'UserId'>(5),
   systemAdmin: toId<'UserId'>(6),
+  accessManager: toId<'UserId'>(7),
 } as const;
+
+/**
+ * The plaintext dev sign-in password for every seeded account (Phase 1 only).
+ * Meets NFR-05 (≥8 chars, letters + digits). It is never stored: the seed holds
+ * only its bcrypt hash ({@link SEED_PASSWORD_HASH}); this constant lets dev tools
+ * and tests sign in. Production seeds a one-time password per account instead.
+ */
+export const SEED_PASSWORD = 'Bmi12345';
+
+/**
+ * A real bcrypt hash of {@link SEED_PASSWORD} (cost 10). Stored as a literal so
+ * `@bmi/data-gateway` carries no password-hashing dependency — bcrypt hashes are
+ * opaque strings. The IAM hasher (`@bmi/api`) verifies against it at login.
+ */
+export const SEED_PASSWORD_HASH =
+  '$2b$10$0pv/u1jXgAgisINc9abK1.ZUCPcGj1x5ZLKLZXgAF/9m9zcO3r0S.';
 
 const VEHICLE_ID = toId<'VehicleId'>(1);
 const WORK_ORDER_ID = toId<'WorkOrderId'>(1);
@@ -82,31 +100,38 @@ const CREATED_AT = '2026-10-26T02:00:00.000Z';
 
 // --- Users (one per role WO-0142 touches; exactly one role each, BR-14) -----
 
+/** Build a seeded account: shared auth defaults, one role each (BR-14). */
+function seedUser(
+  id: UserId,
+  fullName: string,
+  email: string,
+  role: Role,
+): UserDto {
+  return {
+    id,
+    fullName,
+    role,
+    isActive: true,
+    email,
+    passwordHash: SEED_PASSWORD_HASH,
+    // Seeded accounts are already past first sign-in, so dev login works directly.
+    mustChangePassword: false,
+    failedLogins: 0,
+    lockedUntil: null,
+    version: 1,
+  };
+}
+
 const users: readonly UserDto[] = [
-  { id: USER.planner, fullName: 'Rina Planner', role: Role.Planner, isActive: true, version: 1 },
-  {
-    id: USER.supervisor,
-    fullName: 'Budi Supervisor',
-    role: Role.Supervisor,
-    isActive: true,
-    version: 1,
-  },
-  { id: USER.mechanic, fullName: 'Agus Mechanic', role: Role.Mechanic, isActive: true, version: 1 },
-  { id: USER.driver, fullName: 'Joko Driver', role: Role.Driver, isActive: true, version: 1 },
-  {
-    id: USER.warehouse,
-    fullName: 'Dedi Warehouse',
-    role: Role.WarehouseManager,
-    isActive: true,
-    version: 1,
-  },
-  {
-    id: USER.systemAdmin,
-    fullName: 'Sari Admin',
-    role: Role.SystemAdmin,
-    isActive: true,
-    version: 1,
-  },
+  seedUser(USER.planner, 'Rina Planner', 'planner@bmi.test', Role.Planner),
+  seedUser(USER.supervisor, 'Budi Supervisor', 'supervisor@bmi.test', Role.Supervisor),
+  seedUser(USER.mechanic, 'Agus Mechanic', 'mechanic@bmi.test', Role.Mechanic),
+  seedUser(USER.driver, 'Joko Driver', 'driver@bmi.test', Role.Driver),
+  seedUser(USER.warehouse, 'Dedi Warehouse', 'warehouse@bmi.test', Role.WarehouseManager),
+  // Exactly one System Admin account (BR-14 / uq_one_system_admin).
+  seedUser(USER.systemAdmin, 'Sari Admin', 'sysadmin@bmi.test', Role.SystemAdmin),
+  // Access Manager owns accounts/roles/permissions + the System-Admin move (RL-5).
+  seedUser(USER.accessManager, 'Maya Access', 'access@bmi.test', Role.AccessManager),
 ];
 
 // --- Vehicle B 1234 ABC (PRD §4.10 AC-VEH-004), billable to the customer -----
