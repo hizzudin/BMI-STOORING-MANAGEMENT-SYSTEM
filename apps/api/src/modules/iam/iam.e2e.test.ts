@@ -43,7 +43,9 @@ describe('IAM module (TASK-104) — auth, accounts, permissions, audit', () => {
 
   beforeEach(() => {
     // Most tests run in Live mode so any role may sign in; the Setup-mode gate
-    // has its own test that flips back.
+    // has its own test that flips back. Go-live is now one-way, so reset the
+    // shared singleton to Setup first, then flip it Live for this case.
+    settings.resetForTests();
     settings.goLive(new Date().toISOString());
   });
 
