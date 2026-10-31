@@ -13,7 +13,9 @@
     "lint:eslint": "eslint src",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:unit": "vitest run --exclude \"**/*.e2e.test.ts\"",
+    "test:e2e": "vitest run src/**/*.e2e.test.ts"
   },
   "dependencies": {
     "@bmi/config": "workspace:*",
