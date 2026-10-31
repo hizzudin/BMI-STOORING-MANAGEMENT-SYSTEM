@@ -17,6 +17,102 @@
         "chatSessionId": "sess_ac21911b-e3b1-43d4-8040-676c7368f044",
         "timestamp": 1793299998449
       }
+    ],
+    "**TASK-002** [all]: Generate `CLAUDE.md` (AI constitution) and `CONTEXT.md` (session journal) from the SDD templates; add tooling config (tsconfig base, eslint, prettier, commitlint + Conventional Commits, husky pre-commit running lint+typecheck).": [
+      {
+        "executionId": "3d7938aa-6ccf-4755-8442-27c76c0dd470",
+        "chatSessionId": "sess_ae605003-7ccc-4fed-b463-6717f901f06c",
+        "timestamp": 1793380162157
+      },
+      {
+        "executionId": "3d7938aa-6ccf-4755-8442-27c76c0dd470",
+        "chatSessionId": "sess_ae605003-7ccc-4fed-b463-6717f901f06c",
+        "timestamp": 1793380168997
+      }
+    ],
+    "**TASK-003** [NFR-FORMAT, NFR-TIME, NFR-NUMBERING, NFR-MONEY]: Build `packages/config` cross-cutting helpers: Indonesian number/date/time formatting (NFR-09), UTC↔WIB and WIB-day helpers (NFR-14), never-reused running-number generator with configurable formats (NFR-15), money rounding half-up (NFR-16).": [
+      {
+        "executionId": "3d7938aa-6ccf-4755-8442-27c76c0dd470",
+        "chatSessionId": "sess_ae605003-7ccc-4fed-b463-6717f901f06c",
+        "timestamp": 1793380176023
+      },
+      {
+        "executionId": "3d7938aa-6ccf-4755-8442-27c76c0dd470",
+        "chatSessionId": "sess_ae605003-7ccc-4fed-b463-6717f901f06c",
+        "timestamp": 1793380183445
+      }
+    ],
+    "**TASK-101** [FG-1..FG-18, PR-6]: Define `packages/shared` domain types, DTOs, branded IDs and the enums/discriminated unions for every state machine (SM-WO, SM-STEP, SM-VEH, SM-DOC, SM-TYRE, SM-GR/SA/TR/RD/CR/SCH/INV/TC) from PRD §3.": [
+      {
+        "executionId": "edd9109a-43a8-4c01-8219-9dd718b9d35d",
+        "chatSessionId": "sess_ae605003-7ccc-4fed-b463-6717f901f06c",
+        "timestamp": 1793380310930
+      },
+      {
+        "executionId": "edd9109a-43a8-4c01-8219-9dd718b9d35d",
+        "chatSessionId": "sess_ae605003-7ccc-4fed-b463-6717f901f06c",
+        "timestamp": 1793381752989
+      }
+    ],
+    "**TASK-102** [NFR-INTEGRITY, NFR-CONCURRENCY]: Define the `DataGateway` interface in `packages/data-gateway` (repository per aggregate, transactional `unitOfWork`, optimistic `version`) and an **in-memory dummy implementation** seeded with the PRD's example data (WO-0142, B 1234 ABC, tyres TY-01xx, etc.).": [
+      {
+        "executionId": "03bd30bc-6d8c-481d-9b2c-f4897f1abf0d",
+        "chatSessionId": "sess_3d28a677-1090-44b5-b34b-bf2e68a2eda4",
+        "timestamp": 1793382037101
+      },
+      {
+        "executionId": "03bd30bc-6d8c-481d-9b2c-f4897f1abf0d",
+        "chatSessionId": "sess_3d28a677-1090-44b5-b34b-bf2e68a2eda4",
+        "timestamp": 1793383345804
+      }
+    ],
+    "**TASK-103** [NFR-SECURITY, DEC-66]: Scaffold the NestJS API with module-per-functional-group, dependency-injected `DataGateway` (bound to dummy in dev), a global role-guard reading the PRD §2.2 matrix, request validation, idempotency middleware and an audit interceptor (writes to the dummy `audit_logs`).": [
+      {
+        "executionId": "c3e853ee-f0f8-478b-89eb-1360392a1044",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793384316706
+      },
+      {
+        "executionId": "c3e853ee-f0f8-478b-89eb-1360392a1044",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793386715618
+      }
+    ],
+    "**TASK-104** [FG-13, REQ-IAM, NFR-AUTH, §7.11 DQ-02]: IAM module — login, first-sign-in change, lockout, sessions (web 30 min idle / mobile 30 d), email password reset (DQ-02), one-role-per-user and one-System-Admin invariants (BR-14), permission-matrix read, Planner-approval switch, audit log.": [
+      {
+        "executionId": "d11bd4b8-3c52-4c89-9406-a5e3869f8a9a",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793412424824
+      },
+      {
+        "executionId": "d11bd4b8-3c52-4c89-9406-a5e3869f8a9a",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793414941830
+      }
+    ],
+    "**TASK-105** [FG-14, REQ-SETUP, ASM-64]: Setup mode & Go-live switch — only System Admin + Access Manager sign in, no approvals, bulk import (Setup-mode only), opening balance, one-way Go-live flag.": [
+      {
+        "executionId": "a2e9a50e-8425-4d26-a6ad-2f04ccee4333",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793415417115
+      },
+      {
+        "executionId": "a2e9a50e-8425-4d26-a6ad-2f04ccee4333",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793417884686
+      }
+    ],
+    "**TASK-106** [FG-7, REQ-VEH, REQ-DOC, SM-VEH, SM-DOC, DEC-92]: Vehicles, classes, chassis layouts, documents (first entry/correction/renewal, status machine) and odometer (manual/driver, void, jump warning). The derived vehicle status now includes **OFF** — an escalation of Repair when a scheduled WO overruns its planned day while the vehicle is already in Repair; `vehicle_status_t` gains `'OFF'`; precedence is Inactive > OFF > Blocked > Repair > Active; OFF does not block WO creation or amendment (REQ-WO-013 applies only to Inactive).": [
+      {
+        "executionId": "3c4e5aa2-69e3-4288-b35c-8088705da9dd",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793418288417
+      },
+      {
+        "executionId": "3c4e5aa2-69e3-4288-b35c-8088705da9dd",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793420513226
+      }
     ]
   }
 }

@@ -142,12 +142,12 @@ Execution waves (tasks in the same wave are independent and may run in parallel;
   - _Output_: repo tree per design.md "File Structure"; `pnpm install` resolves.
   - _Verify_: `git status` clean after commit; `pnpm -w run build` runs (even if no-op); `.env` is git-ignored.
   - _Git_: `git init` → `git checkout -b chore/phase0-task001-scaffold` → `git add` named files → `git commit -m "chore(repo): scaffold monorepo [TASK-001]"` → create `develop` and `main` branches → push with `-u`.
-- [ ] **TASK-002** [all]: Generate `CLAUDE.md` (AI constitution) and `CONTEXT.md` (session journal) from the SDD templates; add tooling config (tsconfig base, eslint, prettier, commitlint + Conventional Commits, husky pre-commit running lint+typecheck).
+- [x] **TASK-002** [all]: Generate `CLAUDE.md` (AI constitution) and `CONTEXT.md` (session journal) from the SDD templates; add tooling config (tsconfig base, eslint, prettier, commitlint + Conventional Commits, husky pre-commit running lint+typecheck).
   - _Skill_: `spec-driven-development`, `typescript-pro`.
   - _Output_: `CLAUDE.md`, `CONTEXT.md`, lint/format/commit hooks.
   - _Verify_: a deliberate bad commit message is rejected by commitlint; `pnpm lint` passes on the skeleton.
   - _Git_: branch `chore/phase0-task002-tooling` → commit `chore(tooling): CLAUDE.md, CONTEXT.md, lint/commit hooks [TASK-002]` → PR to `develop`.
-- [ ] **TASK-003** [NFR-FORMAT, NFR-TIME, NFR-NUMBERING, NFR-MONEY]: Build `packages/config` cross-cutting helpers: Indonesian number/date/time formatting (NFR-09), UTC↔WIB and WIB-day helpers (NFR-14), never-reused running-number generator with configurable formats (NFR-15), money rounding half-up (NFR-16).
+- [x] **TASK-003** [NFR-FORMAT, NFR-TIME, NFR-NUMBERING, NFR-MONEY]: Build `packages/config` cross-cutting helpers: Indonesian number/date/time formatting (NFR-09), UTC↔WIB and WIB-day helpers (NFR-14), never-reused running-number generator with configurable formats (NFR-15), money rounding half-up (NFR-16).
   - _Skill_: `typescript-pro`, `test-master`.
   - _Output_: `packages/config` with unit tests.
   - _Verify_: unit tests assert `48.210 km`, `Rp 1.240.000`, `2,4 mm`, WIB-day boundaries, and AC-BIL-005 rounding.
@@ -158,32 +158,32 @@ Execution waves (tasks in the same wave are independent and may run in parallel;
 ## Phase 1 — Dev (local MVP, dummy database)
 *Goal*: Every functional group works end-to-end locally against the in-memory `DataGateway`, so the team can click through each flow and confirm the state machines behave — with no real database and no cloud. Exit criterion: each FG's happy-path + key `AC-*` run green against dummy data, and the web/mobile shells render the core flows.
 
-- [ ] **TASK-101** [FG-1..FG-18, PR-6]: Define `packages/shared` domain types, DTOs, branded IDs and the enums/discriminated unions for every state machine (SM-WO, SM-STEP, SM-VEH, SM-DOC, SM-TYRE, SM-GR/SA/TR/RD/CR/SCH/INV/TC) from PRD §3.
+- [x] **TASK-101** [FG-1..FG-18, PR-6]: Define `packages/shared` domain types, DTOs, branded IDs and the enums/discriminated unions for every state machine (SM-WO, SM-STEP, SM-VEH, SM-DOC, SM-TYRE, SM-GR/SA/TR/RD/CR/SCH/INV/TC) from PRD §3.
   - _Skill_: `typescript-pro`.
   - _Output_: shared types; a `transition()` helper per machine that refuses unlisted transitions.
   - _Verify_: unit tests reject every transition not in the PRD §3 tables.
   - _Git_: `feat(shared): domain types + state-machine guards [TASK-101]`.
-- [ ] **TASK-102** [NFR-INTEGRITY, NFR-CONCURRENCY]: Define the `DataGateway` interface in `packages/data-gateway` (repository per aggregate, transactional `unitOfWork`, optimistic `version`) and an **in-memory dummy implementation** seeded with the PRD's example data (WO-0142, B 1234 ABC, tyres TY-01xx, etc.).
+- [x] **TASK-102** [NFR-INTEGRITY, NFR-CONCURRENCY]: Define the `DataGateway` interface in `packages/data-gateway` (repository per aggregate, transactional `unitOfWork`, optimistic `version`) and an **in-memory dummy implementation** seeded with the PRD's example data (WO-0142, B 1234 ABC, tyres TY-01xx, etc.).
   - _Skill_: `typescript-pro`, `fullstack-guardian`.
   - _Output_: `DataGateway` + `DummyDataGateway` + seed.
   - _Verify_: a unit-of-work test proves all-or-nothing writes; a concurrent-save test rejects the stale `version`.
   - _Git_: `feat(data-gateway): interface + dummy impl + seed [TASK-102]`.
-- [ ] **TASK-103** [NFR-SECURITY, DEC-66]: Scaffold the NestJS API with module-per-functional-group, dependency-injected `DataGateway` (bound to dummy in dev), a global role-guard reading the PRD §2.2 matrix, request validation, idempotency middleware and an audit interceptor (writes to the dummy `audit_logs`).
+- [x] **TASK-103** [NFR-SECURITY, DEC-66]: Scaffold the NestJS API with module-per-functional-group, dependency-injected `DataGateway` (bound to dummy in dev), a global role-guard reading the PRD §2.2 matrix, request validation, idempotency middleware and an audit interceptor (writes to the dummy `audit_logs`).
   - _Skill_: `nestjs-expert`, `api-designer`, `fullstack-guardian`, `typescript-pro`.
   - _Output_: running API; `/health`; guard+audit cross-cutting.
   - _Verify_: an unauthorized role is refused with a server-side 403 in a test; every mutating call writes an audit record.
   - _Git_: `feat(api): Nest scaffold, role guard, audit, idempotency [TASK-103]`.
-- [ ] **TASK-104** [FG-13, REQ-IAM, NFR-AUTH, §7.11 DQ-02]: IAM module — login, first-sign-in change, lockout, sessions (web 30 min idle / mobile 30 d), email password reset (DQ-02), one-role-per-user and one-System-Admin invariants (BR-14), permission-matrix read, Planner-approval switch, audit log.
+- [x] **TASK-104** [FG-13, REQ-IAM, NFR-AUTH, §7.11 DQ-02]: IAM module — login, first-sign-in change, lockout, sessions (web 30 min idle / mobile 30 d), email password reset (DQ-02), one-role-per-user and one-System-Admin invariants (BR-14), permission-matrix read, Planner-approval switch, audit log.
   - _Skill_: `nestjs-expert`, `fullstack-guardian`, `security-reviewer`, `typescript-pro`.
   - _Output_: auth + accounts endpoints against dummy data.
   - _Verify_: AC-IAM-001..007 pass against dummy; NFR-AUTH five rules tested.
   - _Git_: `feat(iam): auth, accounts, permissions, audit [TASK-104]`.
-- [ ] **TASK-105** [FG-14, REQ-SETUP, ASM-64]: Setup mode & Go-live switch — only System Admin + Access Manager sign in, no approvals, bulk import (Setup-mode only), opening balance, one-way Go-live flag.
+- [x] **TASK-105** [FG-14, REQ-SETUP, ASM-64]: Setup mode & Go-live switch — only System Admin + Access Manager sign in, no approvals, bulk import (Setup-mode only), opening balance, one-way Go-live flag.
   - _Skill_: `nestjs-expert`, `fullstack-guardian`, `typescript-pro`.
   - _Output_: Setup-mode gating + Go-live endpoint against dummy.
   - _Verify_: AC-IAM-006, AC-INV-006; a non-admin login is refused while in Setup mode.
   - _Git_: `feat(setup): setup mode, bulk import, go-live switch [TASK-105]`.
-- [ ] **TASK-106** [FG-7, REQ-VEH, REQ-DOC, SM-VEH, SM-DOC, DEC-92]: Vehicles, classes, chassis layouts, documents (first entry/correction/renewal, status machine) and odometer (manual/driver, void, jump warning). The derived vehicle status now includes **OFF** — an escalation of Repair when a scheduled WO overruns its planned day while the vehicle is already in Repair; `vehicle_status_t` gains `'OFF'`; precedence is Inactive > OFF > Blocked > Repair > Active; OFF does not block WO creation or amendment (REQ-WO-013 applies only to Inactive).
+- [x] **TASK-106** [FG-7, REQ-VEH, REQ-DOC, SM-VEH, SM-DOC, DEC-92]: Vehicles, classes, chassis layouts, documents (first entry/correction/renewal, status machine) and odometer (manual/driver, void, jump warning). The derived vehicle status now includes **OFF** — an escalation of Repair when a scheduled WO overruns its planned day while the vehicle is already in Repair; `vehicle_status_t` gains `'OFF'`; precedence is Inactive > OFF > Blocked > Repair > Active; OFF does not block WO creation or amendment (REQ-WO-013 applies only to Inactive).
   - _Skill_: `nestjs-expert`, `fullstack-guardian`, `typescript-pro`.
   - _Output_: VEH/DOC endpoints + derived vehicle status (incl. OFF).
   - _Verify_: AC-VEH-001..004, AC-DOC-001..006; SM-VEH precedence (Inactive > OFF > Blocked > Repair > Active) and SM-DOC transitions; OFF holds until the overrunning WO is Completed or Cancelled and does not block WO creation.
