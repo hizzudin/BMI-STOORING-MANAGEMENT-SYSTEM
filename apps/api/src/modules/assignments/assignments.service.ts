@@ -22,6 +22,7 @@ import type { CurrentUser } from '../../core/auth/current-user.js';
 import { ModuleRegistryService } from '../registry/module-registry.service.js';
 import { WorkOrdersService } from '../work-orders/work-orders.service.js';
 import { StepTimeEventService } from './step-time-event.service.js';
+import { StepHandlerRegistry } from './step-handler.registry.js';
 
 /** Max minutes a Start may be entered earlier than now (REQ-ENG-014). */
 const MAX_ENTERED_START_MINUTES = 120;
@@ -55,6 +56,7 @@ export class AssignmentsService {
     private readonly registry: ModuleRegistryService,
     private readonly timeEvents: StepTimeEventService,
     private readonly workOrders: WorkOrdersService,
+    private readonly stepHandlers: StepHandlerRegistry,
   ) {}
 
   /** Read a step, throwing if absent. */
@@ -180,6 +182,12 @@ export class AssignmentsService {
       if (step.startedAt === null) {
         throw new BadRequestException('Press Start before submitting the step (REQ-ENG-012).');
       }
+      // Module-specific side effects (e.g. the Stock goods issue) run inside
+      // THIS transaction, keyed by the step's own module code — the engine never
+      // branches on a code (PR-6, REQ-REG-006). A throw rolls back the whole
+      // submit, so the step stays In_Progress and nothing is partially written
+      // (REQ-STK-003 "if any part fails, nothing changes").
+      await this.stepHandlers.runSubmit(step, user, ctx);
       const nextStatus = this.applyStep(step, StepEvent.Submit);
       const submittedAt = new Date().toISOString();
       this.timeEvents.append({
@@ -213,6 +221,10 @@ export class AssignmentsService {
     return this.gateway.unitOfWork(async (ctx) => {
       const step = await this.loadForWrite(ctx, id, input.version);
       this.assertMayVerify(step, user);
+      // Module-specific verify side effects (e.g. the Stock verified reversal:
+      // return stock once the reversal is verified — BR-06, TX-05) run in this
+      // transaction, keyed by the step's module code (no engine branch).
+      await this.stepHandlers.runVerify(step, user, ctx);
       const nextStatus = this.applyStep(step, StepEvent.Verify);
       const selfVerified =
         user.role === Role.SystemAdmin &&

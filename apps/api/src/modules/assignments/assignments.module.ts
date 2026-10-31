@@ -4,6 +4,7 @@ import { RegistryModule } from '../registry/registry.module.js';
 import { WorkOrdersModule } from '../work-orders/work-orders.module.js';
 import { AssignmentsController } from './assignments.controller.js';
 import { AssignmentsService } from './assignments.service.js';
+import { StepHandlerRegistry } from './step-handler.registry.js';
 
 /**
  * FG-2 — Assignment engine & step lifecycle (REQ-ENG, SM-STEP, DEC-87).
@@ -24,7 +25,11 @@ import { AssignmentsService } from './assignments.service.js';
 @Module({
   imports: [AuditModule, RegistryModule, WorkOrdersModule],
   controllers: [AssignmentsController],
-  providers: [AssignmentsService],
-  exports: [AssignmentsService],
+  providers: [AssignmentsService, StepHandlerRegistry],
+  // StepHandlerRegistry is exported so a feature module (Stock, Part Purchase,
+  // …) can register its step handler without the engine ever naming a module
+  // code (PR-6, REQ-REG-006). AssignmentsService is exported for the step
+  // callbacks other modules invoke.
+  exports: [AssignmentsService, StepHandlerRegistry],
 })
 export class AssignmentsModule {}
