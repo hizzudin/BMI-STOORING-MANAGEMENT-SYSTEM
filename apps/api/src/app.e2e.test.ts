@@ -48,43 +48,52 @@ describe('API scaffold (TASK-103) — guard, audit, idempotency, health', () => 
     expect(res.body.service).toBe('@bmi/api');
   });
 
+  /** A valid Create WO body on the seeded vehicle with one Stock step. */
+  const createBody = (): Record<string, unknown> => ({
+    vehicleId: 1,
+    title: 'Scaffold demo WO',
+    category: 'Corrective',
+    description: 'demo',
+    steps: [{ module: 'Stock', executorRoles: [Role.WarehouseManager], verifierRole: Role.Planner }],
+  });
+
   it('refuses an unauthenticated mutating call with 401', async () => {
     const res = await request(app.getHttpServer())
-      .post(`${base}/work-orders/scaffold-check`)
-      .send({ hello: 'world' });
+      .post(`${base}/work-orders`)
+      .send(createBody());
     expect(res.status).toBe(401);
   });
 
   it('refuses an unauthorized role with a server-side 403 (NFR-04)', async () => {
     // Accounting has a blank §2.2 cell for wo.create → must be refused.
     const res = await request(app.getHttpServer())
-      .post(`${base}/work-orders/scaffold-check`)
+      .post(`${base}/work-orders`)
       .set('x-user-id', '7')
       .set('x-user-role', Role.Accounting)
-      .send({ hello: 'world' });
+      .send(createBody());
     expect(res.status).toBe(403);
   });
 
   it('writes NO audit record for a refused (403) mutating call', async () => {
     const before = audit.count();
     await request(app.getHttpServer())
-      .post(`${base}/work-orders/scaffold-check`)
+      .post(`${base}/work-orders`)
       .set('x-user-id', '7')
-      .set('x-user-role', Role.Driver) // blank wo.create cell
-      .send({ a: 1 });
+      .set('x-user-role', Role.Accounting) // blank wo.create cell
+      .send(createBody());
     expect(audit.count()).toBe(before);
   });
 
   it('allows an authorized role and writes exactly one audit record (NFR-02)', async () => {
     const before = audit.count();
     const res = await request(app.getHttpServer())
-      .post(`${base}/work-orders/scaffold-check`)
+      .post(`${base}/work-orders`)
       .set('x-user-id', '1')
       .set('x-user-role', Role.Planner) // wo.create granted
-      .send({ title: 'demo' });
+      .send(createBody());
 
     expect(res.status).toBe(201);
-    expect(res.body.ok).toBe(true);
+    expect(res.body.workOrder.status).toBe('Draft');
     expect(audit.count()).toBe(before + 1);
 
     const record = audit.all().at(-1)!;
@@ -97,7 +106,7 @@ describe('API scaffold (TASK-103) — guard, audit, idempotency, health', () => 
   it('does NOT write an audit record for a read-only (GET) call', async () => {
     const before = audit.count();
     await request(app.getHttpServer())
-      .get(`${base}/work-orders/scaffold-count`)
+      .get(`${base}/work-orders`)
       .set('x-user-id', '1')
       .set('x-user-role', Role.Planner);
     expect(audit.count()).toBe(before);
@@ -105,12 +114,12 @@ describe('API scaffold (TASK-103) — guard, audit, idempotency, health', () => 
 
   it('reads through the injected DataGateway seam', async () => {
     const res = await request(app.getHttpServer())
-      .get(`${base}/work-orders/scaffold-count`)
+      .get(`${base}/work-orders`)
       .set('x-user-id', '1')
       .set('x-user-role', Role.Planner);
     expect(res.status).toBe(200);
     // The dummy gateway is seeded with the PRD example WO-0142.
-    expect(res.body.workOrders).toBeGreaterThanOrEqual(1);
+    expect(res.body.workOrders.length).toBeGreaterThanOrEqual(1);
   });
 
   it('replays an Idempotency-Key without a second effect (NFR-01)', async () => {
@@ -118,20 +127,20 @@ describe('API scaffold (TASK-103) — guard, audit, idempotency, health', () => 
     const auditBefore = audit.count();
 
     const first = await request(app.getHttpServer())
-      .post(`${base}/work-orders/scaffold-check`)
+      .post(`${base}/work-orders`)
       .set('x-user-id', '1')
       .set('x-user-role', Role.Planner)
       .set('Idempotency-Key', key)
-      .send({ n: 1 });
+      .send(createBody());
     expect(first.status).toBe(201);
     expect(audit.count()).toBe(auditBefore + 1);
 
     const replay = await request(app.getHttpServer())
-      .post(`${base}/work-orders/scaffold-check`)
+      .post(`${base}/work-orders`)
       .set('x-user-id', '1')
       .set('x-user-role', Role.Planner)
       .set('Idempotency-Key', key)
-      .send({ n: 1 });
+      .send(createBody());
     expect(replay.status).toBe(201);
     expect(replay.headers['idempotency-replayed']).toBe('true');
     // No second audit record: the replay short-circuited before the handler.
