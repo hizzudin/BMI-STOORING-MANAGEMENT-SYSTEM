@@ -2,11 +2,33 @@
   "name": "@bmi/mobile",
   "version": "0.0.0",
   "private": true,
-  "description": "Expo React Native app (placeholder — framework setup in later tasks).",
+  "description": "Expo React Native (Android) field app — R1 field flows for the BMI Stooring System (TASK-118).",
+  "main": "index.ts",
   "scripts": {
-    "build": "echo \"@bmi/mobile: no-op build\"",
-    "lint": "echo \"@bmi/mobile: no-op lint\"",
-    "typecheck": "echo \"@bmi/mobile: no-op typecheck\"",
-    "test": "echo \"@bmi/mobile: no-op test\""
+    "start": "expo start",
+    "android": "expo start --android",
+    "build": "echo \"@bmi/mobile: Expo app — bundled via `expo export` / EAS; no library build step\"",
+    "lint": "echo \"@bmi/mobile: linted at repo root via eslint apps packages\"",
+    "lint:eslint": "eslint src",
+    "typecheck": "tsc -p tsconfig.logic.json --noEmit",
+    "typecheck:app": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@bmi/shared": "workspace:*",
+    "expo": "~52.0.0",
+    "expo-constants": "~17.0.0",
+    "expo-location": "~18.0.0",
+    "expo-router": "~4.0.0",
+    "expo-status-bar": "~2.0.0",
+    "react": "18.3.1",
+    "react-native": "0.76.5",
+    "react-native-safe-area-context": "4.12.0",
+    "react-native-screens": "~4.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "~18.3.12",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
   }
 }

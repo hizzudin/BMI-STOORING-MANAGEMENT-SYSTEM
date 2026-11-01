@@ -1,0 +1,35 @@
+{
+  // Offline-safe type-check: the pure, framework-free logic + its tests only.
+  // This is what `pnpm -w run typecheck` exercises for @bmi/mobile without
+  // requiring the Expo / React Native toolchain to be installed. The React
+  // Native screens are type-checked against the real toolchain via
+  // `pnpm --filter @bmi/mobile run typecheck:app` (see tsconfig.json).
+  //
+  // The mobile app bundles as ESM (Metro/Expo), so this uses Bundler module
+  // resolution rather than the repo-wide NodeNext base — the logic here never
+  // runs under Node's CommonJS resolver.
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "verbatimModuleSyntax": false,
+    "lib": ["ES2022"],
+    "types": [],
+    "noEmit": true,
+    "incremental": false,
+    "composite": false,
+    "allowImportingTsExtensions": true,
+    "baseUrl": ".",
+    "paths": {
+      "@bmi/shared": ["../../packages/shared/dist/index.d.ts"]
+    }
+  },
+  "include": [
+    "src/api/**/*.ts",
+    "src/logic/**/*.ts",
+    "src/i18n/**/*.ts",
+    "src/theme/**/*.ts",
+    "src/config/**/*.ts"
+  ],
+  "exclude": ["node_modules", "**/*.tsx"]
+}
