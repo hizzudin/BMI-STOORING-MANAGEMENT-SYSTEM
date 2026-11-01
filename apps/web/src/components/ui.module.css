@@ -1,0 +1,94 @@
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.headline {
+  font-size: var(--fs-headline);
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+  color: var(--text);
+}
+
+.headerAction {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+/* Flat white sheet; hairline border; no resting shadow; never nested. */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: var(--space-md);
+}
+
+.cardTitle {
+  font-size: var(--fs-title);
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 var(--space-md);
+  color: var(--text);
+}
+
+.field {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 7px 0;
+  border-bottom: 1px solid var(--divider);
+}
+.field:last-child {
+  border-bottom: none;
+}
+
+.fieldLabel {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: var(--fs-label);
+}
+
+.fieldValue {
+  color: var(--text);
+  text-align: right;
+}
+
+.empty {
+  color: var(--text-subtle);
+  padding: var(--space-lg) 0;
+  text-align: center;
+}
+
+.infoPanel {
+  background: var(--mist);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  color: var(--text);
+}
+
+.metricCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+
+.metricValue {
+  font-size: var(--fs-metric);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.metricLabel {
+  font-size: var(--fs-label);
+  color: var(--text-muted);
+}

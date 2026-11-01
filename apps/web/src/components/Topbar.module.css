@@ -1,0 +1,43 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-page);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.roleChip {
+  display: inline-flex;
+  align-items: center;
+  background: var(--border);
+  color: var(--neutral-pill-text);
+  font-weight: 600;
+  font-size: var(--fs-label);
+  border-radius: var(--radius-pill);
+  padding: 3px 10px;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.langForm {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.langSelect {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: var(--fs-body);
+  font-family: var(--font-sans);
+}
