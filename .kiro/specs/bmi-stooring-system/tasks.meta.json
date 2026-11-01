@@ -113,6 +113,159 @@
         "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
         "timestamp": 1793420513226
       }
+    ],
+    "**TASK-107** [FG-3, REQ-REG, PR-6, DEC-85, DEC-88]: Module registry (6 modules), step composer data model, WO presets (versioned), PM packages; live composer checks (REQ-REG-004); no module hard-coded.": [
+      {
+        "executionId": "3432bcb8-4876-444b-8560-9e2262766216",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793421516063
+      },
+      {
+        "executionId": "3432bcb8-4876-444b-8560-9e2262766216",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793423526672
+      }
+    ],
+    "**TASK-108** [FG-1, FG-2, REQ-WO, REQ-ENG, REQ-MBL-001, SM-WO, SM-STEP, DEC-87]: WO lifecycle + assignment engine — create/submit/approve/reject/cancel/amend; step open-on-submit, claim/assign/reassign/release, Start/Pause/Resume time events, verify/return, completion gate. Four-eyes (BR-03), scope lock (BR-02). Draft-only discipline: Field Coordinator / Mechanic / Driver create Draft WOs only (never activate); Planner activates, Supervisor approves. A `Driver_Breakdown` draft WO is auto-created pre-seeded with exactly one Mobilisasi step (REQ-MBL-001) at the driver's captured location. Field-finding note (`work_orders.finding_note`, REQ-WO-016): drafts from a Field Coordinator or Mechanic require a non-empty `finding_note` at send-for-review (server refuses when empty); driver-sourced drafts auto-copy `finding_note` from the breakdown/inspection notes; and `finding_note` is preserved when the Planner edits `description`. `work_orders.priority` (Low/Normal/High/Urgent) is the WO's urgency label that drives list/inbox ordering and the colour-coded urgency pill (REQ-WO-015).": [
+      {
+        "executionId": "359ffb3d-9f2e-4452-b4b0-2adf3ca49afd",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793423990466
+      },
+      {
+        "executionId": "359ffb3d-9f2e-4452-b4b0-2adf3ca49afd",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793428283891
+      }
+    ],
+    "**TASK-109** [FG-4, REQ-STK, REQ-PUR, BR-01, BR-06, DEC-60]: Stock step (atomic goods issue + stock card + moving-average cost; shortfall; verified reversal) and Part Purchase step (typed qty/price, totals, receipt photo, no stock change).": [
+      {
+        "executionId": "9ed150a9-77fc-460d-9dbe-6401de4b921e",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793428688911
+      },
+      {
+        "executionId": "9ed150a9-77fc-460d-9dbe-6401de4b921e",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793432465846
+      }
+    ],
+    "**TASK-110** [FG-5, REQ-MEC, REQ-CHK, DEC-88, DEC-89, DEC-90]: Mechanic Action (internal/external, labor, photos), Part Check (Good/Repair/Replace → follow-up Draft WO on verify). Mechanic Action no longer captures device position and no longer charges stooring (REQ-MEC-007..009 retired, DEC-90); stooring moves to the Mobilisasi module (TASK-110a).": [
+      {
+        "executionId": "9b08986e-00c7-4aa5-adb9-83fdf63eea81",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793432885516
+      },
+      {
+        "executionId": "9b08986e-00c7-4aa5-adb9-83fdf63eea81",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793438016265
+      }
+    ],
+    "**TASK-110a** [FG-5a, REQ-MBL, SM-STEP, PR-6, RSK-09, DEC-90]: Mobilisasi module — implement the mobilisation assignment module as data-driven master data (registry row, no engine change): executor Mechanic; Start opens a route/map to the driver's captured destination; auto-submit on arrival with a manual \"Finish stooring\" fallback; record the mechanic's location trail only while In_Progress (`mobilisation_location_trail`); compute the stooring fee once per WO/region/day from the stooring-rates master; Planner/System-Admin-only access to the trail with every access logged (RSK-09 / UU-PDP).": [
+      {
+        "executionId": "9b08986e-00c7-4aa5-adb9-83fdf63eea81",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793438085005
+      },
+      {
+        "executionId": "9b08986e-00c7-4aa5-adb9-83fdf63eea81",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793441417096
+      }
+    ],
+    "**TASK-111** [FG-6, REQ-PLC, BR-11, SM-TYRE, DEC-68, DEC-73]: Part Replacement + data-generated chassis map (replace/rotate/demount within scope lock), placement history, trailer/spare layouts, placement snapshot.": [
+      {
+        "executionId": "b0e47f95-9a20-4a6c-9c17-51152a3e1317",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793453874660
+      },
+      {
+        "executionId": "b0e47f95-9a20-4a6c-9c17-51152a3e1317",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793454028422
+      },
+      {
+        "executionId": "b0e47f95-9a20-4a6c-9c17-51152a3e1317",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793454036872
+      },
+      {
+        "executionId": "aaa10c42-9656-4a4c-8d65-2ece03994642",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793454160342
+      },
+      {
+        "executionId": "456759ad-74d2-4b4e-b738-32d850c7bf40",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793454260531
+      },
+      {
+        "executionId": "456759ad-74d2-4b4e-b738-32d850c7bf40",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793456082720
+      }
+    ],
+    "**TASK-112** [FG-8, REQ-BSL, REQ-INV, REQ-TYR, BR-06, BR-11]: Parts baseline, parts catalog, Goods Receipts & corrections, stock card, stock opname (approval), and tyres end-to-end (receive/issue/mount/rotate/demount/retread/worn-out/scrap/count) with codes/events.": [
+      {
+        "executionId": "5ae485a8-8038-48a0-906a-f8adc76a57c5",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793456358006
+      },
+      {
+        "executionId": "5ae485a8-8038-48a0-906a-f8adc76a57c5",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793458311312
+      }
+    ],
+    "**TASK-113** [FG-9, FG-10, REQ-CR, REQ-APR, SM-CR, DQ-07]: Change requests & amendments (executor raises, WO creator decides) and approvals inbox (creation/amendment/completion/warehouse counts) with part-age/early-failure on review.": [
+      {
+        "executionId": "ad5dc5bf-11b9-40ce-b354-ab985f227704",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793458550074
+      },
+      {
+        "executionId": "ad5dc5bf-11b9-40ce-b354-ab985f227704",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793460444096
+      }
+    ],
+    "**TASK-114** [FG-12, REQ-PM, REQ-SCH, REQ-SCH-003, REQ-NTF, REQ-DSH, REQ-MBL-002, SM-SCH, DEC-86, DEC-92]: PM/alert engine (alert rules → draft WO), maintenance schedule (plan-only), in-app notifications, role dashboards (data), simulated daily job. The idempotent daily job (00:30 WIB) now **auto-rolls a missed schedule card forward one day each day with no limit** until the WO is Completed or Cancelled (never blocking or cancelling it), flags `wo_schedule.is_rolled_over`, **recalculates the derived vehicle status (including OFF)**, and increments the overrunning WO's `work_orders.off_days` once per WIB day (guarded for idempotency by `off_last_counted_date`). Breakdown drafting: a `Driver_Breakdown` report auto-creates a Draft WO pre-seeded with exactly one Mobilisasi step at the driver's captured breakdown location (REQ-MBL-002 feeds the destination) and copies the driver's breakdown description into `work_orders.finding_note` (REQ-WO-016).": [
+      {
+        "executionId": "27bd9f05-78c3-459b-b81e-288b14cba84d",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793497120174
+      },
+      {
+        "executionId": "27bd9f05-78c3-459b-b81e-288b14cba84d",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793497292317
+      },
+      {
+        "executionId": "27bd9f05-78c3-459b-b81e-288b14cba84d",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793497324357
+      },
+      {
+        "executionId": "27bd9f05-78c3-459b-b81e-288b14cba84d",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793497411294
+      },
+      {
+        "executionId": "27bd9f05-78c3-459b-b81e-288b14cba84d",
+        "chatSessionId": "sess_1a2c3a6c-7e97-4423-ab1b-cb4529beab10",
+        "timestamp": 1793497423394
+      },
+      {
+        "executionId": "3b647480-3776-4b14-a00e-2c95a5ccda81",
+        "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
+        "timestamp": 1793497612762
+      },
+      {
+        "executionId": "3b647480-3776-4b14-a00e-2c95a5ccda81",
+        "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
+        "timestamp": 1793500046545
+      }
     ]
   }
 }
