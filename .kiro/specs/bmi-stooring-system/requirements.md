@@ -161,6 +161,126 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
 - **NFR-A11Y** (PRODUCT.md): WCAG 2.2 AA; status never by colour alone — including the WO urgency pills (Urgent/High/Normal/Low), which always carry their text label alongside the colour (DEC-92, DESIGN.md); mobile targets ≥48 px, Pass/Fail ≥44 px; sunlight-readable contrast.
   - _Measurement_: automated a11y scan + manual check of status and urgency pills and tap targets.
 
+## PRD Coverage & Traceability (exhaustive)
+
+> This section makes PRD coverage **explicit and auditable**: every PRD requirement, acceptance criterion, business rule, NFR, state machine, decision, open-decision, role rule, product principle, risk, assumption-set and screen is mapped to the functional group (FG) that owns it and the task(s) that build it. Nothing in the PRD is dropped: an item that is deferred is still listed, with its release/task. **`PRD.md` remains the authoritative statement** of every item (PRD §0.1); this matrix routes, it does not restate.
+>
+> Counts pinned from PRD.md: **282 REQ** (27 areas), **130 AC**, **16 BR**, **19 NFR**, **92 DEC**, **10 DQ**, **13 state machines**, **10 RL**, **7 PR**, **9 RSK**, **64 ASM**, **15 §9 schema subsections (9.0–9.14)**, **153 artboards (§7.3)**. Every one is accounted for below.
+
+### Functional requirements by area → FG → task (all 282 REQ)
+
+Each row lists the **full REQ range** of a PRD area; the FG that owns it; the P0 build task(s); and any REQ in the range that is deferred (with where it lands). "✅ done" = the owning task is complete `[x]`; "gap" = covered by a new gap-closure task (TASK-121+).
+
+| PRD area | REQ range (all IDs) | FG | P0 build task(s) | Deferred in range | Status |
+|---|---|---|---|---|---|
+| WO | REQ-WO-001…017 | FG-1 | TASK-108 (API ✅), TASK-125/125 (web gap) | — | API ✅ / UI gap |
+| ENG | REQ-ENG-001…016 | FG-2 | TASK-108 (API ✅), TASK-125 (step UI gap) | — | API ✅ / UI gap |
+| REG | REQ-REG-001…007 | FG-3 | TASK-107 (API ✅), TASK-125/127 (composer+presets UI gap) | — | API ✅ / UI gap |
+| STK | REQ-STK-001…012 | FG-4 | TASK-109 (API ✅), TASK-125/126 (step+inventory UI gap) | STK-005/007/010/012 retired (DEC-60) | API ✅ / UI gap |
+| PUR | REQ-PUR-001…009 | FG-4 | TASK-109 (API ✅), TASK-125 (step UI gap) | — | API ✅ / UI gap |
+| MEC | REQ-MEC-001…010 | FG-5 | TASK-110 (API ✅), TASK-125 (step UI gap) | MEC-006 (P1 photo labels); MEC-007/008/009 retired (DEC-90) | API ✅ / UI gap |
+| CHK | REQ-CHK-001…007 | FG-5 | TASK-110 (API ✅), TASK-125/125 (step+review UI gap) | — | API ✅ / UI gap |
+| MBL | REQ-MBL-001…006 | FG-5a | TASK-110a (API ✅), TASK-125 (step UI gap), TASK-129 (mobile) | — | API ✅ / UI gap |
+| PLC | REQ-PLC-001…020 | FG-6 | TASK-111 (API ✅), TASK-124/124/126 (ChassisMap+step+vehicles UI gap) | PLC-015/016 (P1) | API ✅ / UI gap |
+| VEH | REQ-VEH-001…010 | FG-7 | TASK-106 (API ✅), TASK-127 (vehicles UI gap) | VEH-009 (P1 Protrack) | API ✅ / UI gap |
+| DOC | REQ-DOC-001…013 | FG-7 | TASK-106 (API ✅), TASK-127 (documents UI gap) | — | API ✅ / UI gap |
+| BSL | REQ-BSL-001…009 | FG-8 | TASK-112 (API baseline/tyre ✅), **TASK-122 (part-item master + reset gap)**, TASK-123/127 (settings UI) | — | partial → TASK-122 |
+| INV | REQ-INV-001…014 | FG-8 | TASK-112 (API ✅), **TASK-121 (stock-card export gap)**, TASK-127 (inventory UI gap) | INV-012 low-stock alert verify in TASK-127 | API ✅ / export+UI gap |
+| TYR | REQ-TYR-001…015 | FG-8 | TASK-112 (API ✅, incl. **TYR-013 tyre-event history P0**), TASK-123 (tyre-statuses master), TASK-127 (tyres UI) | **TYR-014/015 only (P1: CPK, min-per-size → R2 FG-18)** | API ✅ / UI gap |
+| CR | REQ-CR-001…008 | FG-9 | TASK-113 (API ✅), TASK-125/125 (revision+amendment UI gap) | — | API ✅ / UI gap |
+| APR | REQ-APR-001…011 | FG-10 | TASK-113 (API ✅), TASK-126 (review cards UI), **TASK-124 (APR-009/010 P0: Evidence card + PhotoViewer)** | **APR-008 only (P1 mobile review strip)** | API ✅ / UI gap |
+| WOD | REQ-WOD-001…008 | FG-11 | TASK-115 (model ✅), TASK-128 (WODocument UI), TASK-206 (real PDF, P2) | WOD-006 amendment-history attach (P1) | model ✅ / render gap |
+| BIL | REQ-BIL-001…012 | FG-11 | TASK-115 (API ✅, incl. **BIL-010 P0: Accounting/Sup/SA write + GM read-only + audit**), TASK-123 (tax/markup editor), TASK-128 (invoices/customers UI) | **BIL-011 only (P2 invoice email)** | API ✅ / UI gap |
+| PM | REQ-PM-001…010 | FG-12 | TASK-114 (API ✅), TASK-123 (alert thresholds master gap), TASK-126 (dashboard UI gap) | — | API ✅ / UI gap |
+| SCH | REQ-SCH-001…007 | FG-12 | TASK-114 (API ✅), TASK-127 (schedule calendar UI gap) | — | API ✅ / UI gap |
+| DSH | REQ-DSH-001…010 | FG-12 | TASK-114 (data ✅), TASK-126 (6 role dashboards UI, incl. **DSH-008 P0: hide P1 cards until R2**) | **DSH-010 only (P1 step-time card)** | data ✅ / UI gap |
+| NTF | REQ-NTF-001…005 | FG-12 | TASK-114 (in-app ✅), TASK-128 (NotificationCenter UI gap), TASK-129 (push) | NTF-003/004 WhatsApp/email (P2) | in-app ✅ / UI+push gap |
+| IAM | REQ-IAM-001…011 | FG-13 | TASK-104/105 (API ✅), TASK-128 (Access Manager + audit UI gap), **TASK-121 (audit read/export gap)** | — | API ✅ / UI+export gap |
+| MOB | REQ-MOB-001…010 | FG-15 | **P0 (R1 step 7): MOB-001/003/006/008** → TASK-118 ✅ + **TASK-129** (FC fleet/schedule/alerts, Driver/SA depth, offline). **MOB-002 is P0** but is the parity rule for the **Mechanic mobile menu (R2 per §10)**, so it is built with that menu in R2 and is not an R1 gate. **P1 (R2): MOB-004/005/007/010** (field finding, Supervisor review/fleet/history, mechanic today-list). | MOB-002 (P0, with R2 Mechanic menu); MOB-004/005/007/010 (P1/R2) | P0 R1 shell ✅ → TASK-129; MOB-002 + P1 with R2 menus (listed) |
+| FUP | REQ-FUP-001…016 | FG-16 | TASK-116 (API ✅), TASK-124 (PhotoViewer/FileDrop UI gap), TASK-204 (real S3/R2, P2) | — | API ✅ / UI gap |
+| SET | (REQ-REG-007, REQ-MEC-005/010, REQ-INV-014, REQ-TYR-003, REQ-PM-006…010, REQ-BIL-004/007/012, REQ-DOC-002, REQ-PLC-013) | FG-17 | partial across TASK-106/107/110a/115, **TASK-123 (complete masters gap)**, TASK-128 (settings UI gap) | SettingsIntegrations (DQ-05, P1) | partial → TASK-123 |
+| RPT | REQ-RPT-001…005 | FG-18 | **deferred R2**; only stock-card+audit-log export are P0 (TASK-121, DEC-74) | RPT-001…005 (R2) | deferred (listed) |
+| AI | REQ-AI-001…004 | FG-18 | **deferred R2** (Q-04) | AI-001…004 (R2) | deferred (listed) |
+
+### Acceptance criteria (all 130 AC) → verifying task
+
+Every `AC-*` is owned by the task that implements its REQ and is re-asserted by the behavioural suite **TASK-130** (FLW-* end-to-end). API-level AC already pass under the owning task's unit/e2e tests; UI-level assertions (screen presence, pill text, drag-compose) are added by the matching web/mobile gap task.
+
+| AC area | AC range | Owning task(s) | Status |
+|---|---|---|---|
+| AC-WO-001…006 | WO | TASK-108 ✅ + TASK-130 | pass (API) |
+| AC-ENG-001…009 | ENG | TASK-108 ✅ + TASK-130 | pass (API) |
+| AC-REG-001…005 | REG | TASK-107 ✅ | pass |
+| AC-STK-001…006 | STK | TASK-109 ✅ | pass |
+| AC-PUR-001…006 | PUR | TASK-109 ✅ | pass |
+| AC-MEC-001…005 | MEC | TASK-110 ✅ | pass |
+| AC-CHK-001…004 | CHK | TASK-110 ✅ | pass |
+| AC-MBL-001…004 | MBL | TASK-110a ✅ | pass |
+| AC-PLC-001…010 | PLC | TASK-111 ✅ | pass |
+| AC-VEH-001…004 | VEH | TASK-106 ✅ | pass |
+| AC-DOC-001…006 | DOC | TASK-106 ✅ | pass |
+| AC-BSL-001…005 | BSL | TASK-112 ✅ + **TASK-122** (part-item reset AC-BSL-004/005 end-to-end) | partial → TASK-122 |
+| AC-INV-001…006 | INV | TASK-112 ✅ (001…005), TASK-105 ✅ (006 opening balance) | pass |
+| AC-TYR-001…007 | TYR | TASK-112 ✅ | pass |
+| AC-CR-001…005 | CR | TASK-113 ✅ | pass |
+| AC-APR-001…005 | APR | TASK-113 ✅ | pass |
+| AC-WOD-008 | WOD | TASK-115 ✅ | pass |
+| AC-BIL-001…005 | BIL | TASK-115 ✅ | pass |
+| AC-PM-001…005 | PM | TASK-114 ✅ (001…003), TASK-106/114 (004/005 inspection+breakdown) | pass |
+| AC-SCH-001…005 | SCH | TASK-114 ✅ (001…004), TASK-127 (005 read-only UI) | API ✅ / UI gap |
+| AC-IAM-001…007 | IAM | TASK-104/105 ✅ | pass |
+| AC-FUP-001…009 | FUP | TASK-116 ✅ | pass |
+| AC-MOB-001…005 | MOB | TASK-118 ✅ (001…004 logic), **TASK-129** (005 + full-screen depth) | partial → TASK-129 |
+
+### Business rules (all 16 BR)
+
+BR-01…BR-16 are service-layer invariants enforced today in the API and (Phase 2) re-asserted by DB guards. Ownership: BR-01/02/03/04/05 (TASK-108), BR-06/07/11 (TASK-109/112), BR-08 (TASK-106), BR-09 (TASK-106), BR-10 (TASK-103 append-only + every write), BR-12 (TASK-112/113), BR-13 (TASK-114), BR-14 (TASK-104), BR-15 (TASK-115), BR-16 (TASK-108/115). All ✅ at API level; re-verified in TASK-130 and (Phase 2) TASK-203/208.
+
+### Non-functional requirements (all 19 NFR + NFR-A11Y)
+
+NFR-01 INTEGRITY, NFR-02 AUDIT, NFR-03 CONCURRENCY, NFR-04 SECURITY, NFR-05 AUTH → TASK-103/104 ✅. NFR-06/13 FILES → TASK-116 ✅ (real store TASK-204). NFR-08/09 FORMAT, NFR-14 TIME, NFR-15 NUMBERING, NFR-16 MONEY → TASK-003 ✅. NFR-17 BACKUP → TASK-303 (go-live). NFR-18 PLATFORM → TASK-117/118/305. NFR-19 CAPACITY → TASK-306 (load test). NFR-07/10/11/12 (performance/retention/daily-job) → TASK-103/114/205. **NFR-A11Y** → TASK-117 ✅ (pill text) + TASK-124/125/126/127 (full-screen WCAG) + TASK-210 (polish). All mapped; none dropped.
+
+### State machines (all 13 SM)
+
+SM-WO, SM-STEP → TASK-108 ✅. SM-VEH (incl. OFF) → TASK-106/114 ✅. SM-DOC → TASK-106 ✅. SM-TYRE → TASK-111/112 ✅. SM-GR, SM-SA, SM-TC → TASK-112 ✅. SM-TR, SM-RD → TASK-112 ✅. SM-CR → TASK-113 ✅. SM-SCH (auto roll-forward) → TASK-114 ✅. SM-INV → TASK-115 ✅. Every transition is guarded by the shared `@bmi/shared` machines (TASK-101 ✅); TASK-130 re-asserts each transition behaviourally.
+
+### Role rules, principles, risks, decisions, open decisions, assumptions
+
+- **RL-1…RL-10** (role rules) — encoded in the §2.2 permission matrix + guards (TASK-103/104 ✅); FC/driver/AM scope re-checked in TASK-129/127.
+- **PR-0…PR-6** (product principles) — PR-6 (data-driven modules) is realised by the registry (TASK-107 ✅, TASK-110a ✅); the rest are architecture-wide and checked at review (TASK-209).
+- **RSK-01…RSK-09** (risks) — RSK-09 (location-trail privacy / UU-PDP) is built in TASK-110a ✅ and audited in TASK-209; the others are delivery risks tracked in §11.4.
+- **DEC-01…DEC-92** (92 decisions) — each decision is embedded in the REQ/BR/SM it modifies and therefore built by that REQ's owning task; the DEC IDs most load-bearing for Phase 1 (DEC-31/32 files, DEC-33 B/W doc, DEC-41/66 release/stack, DEC-43/46/50 invoices, DEC-55 no branches, DEC-60…64 stock/purchase, DEC-68/69/73 chassis, DEC-74 exports, DEC-85/86/87/88/89/90/91/92) are already reflected in the completed tasks and the gap tasks below. No decision is contradicted; where the spec once simplified one it is reconciled (e.g. DEC-92 OFF, DEC-91 finding_note, DEC-90 Mobilisasi).
+- **DQ-01…DQ-10** (§7.11 open-decisions, now resolved) — DQ-01 notif settings (TASK-118 ✅), DQ-02 password reset (TASK-104 ✅), DQ-03/04 mobile profile/history (TASK-118/128), DQ-05 integrations (FG-17, P1), DQ-07 part-age (TASK-113 ✅), DQ-11 FC draft cancel (TASK-129). Each DQ's resolution is carried in its owning task.
+- **ASM-01…ASM-64** (assumptions) — all carried as `[A]`-tagged behaviour, built as written and kept easy to change (PRD §0.4); ASM-64 (bulk import Setup-mode only) is enforced in TASK-105 ✅.
+
+### Data model — PRD §9 (all 15 subsections, all tables)
+
+`PRD.md §9` is the authoritative final PostgreSQL schema; it is **not** re-derived here. Phase 1 models the business aggregates in the dummy `DataGateway`; **Phase 2 TASK-201** authors the real schema for every §9 subsection: 9.0 conventions, 9.1 enumerations (incl. `vehicle_status_t` OFF, `invoice_lines.kind` Off_Unit), 9.2 identity/access/audit, 9.3 fleet/chassis/odometer, 9.4 documents, 9.5 PM/part-items/alerts/inspections, 9.6 WO/steps/approvals (incl. `finding_note`, `off_days`, `off_last_counted_date`), 9.7 WO content, 9.8 parts inventory/stock ledger, 9.9 tyres/retread, 9.10 placements/map, 9.11 schedule (incl. `is_rolled_over`), 9.12 platform/settings/notifications/AI (incl. `off_unit_daily_rate`), 9.13 integrity rules & key transactions (TX-*), 9.14 customers/invoices. design.md "Data Models" lists every aggregate→table mapping.
+
+### Screen inventory — PRD §7.3 (all 153 artboards)
+
+Every artboard in `Design Artifact/` is mapped to its FG and build task below. Per PRD §7.1/§7.7 and the spec header, **artboards are illustrative layout references, not a binding front-end contract**: the UI is built to the REQ + `DESIGN.md`, using each artboard as the example of layout and flow. design.md "Screen Inventory & Coverage" carries the full artboard→REQ→task catalogue; the grouping is:
+
+- **Shell & general (4):** WebLogin, NotificationCenter, AppShellCollapsed, Main(screen map, not built) → FG-13/shell, TASK-117 ✅ (login/shell) + TASK-128 (NotificationCenter, collapsed rail).
+- **Dashboards (7):** Supervisor/GM, Planner, Mechanic, Warehouse, System Admin, Field Coordinator, Accounting → FG-12, TASK-126.
+- **Work Orders (10):** WOList, CreateWO, CreateWOFromAlert, WORejected, WorkOrder, WODetailVerify, StepVerify, StepLocked, StepReturned, CancelWO → FG-1/2, TASK-125/125 (TASK-117 ✅ shell).
+- **Change request / amendment / document (4):** ChangeRequest, CreateWORevision, WODocument, WODocumentCheck → FG-9/11, TASK-125/127.
+- **Steps (10):** Stock, PartPurchase, StockReversal, Mechanic, MechanicExternal, PartCheck, PartCheckVerify, CreateWOFromCheck, Placement, PlacementReplace, PlacementRotate, DocStep, PlacementTrailer, MechanicMobileCheck → FG-4/5/5a/6, TASK-125 (+ ChassisMap TASK-124).
+- **Approvals (8):** Approvals, ApprovalsWarehouse, ApprovalsHistory, ApprovalReview, AmendmentReview, CompletionReview, StockOpnameApproval, TyreCountApproval → FG-10, TASK-126.
+- **Schedule (2):** MaintenanceSchedule, ScheduleDispatcher → FG-12, TASK-127.
+- **Vehicles (12):** Vehicles, VehicleOverview, VehicleDocuments, VehicleWOHistory, VehicleInspections, AddVehicle, VehicleEdit, VehicleDeactivate, VehicleOdometer, OdometerVoid, PartsBaseline, BaselineCorrect, AdminInspectionForm, AdminBreakdownForm → FG-7/8, TASK-127.
+- **Documents (4):** Documents, AddDocument, DocumentScan, DocumentCorrectEntry → FG-7, TASK-127.
+- **Inventory parts (14) + tyres (10):** Inventory, AddPart, PartDetail, PartEdit, PartDeactivate, GoodsReceipts, GoodsReceiptForm, GoodsReceiptDetail, GRCorrection, StockCard, StockCardExport, StockOpname, StockOpnameReturned, Tyres, TyreColumns, ReceiveTyres, RetreadReceipt, RetreadDispatch, RetreadList, RetreadDispatchDetail, TyreWornOut, TyreScrap, TyreCount → FG-8, TASK-127 (StockCardExport also TASK-121).
+- **Settings (12):** Settings(home), SettingsWOPresets, SettingsAlertRules, ChassisLayouts, DocumentTypes, SettingsServiceCatalog, SettingsPartItemTypes, SettingsPMPackages, SettingsAlertThresholds, SettingsTyreStatuses, SettingsVendors, SettingsBilling, SettingsStooringRates, (SettingsIntegrations P1) → FG-17, TASK-123 (API) + TASK-128 (UI).
+- **Access Manager area (5):** UsersRoles, AMAccountForm, AMRolesPermissions, AMAccessHistory, AuditLog → FG-13, TASK-128 (+ audit read TASK-121).
+- **Reports (5):** Reports, ReportsTyres, ReportsMaintenance, ReportsInventory, ReportsStepTime → FG-18, **R2 (deferred, listed)**.
+- **Mobile (24):** MobileLogin, DashboardDriver, DriverInspection, DriverBreakdown, DriverOdometer, DriverHistory, MechanicMobileHome, MechanicMobileStep, MechanicMobilePlacement, MechanicMobileFieldReport, MechanicMobileHistory, SupervisorMobileHome, SupervisorMobileReview, SupervisorMobileFleet, SupervisorMobileHistory, MobileProfile, DispatcherMobileFleet, DispatcherMobileSchedule, DispatcherMobileAlerts, FileUploadStates, MechanicMobileUpload, PhotoViewer, FCMobileRequests, FCMobileCreateWO, FCMobilePurchase, SAMobileHome, FCDraftCancel → FG-15/16, TASK-118 ✅ (R1 shell) + TASK-129 (R1 depth: FC fleet/schedule/alerts, FileDrop) + R2 (Mechanic/Supervisor menus).
+- **Invoices & customers + setup (10):** DashboardAccounting, InvoiceList, InvoiceDetail, InvoicePayment, InvoiceVoid, InvoiceDocument, Customers, CustomerForm, OpeningBalance, ChangePassword, SetupGoLive, SetupImport → FG-11/14, TASK-128 (+ OpeningBalance/SetupImport API ✅ TASK-105).
+
+The one artboard not built is `Main` (screen map, overview only, PRD §7.3). `SettingsIntegrations` and the AI sidebar have no artboard yet (PRD §7.3) and are P1.
+
+> **Final reconciliation (TASK-120).** After TASK-124..128, **TASK-120** runs a screen-by-screen sweep over every P0 web artboard and every R1 mobile artboard with **full authority to change/replace the TASK-117/118 output** and to **revise any API that does not match the PRD**, so no delivered screen or endpoint is left diverging from §7.3/§7.4/§7.9 or its REQ/AC. It is the backstop that guarantees the shipped clients match the PRD, not just the task scope.
+
 ## Out of Scope (v1.0 / Release 1)
 
 - Reports and cost analytics, tyre CPK, dead-stock/min-per-size reports (R2; DEC-74, except stock-card & audit-log exports).
