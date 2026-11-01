@@ -273,7 +273,7 @@ Execution waves (tasks in the same wave are independent and may run in parallel;
   - _Output_: Android app running in Expo against dummy-backed API.
   - _Verify_: AC-MOB-001..004 happy paths; 48px targets; menu follows role; breakdown report captures location once plus the mandatory note (→ `finding_note`) and triggers the auto-drafted Mobilisasi WO; an FC mobile draft cannot be sent for review without a typed finding note; the Mechanic mobile task list (R2) lists only today-scheduled WOs assigned to that mechanic, ordered by urgency descending with rolled-over/late first, each with its urgency pill and rolled-over flag.
   - _Git_: `feat(mobile): Expo shell + R1 field flows [TASK-118]`.
-- [ ] **TASK-119** [all P0 FGs]: Dev-phase E2E smoke suite — one scripted end-to-end per functional group against the dummy gateway (create→approve→execute→verify→complete→invoice).
+- [x] **TASK-119** [all P0 FGs]: Dev-phase E2E smoke suite — one scripted end-to-end per functional group against the dummy gateway (create→approve→execute→verify→complete→invoice).
   - _Skill_: `test-master`.
   - _Output_: Playwright/API E2E smoke suite; CI job on `develop`.
   - _Verify_: all smoke E2E green; coverage report produced.
