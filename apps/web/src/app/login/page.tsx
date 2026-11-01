@@ -20,10 +20,14 @@ export default function LoginPage(): JSX.Element {
 
   return (
     <main id="main" className={styles.screen}>
-      <div className={styles.frame}>
-        <div className={styles.brandBar}>
+      <aside className={styles.brandPanel}>
+        <div className={styles.brandLogo}>
           <Logo />
         </div>
+        <p className={styles.brandLead}>{tr('login.brandLead')}</p>
+        <p className={styles.brandFoot}>{tr('login.brandFoot')}</p>
+      </aside>
+      <div className={styles.formPane}>
         <div className={styles.panel}>
           <h1 className={styles.title}>{tr('login.title')}</h1>
           <p className={styles.subtitle}>{tr('login.subtitle')}</p>

@@ -2,7 +2,14 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { apiFetch, ApiError, SESSION_COOKIE, ROLE_COOKIE, UID_COOKIE } from '@/lib/api';
+import {
+  apiFetch,
+  ApiError,
+  SESSION_COOKIE,
+  ROLE_COOKIE,
+  UID_COOKIE,
+  SIDEBAR_COOKIE,
+} from '@/lib/api';
 import { LOCALE_COOKIE, isLocale } from '@/lib/i18n';
 
 /**
@@ -78,6 +85,21 @@ export async function logoutAction(): Promise<void> {
   jar.delete(ROLE_COOKIE);
   jar.delete(UID_COOKIE);
   redirect('/login');
+}
+
+/**
+ * Toggle the collapsed-navigation preference (DEC-82, §7.9 C-02). The choice is
+ * saved per user in a cookie so it survives reloads and the main area takes the
+ * freed width. No navigation happens — only the preference flips.
+ */
+export async function toggleSidebarAction(formData: FormData): Promise<void> {
+  const collapsed = String(formData.get('collapsed') ?? '') === '1';
+  cookies().set(SIDEBAR_COOKIE, collapsed ? '1' : '0', {
+    httpOnly: false,
+    sameSite: 'lax',
+    path: '/',
+    secure: process.env.NODE_ENV === 'production',
+  });
 }
 
 /** Switch the UI language (Indonesian default + English). */

@@ -176,3 +176,152 @@ invoice email — none built here.
 
 No earlier task's completion status was changed; `tasks.md` / `tasks.meta.json`
 were left untouched. No temporary files remain.
+
+---
+
+## 9. Visual/layout audit vs §7.3 artboards (TASK-120a)
+
+> TASK-120 reconciled **behaviour** but did not run the visual/layout audit.
+> This section closes that: each already-built web + mobile screen was compared
+> **code-to-code** against its PRD §7.3 `.dc.html` artboard (inline styles +
+> `<helmet><style>`), its §7.4 "Key screen layouts" row and its §7.9 action-map
+> rows. Artboards are an illustrative reference (PRD §7.1/§7.7) — the audit
+> matches **region structure + control set + DESIGN.md brand tokens +
+> status-as-text (NFR-A11Y)**, not pixel-for-pixel. Each screen is classified
+> CONFORMANT (left untouched) or the specific divergences fixed are listed.
+
+Date: 2026-11-01 · Branch: `fix/phase1-task120-visual-audit`
+
+### 9.1 Divergences fixed
+
+#### DIV-1 — App-shell header had no notification bell (§7.2 / §7.9 C-03 / REQ-NTF-001)
+**Artboards:** `AppShellCollapsed.dc.html`, `DashboardPlanner.dc.html` (header
+pattern). **§7.4/§7.2:** "The page header holds the title (left), the user and
+role (right), the bell (NotificationCenter) and the primary action." **§7.9
+C-03:** "Bell in the page header … the badge shows the unread count."
+
+**Divergence (TASK-117 output):** the `Topbar` held the role chip + language
+toggle + sign-out but **no notification bell** — the §7.2-required header control
+was absent. **Fix:** added the bell to `Topbar` (`IconBell`, `Topbar.module.css`
+`.bell`/`.badge`) with an unread-count badge; the count is read in the `(app)`
+layout from the dashboard endpoint's `unreadNotifications` and passed to the
+Topbar. The bell carries an accessible label (count included) and only shows the
+numeric badge when > 0. Phase-1 note: the dedicated NotificationCenter panel is a
+later screen (TASK-124+); the bell links to the dashboard where notifications
+surface, so the header control + badge exist now per §7.2. Contract test added
+(`Topbar.test.tsx`, 2 cases).
+
+#### DIV-2 — Sidebar had no collapsible icon rail (§7.2 / §7.9 C-02 / DEC-82)
+**Artboard:** `AppShellCollapsed.dc.html` (the 64px rail with the `Collapse
+menu` toggle at the foot). **§7.4/§7.2:** "A toggle at the foot of the navigation
+(Collapse menu) shrinks it to a 64px icon rail and back … the choice is saved
+per user, the toggle works by keyboard, and the main area takes the freed
+width." **§7.9 C-02:** "Collapse menu — toggles the icon rail; saved per user;
+no navigation."
+
+**Divergence (TASK-117 output):** the `Sidebar` rendered a fixed 200px nav with
+no collapse affordance — the DEC-82 rail was missing (even though `nav.collapse`
+/ `nav.expand` strings already existed in the dictionary). **Fix:** added the
+`Collapse menu` toggle at the foot of `Sidebar`, a `toggleSidebarAction` Server
+Action that saves the per-user preference in the `bmi_nav_collapsed` cookie, and
+`sidebarCollapsed()` read server-side in the layout so the first paint already
+honours the choice (no flash). Collapsed → 64px rail: labels hide, icons centre,
+each item keeps its name as a `title` tooltip + an `sr-only` label, the active
+item stays highlighted, and the main area takes the freed width. The toggle is a
+form button (keyboard-operable, works without client JS). `IconCollapse` added;
+`Logo` renders tile-only in the rail. Contract test added (`Sidebar.test.tsx`,
+2 cases). Live-verified: the `bmi_nav_collapsed=1` cookie renders
+`data-collapsed="true"` and the toggle flips to "Expand menu".
+
+#### DIV-3 — Web sign-in used a single stacked card, not the split brand layout (§7.3 WebLogin)
+**Artboard:** `WebLogin.dc.html` — a two-panel split: a petrol-ink (`#14262E`)
+brand panel on the left (logo on its white tile + the product promise "…for the
+fleet" / "Every action is tied to an approved Work Order") and the sign-in card
+on the right.
+
+**Divergence (TASK-117 output):** `login/page.tsx` rendered a single narrow
+400px card with a thin brand bar on top — the artboard's left/right region split
+and the brand promise copy were absent. **Fix:** rebuilt the login region layout
+to the split (`login.module.css`): left `.brandPanel` (petrol-ink, logo on the
+white tile via the shared `Logo`, lead + foot promise lines) and right
+`.formPane` centring the sign-in card; stacks vertically under 720px (tablet).
+Added the `login.brandLead` / `login.brandFoot` bilingual strings. The logo
+stays on its mandatory white tile (brand rule). Live-verified: `/login` → 200
+with the brand panel present.
+
+### 9.2 Screens audited CONFORMANT (left untouched)
+
+Each already matched its artboard's region structure + control set + tokens +
+status-as-text; no taste-only rewrites were made.
+
+| Screen | Artboard | §7.4 / §7.9 item | Verdict |
+| --- | --- | --- | --- |
+| Dashboard (`dashboard/page.tsx`) | `DashboardPlanner` + the 6 role dashboards | §7.4 dashboards; REQ-DSH-001..006/009 | CONFORMANT on the summary-card grid + role identity line + unread count. Residual: the "Needs my action" wider-left + status/work-list right split is **owned by TASK-126** (it needs dashboard list payloads the P0 count-card API doesn't yet return; the shell may not change the API). |
+| Work Orders list (`work-orders/page.tsx`) | `WOList` | §7.2 List page; §7.4; REQ-WO-010/015 | CONFORMANT — header + primary **Create** button, table, urgency **and** status pills each carrying their word (NFR-A11Y), Urgent→Low ordering. |
+| WO detail (`work-orders/[id]/page.tsx`) | `WorkOrder` | §7.2 Master-detail; §7.4; REQ-WO-011/016 | CONFORMANT — master-detail (`layout-split`: step cards left, context card right), urgency/status pills with text, finding note read-only (DEC-91). |
+| WO composer (`work-orders/new/page.tsx`) | `CreateWO` | §7.4; REQ-WO-001/004/016/017 | CONFORMANT — form page in data-entry order, read-only finding note carried verbatim (REQ-WO-016, unit-proved), urgency select labelled. |
+| Step screen (`…/steps/[stepId]/page.tsx`) | `StepVerify` / `StepLocked` / `StepReturned` | §7.4 Step screen | CONFORMANT on the context banner + step detail + status-as-text. Residual: the **bottom action bar (Save draft / Submit step)** and the verify/return controls are part of the **full step screens owned by TASK-124+** (engine-mutation wiring is out of this task's scope). |
+| Approvals (`approvals/page.tsx`) | `Approvals` | §7.4; REQ-APR, REQ-WO-015 | CONFORMANT — header + waiting-count + inbox table, urgency pills with text, Urgent/High-first ordering. |
+| Inventory (`inventory/page.tsx`) | `Inventory` | §7.2 One field per column; REQ-INV | CONFORMANT — table, one fact per column, tabular numerals, Rupiah formatting via `@bmi/config` conventions. |
+| Requests (`requests/page.tsx`) | `FCRequests` | §7.4; REQ-WO-016 | CONFORMANT — header + subtitle, table with urgency pills + read-only finding note + "Compose Work Order" seeding the composer. |
+| Schedule (`schedule/page.tsx`) | `MaintenanceSchedule` | §7.4; REQ-SCH-003, DEC-92 | CONFORMANT — calendar/list cards; the rolled-over/late flag is a **pill with its text label** (never colour alone). |
+| Vehicles (`vehicles/page.tsx`) | `Vehicles` / `VehicleOverview` | §7.2 One field per column; REQ-VEH, DEC-92 | CONFORMANT — table, derived status (incl. OFF) as a pill with text, Indonesian km grouping. |
+| Shared `Pill` | all status/urgency pills | NFR-A11Y "Words First" | CONFORMANT — always renders the label; variant colours copied verbatim from the artboards' `.g/.a/.r/.n/.b` palette. |
+| Shared `Logo` | brand rule (§7.8) | logo on a white tile | CONFORMANT — wordmark always on the mandatory white tile, never on brand red. |
+| **Mobile** MobileLogin (`index.tsx`) | `MobileLogin` | REQ-IAM-001, §7.11 | CONFORMANT — brand tile, field-first form, one red primary action, role-routed menu; office-only role told to use web. |
+| **Mobile** Driver home + inspection/odometer/breakdown/history | `DashboardDriver`, Driver-menu artboards | §7.11; REQ-MOB, REQ-DRV | CONFORMANT on tokens/brand/status-as-text/48px targets/one-task-per-screen. See residual note below on the bottom tab bar. |
+| **Mobile** Field Coordinator requests/purchase | `FCMobileRequests`, `FCMobilePurchase` | §7.9 C-05; REQ-MOB, REQ-PUR | CONFORMANT — field-first list/step, calculated totals, status-as-text. |
+| **Mobile** System Admin field menu (`system-admin.tsx`) | `SAMobileHome` | §7.9 C-05 | CONFORMANT — open-steps menu, field-first. |
+| **Mobile** Mechanic today (`mechanic.tsx` + `mechanic/today.tsx`) | `MechanicMobileHome` | §7.9 C-05 (R1 subset) | CONFORMANT on tokens/field-first. |
+| **Mobile** Profile (`profile.tsx`) | `MobileProfile` | §7.9 C-05 | CONFORMANT — profile + language + sign-out, field-first. |
+
+**Mobile token sweep:** no hard-coded hex colour exists in any `apps/mobile/app`
+screen — every screen consumes `src/theme/tokens.ts`, which transcribes the
+DESIGN.md "Petrol Complement" palette verbatim (brand red `#AD2713`, petrol
+`#1F4E5F`, ink `#14262E`, mist `#E6EFF1`, gold-light `#F2D98A`, danger `#B91C1C`).
+All pills carry their text label (`pills.ts` "Words First").
+
+**Mobile residual (documented, not a token/structure divergence):** §7.9 C-05
+describes a persistent **bottom tab bar**; the R1 screens implement "one app
+whose menu follows the role" as full-screen menu tiles (one task per screen,
+48px+ targets, profile/sign-out footer) — a faithful field-first reading of
+§7.2/§7.11. Converting to a persistent bottom-tab navigator is a navigation-shell
+refinement left to the mobile build-out (MOB-002 / later mobile tasks), since it
+touches the expo-router layout rather than any brand token or status rule.
+
+### 9.3 Screens still owned by TASK-124..129 (out of scope here — not built)
+
+These §7.3 artboards have no built screen today; they are **not** audited or
+built by TASK-120a:
+
+- **TASK-124** — full engine step screens + `WODetailVerify` verify/complete
+  controls, `StepVerify`/`StepLocked`/`StepReturned` action bars, `CreateWOFromAlert`, `WORejected`.
+- **TASK-125** — `ChassisMap` / Part-Replacement placement UI, tyre screens
+  (`TyreCount`, retread), `PartPurchase` web step.
+- **TASK-126** — the per-role dashboards as dedicated screens (the "Needs my
+  action" split), Field Coordinator / Accounting / GM dashboards, Evidence &
+  report-photo cards (APR-009/010), NotificationCenter panel.
+- **TASK-127** — Invoices / Customers / WO-document screens.
+- **TASK-128** — Settings home + master-data pages (`Settings`,
+  `SettingsWOPresets`, `SettingsAlertRules`, …), Documents, Reports.
+- **TASK-129** — Setup & Go-live screen (`SetupGoLive`), Access Manager
+  navigation (Users & roles, Audit log).
+
+### 9.4 Verification (TASK-120a)
+- `pnpm -w run build` — 6/6 ✅ (all 13 web routes build)
+- `pnpm -w run typecheck` — 9/9 ✅
+- `pnpm -w run lint` — clean ✅
+- `pnpm -w run test` — 9/9 tasks ✅ (web **25** = 21 prior + 4 new shell contract
+  tests in `Sidebar.test.tsx` / `Topbar.test.tsx`; api 384, shared 43, config 50,
+  data-gateway 14, mobile 20 all intact)
+- Live local smoke (`@bmi/api` :3000 dummy gateway + `@bmi/web` `next start`
+  :3100, fresh clean build): `/login` 200 with the split brand panel; protected
+  `/dashboard` 307-redirects when unauthenticated; signed-in System Admin renders
+  **every existing route** — `/dashboard`, `/work-orders`, `/work-orders/new`,
+  `/work-orders/1`, `/approvals`, `/inventory`, `/requests`, `/schedule`,
+  `/vehicles` all 200 — with the header **bell** and the sidebar **collapse
+  toggle** present; the `bmi_nav_collapsed` preference renders the 64px rail
+  (`data-collapsed="true"`) and flips the toggle to "Expand menu".
+
+No API / `@bmi/shared` / `@bmi/config` / data-gateway change; no new screens
+built; `tasks.md` / `tasks.meta.json` left untouched. No temporary files remain.

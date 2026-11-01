@@ -1,29 +1,59 @@
+/*
+ * Sign in (web) — WebLogin artboard layout: a petrol-ink brand panel on the
+ * left (logo on its white tile + the product promise) and the sign-in card on
+ * the right (PRD §7.3 WebLogin, REQ-IAM-001). Desktop-first; on a narrow
+ * viewport the brand panel stacks above the form.
+ */
 .screen {
   min-height: 100vh;
+  display: flex;
+  background: var(--page);
+}
+
+/* Left petrol panel with the brand + promise. */
+.brandPanel {
+  flex: 0 0 40%;
+  max-width: 480px;
+  background: var(--ink);
+  color: var(--surface);
+  padding: 60px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.brandLogo {
+  display: flex;
+}
+
+.brandLead {
+  color: var(--stone);
+  font-size: 16px;
+  margin: 0;
+}
+
+.brandFoot {
+  margin-top: auto;
+  color: var(--stone);
+  margin-bottom: 0;
+}
+
+/* Right pane that centres the sign-in card. */
+.formPane {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-page);
-  background: var(--page);
-}
-
-.frame {
-  width: 100%;
-  max-width: 400px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-/* Petrol-ink brand bar — logo on its white tile. */
-.brandBar {
-  background: var(--ink);
-  padding: var(--space-lg);
 }
 
 .panel {
-  padding: var(--space-page);
+  width: 100%;
+  max-width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
 }
 
 .title {
@@ -36,4 +66,19 @@
 .subtitle {
   color: var(--text-muted);
   margin: 0 0 var(--space-lg);
+}
+
+@media (max-width: 720px) {
+  .screen {
+    flex-direction: column;
+  }
+  .brandPanel {
+    flex-basis: auto;
+    max-width: none;
+    padding: var(--space-page);
+    gap: var(--space-md);
+  }
+  .brandFoot {
+    margin-top: var(--space-sm);
+  }
 }
