@@ -3,6 +3,7 @@ import { AuditModule } from '../../core/audit/audit.module.js';
 import { AssignmentsModule } from '../assignments/assignments.module.js';
 import { StepHandlerRegistry } from '../assignments/step-handler.registry.js';
 import { VehiclesModule } from '../vehicles/vehicles.module.js';
+import { TyreEventLogModule } from '../inventory/tyre-event-log.module.js';
 import { PlacementController } from './placement.controller.js';
 import { PlacementService } from './placement.service.js';
 
@@ -29,7 +30,7 @@ import { PlacementService } from './placement.service.js';
  * Assignments / Vehicles), so there is no import cycle.
  */
 @Module({
-  imports: [AuditModule, AssignmentsModule, VehiclesModule],
+  imports: [AuditModule, AssignmentsModule, VehiclesModule, TyreEventLogModule],
   controllers: [PlacementController],
   providers: [PlacementService],
   exports: [PlacementService],

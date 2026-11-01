@@ -179,4 +179,25 @@ describe('Maintenance (PM / schedule / notifications / daily job) e2e (TASK-114)
     expect(dash.body.role).toBe('Mechanic');
     expect(dash.body.cards.some((c: { key: string }) => c.key === 'steps_open')).toBe(true);
   });
+
+  // --- REQ-DSH-009: the Accounting dashboard has its P0 cards (TASK-120) ----
+
+  it('REQ-DSH-009 — the Accounting role lands on an Accounting dashboard with its billing cards', async () => {
+    const accounting = await login('accounting@bmi.test');
+    const dash = await auth(accounting)(
+      request(server()).get(`${base}/maintenance/dashboard`),
+    ).expect(200);
+    expect(dash.body.role).toBe('Accounting');
+    const keys = (dash.body.cards as Array<{ key: string }>).map((c) => c.key);
+    // The four P0 Accounting cards (REQ-DSH-009); cost cards stay P1 (REQ-DSH-008).
+    expect(keys).toEqual(
+      expect.arrayContaining([
+        'invoice_drafts',
+        'invoices_issued',
+        'invoices_overdue',
+        'billed_this_month',
+        'wos_not_billable',
+      ]),
+    );
+  });
 });

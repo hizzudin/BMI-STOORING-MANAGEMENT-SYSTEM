@@ -15,6 +15,7 @@ import {
 } from '@bmi/shared';
 import type { TransactionRepositories } from '@bmi/data-gateway';
 import { createDefaultNumberGenerator } from '@bmi/config';
+import { TyreEventLogService, type TyreEventRow } from './tyre-event-log.service.js';
 
 /**
  * The `tyre_statuses` rows are seeded densely in SM-TYRE declaration order
@@ -45,20 +46,6 @@ type WarehouseTyreEvent =
   | typeof TyreEvent.RetreadAccepted
   | typeof TyreEvent.RetreadRejected
   | typeof TyreEvent.CountMissing;
-
-/** One tyre-history event (`tyre_events`, PRD §9.9; REQ-TYR-013). */
-export interface TyreEventRow {
-  readonly id: number;
-  readonly tyreId: number;
-  readonly event: TyreEvent;
-  readonly fromStatus: TyreStatus | null;
-  readonly toStatus: TyreStatus;
-  /** The document that caused the change (receipt/dispatch/count number, BR-06). */
-  readonly referenceDoc: string;
-  readonly reason: string | null;
-  readonly at: string;
-  readonly byUserId: number;
-}
 
 /** A retread dispatch (`retread_orders`, PRD §9.9; SM-RD). */
 export interface RetreadDispatch {
@@ -123,14 +110,19 @@ export interface TyreCountRow {
 @Injectable()
 export class TyreRegisterService {
   private readonly numbers = createDefaultNumberGenerator();
-  private readonly events: TyreEventRow[] = [];
   private dispatches: RetreadDispatch[] = [];
   private counts: TyreCount[] = [];
-  private nextEventId = 1;
   private nextDispatchId = 1;
   private nextCountId = 1;
   /** Highest TY sequence already issued in the seed, so new codes never collide. */
   private tyreSequenceSynced = false;
+
+  /**
+   * The append-only `tyre_events` log is shared with the Placement module so a
+   * tyre's full status history (warehouse + chassis) is one ordered list
+   * (REQ-TYR-013, SM-TYRE §3.6).
+   */
+  constructor(private readonly eventLog: TyreEventLogService) {}
 
   // --- receive tyres (REQ-TYR-006, SM-TYRE (new) → In_Stock) ---------------
 
@@ -461,13 +453,14 @@ export class TyreRegisterService {
 
   // --- reads ---------------------------------------------------------------
 
-  /** The append-only event history of a tyre, in order (REQ-TYR-013). */
+  /**
+   * The append-only event history of a tyre, in order (REQ-TYR-013). Reads the
+   * shared log, so it includes both the warehouse-side events this service
+   * writes AND the chassis-side mount/rotate/demount/scrap events written by the
+   * Placement module — the complete SM-TYRE history (§3.6).
+   */
   historyOf(tyreId: number): readonly TyreEventRow[] {
-    return this.events.filter((e) => e.tyreId === tyreId);
-  }
-
-  eventCount(): number {
-    return this.events.length;
+    return this.eventLog.historyOf(tyreId);
   }
 
   listDispatches(): readonly RetreadDispatch[] {
@@ -475,10 +468,9 @@ export class TyreRegisterService {
   }
 
   resetForTests(): void {
-    this.events.length = 0;
+    this.eventLog.resetForTests();
     this.dispatches = [];
     this.counts = [];
-    this.nextEventId = 1;
     this.nextDispatchId = 1;
     this.nextCountId = 1;
     this.tyreSequenceSynced = false;
@@ -558,9 +550,7 @@ export class TyreRegisterService {
   }
 
   private appendEvent(input: Omit<TyreEventRow, 'id'>): TyreEventRow {
-    const row: TyreEventRow = { id: this.nextEventId++, ...input };
-    this.events.push(row);
-    return row;
+    return this.eventLog.append(input);
   }
 
   private requireCount(id: number): TyreCount {

@@ -19,6 +19,7 @@ import {
   type ChassisLayoutDefinition,
 } from '../vehicles/vehicle-class.service.js';
 import { PlacementService } from './placement.service.js';
+import { TyreEventLogService } from '../inventory/tyre-event-log.service.js';
 
 /**
  * Unit coverage for the Part Replacement rules (TASK-111, FG-6): the
@@ -26,16 +27,21 @@ import { PlacementService } from './placement.service.js';
  * (AC-PLC-007/010, DEC-73), scope-lock refusal (BR-02/BR-11), the SM-TYRE
  * transitions written with the placement (§3.6), append-only history, and the
  * snapshot capture (REQ-PLC-014).
+ *
+ * TASK-120 adds coverage that every WO-driven SM-TYRE transition writes one
+ * shared `tyre_events` row (REQ-TYR-013) so a tyre's status history is complete.
  */
 describe('PlacementService (TASK-111)', () => {
   let classes: VehicleClassService;
+  let tyreEvents: TyreEventLogService;
   let service: PlacementService;
 
   const mechanic: CurrentUser = { userId: 2, role: Role.Mechanic };
 
   beforeEach(() => {
     classes = new VehicleClassService();
-    service = new PlacementService(classes);
+    tyreEvents = new TyreEventLogService();
+    service = new PlacementService(classes, tyreEvents);
   });
 
   // --- test doubles --------------------------------------------------------
@@ -100,6 +106,7 @@ describe('PlacementService (TASK-111)', () => {
   function wo(overrides: Partial<WorkOrderDto> = {}): WorkOrderDto {
     return {
       id: toId<'WorkOrderId'>(700),
+      number: 'WO-0700',
       vehicleId: toId<'VehicleId'>(1),
       status: WorkOrderStatus.InProgress,
       version: 1,
@@ -383,5 +390,51 @@ describe('PlacementService (TASK-111)', () => {
     // Idempotent: a re-submit keeps the same snapshot.
     const again = await service.onSubmit(s, full);
     expect(again.capturedAt).toBe(snapshot.capturedAt);
+  });
+
+  // --- REQ-TYR-013 / SM-TYRE §3.6: a tyre_events row per transition --------
+
+  it('REQ-TYR-013 — mount, rotate, demount and scrap each write one tyre_events row with the WO document', async () => {
+    const repos = tyreRepos([tyre(110), tyre(111)]);
+
+    // Mount 110 (Issued → Mounted) and 111 (into a second position).
+    await service.mount(step(), wo(), vehicle(), repos, mechanic, { position: 'A1_L', tyreId: 110 });
+    await service.mount(step(), wo(), vehicle(), repos, mechanic, { position: 'A1_R', tyreId: 111 });
+    // Rotate/swap the two → one Rotate event per moved tyre.
+    await service.rotate(step(), wo(), vehicle(), repos, mechanic, {
+      fromPosition: 'A1_L',
+      toPosition: 'A1_R',
+    });
+    // Demount 110 to Needs_Retread, then it is at A1_R after the swap.
+    await service.demount(step(), wo(), vehicle(), repos, mechanic, {
+      position: 'A1_R',
+      condition: TyreStatus.NeedsRetread,
+    });
+
+    // Tyre 110: Mount → Rotate → Demount = 3 history rows (REQ-TYR-013, §3.6),
+    // each carrying the WO number as the document (BR-06) and the actor/time.
+    const history110 = tyreEvents.historyOf(110);
+    expect(history110.map((e) => e.event)).toEqual(['MountFromIssued', 'Rotate', 'Demount']);
+    expect(history110.every((e) => e.referenceDoc === 'WO-0700')).toBe(true);
+    expect(history110.every((e) => e.byUserId === mechanic.userId)).toBe(true);
+    expect(history110.every((e) => typeof e.at === 'string' && e.at.length > 0)).toBe(true);
+    // Status chain recorded truthfully: Issued → Mounted → Mounted → Needs_Retread.
+    expect(history110.map((e) => e.toStatus)).toEqual([
+      TyreStatus.Mounted,
+      TyreStatus.Mounted,
+      TyreStatus.NeedsRetread,
+    ]);
+
+    // Tyre 111: Mount → Rotate = 2 rows.
+    expect(tyreEvents.historyOf(111).map((e) => e.event)).toEqual(['MountFromIssued', 'Rotate']);
+  });
+
+  it('REQ-TYR-013 — scrap from Mounted writes a ScrapFromMounted tyre_events row', async () => {
+    const repos = tyreRepos([tyre(110)]);
+    await service.mount(step(), wo(), vehicle(), repos, mechanic, { position: 'A1_L', tyreId: 110 });
+    await service.scrap(step(), wo(), vehicle(), repos, mechanic, { position: 'A1_L' });
+    const history = tyreEvents.historyOf(110);
+    expect(history.map((e) => e.event)).toEqual(['MountFromIssued', 'ScrapFromMounted']);
+    expect(history[1]).toMatchObject({ toStatus: TyreStatus.Scrapped, referenceDoc: 'WO-0700' });
   });
 });

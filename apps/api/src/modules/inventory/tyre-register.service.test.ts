@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { createDummyDataGateway, type DataGateway } from '@bmi/data-gateway';
 import { idValue, TyreEvent, TyreStatus } from '@bmi/shared';
 import { TyreRegisterService } from './tyre-register.service.js';
+import { TyreEventLogService } from './tyre-event-log.service.js';
 
 /**
  * Unit coverage for the tyre register (FG-8, REQ-TYR, SM-TYRE, BR-11) against a
@@ -19,7 +20,7 @@ describe('TyreRegisterService (TASK-112)', () => {
 
   beforeEach(() => {
     gateway = createDummyDataGateway();
-    tyres = new TyreRegisterService();
+    tyres = new TyreRegisterService(new TyreEventLogService());
   });
 
   // --- receive (REQ-TYR-006, SM-TYRE (new) → In_Stock) ---------------------
