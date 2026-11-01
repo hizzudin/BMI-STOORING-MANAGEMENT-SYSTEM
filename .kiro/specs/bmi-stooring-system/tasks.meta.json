@@ -266,6 +266,18 @@
         "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
         "timestamp": 1793500046545
       }
+    ],
+    "**TASK-115** [FG-11, REQ-WOD, REQ-BIL, REQ-BIL-003, SM-INV, BR-15, DEC-92]: WO document renderer (approval block, execution-time table, B/W placement snapshot) and invoices (daily per vehicle, markup/PPN, numbering, Draft→Issued→Paid→Void). Invoicing now emits an **`Off_Unit`** line = `work_orders.off_days` × the global `app_settings.off_unit_daily_rate`, billed to the vehicle's customer at cost (no markup) and included in the subtotal and PPN. This task also owns the **OFF-unit daily rate** master (`app_settings.off_unit_daily_rate`, System Admin, Settings) that the daily job and this line consume.": [
+      {
+        "executionId": "c8ce77f1-b662-427d-ad6c-19eb671cbafd",
+        "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
+        "timestamp": 1793500525326
+      },
+      {
+        "executionId": "c8ce77f1-b662-427d-ad6c-19eb671cbafd",
+        "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
+        "timestamp": 1793502389101
+      }
     ]
   }
 }

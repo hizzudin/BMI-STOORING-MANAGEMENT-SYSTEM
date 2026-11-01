@@ -26,6 +26,7 @@ import type {
   TyreStatusId,
   CustomerId,
   InvoiceId,
+  InvoiceLineId,
   ScheduleCardId,
   MaintenanceAlertId,
 } from './ids.js';
@@ -248,13 +249,98 @@ export interface ScheduleCardDto {
   readonly version: number;
 }
 
-/** Invoice (SM-INV). */
+/**
+ * Customer that owns a vehicle and receives its daily invoices (PRD §9
+ * `customers`, REQ-BIL-001). Indexes the columns billing needs; the full
+ * address/contact block stays in the DB migration until a UI needs it.
+ */
+export interface CustomerDto {
+  readonly id: CustomerId;
+  /** Unique customer code, e.g. `CUST-001`. */
+  readonly code: string;
+  readonly name: string;
+  readonly billingAddress: string;
+  /** NPWP (tax number), optional. */
+  readonly taxNumber: string | null;
+  /** Payment terms in days; the invoice due date = issue date + this (REQ-BIL-005). */
+  readonly paymentTermsDays: number;
+  readonly isActive: boolean;
+  readonly version: number;
+}
+
+/**
+ * The kind of an invoice line (PRD §9 `invoice_lines.kind`). `Off_Unit` is the
+ * OFF-unit cost line — `off_days` × the global `app_settings.off_unit_daily_rate`,
+ * billed at cost with no markup (REQ-BIL-003, DEC-92). `Part` and `Tyre` carry
+ * the part markup; every other kind is at cost (markup 0).
+ */
+export const InvoiceLineKind = {
+  Part: 'Part',
+  Tyre: 'Tyre',
+  Service: 'Service',
+  Document: 'Document',
+  Stooring: 'Stooring',
+  Off_Unit: 'Off_Unit',
+  Adjustment: 'Adjustment',
+} as const;
+export type InvoiceLineKind = (typeof InvoiceLineKind)[keyof typeof InvoiceLineKind];
+
+/**
+ * One invoice line (PRD §9 `invoice_lines`, REQ-BIL-003). A part/tyre/service/
+ * document/stooring/OFF-unit line of a WO becomes its own line — lines are never
+ * merged, even for the same item. Prices are saved as a snapshot (BR-07): the
+ * marked-up `unitPrice` is `unitCost × (1 + markupPct/100)` rounded half-up per
+ * unit (NFR-16), and `amount` is `qty × unitPrice`. `unitCost`/`markupPct` are
+ * internal only and never shown on the PDF (REQ-BIL-007, AC-BIL-005).
+ */
+export interface InvoiceLineDto {
+  readonly id: InvoiceLineId;
+  readonly invoiceId: InvoiceId;
+  readonly kind: InvoiceLineKind;
+  /** Printed description; no cost, markup or WO number appears on the PDF. */
+  readonly description: string;
+  readonly sku: string | null;
+  readonly qty: number;
+  /** Internal: the cost on the WO line (average cost, purchase/workshop price). */
+  readonly unitCost: number;
+  /** 50 for Part/Tyre, 0 otherwise; internal only. */
+  readonly markupPct: number;
+  /** Printed per-unit price = unitCost × (1 + markupPct/100), rounded half-up. */
+  readonly unitPrice: number;
+  /** qty × unitPrice; negative for a discount adjustment. */
+  readonly amount: number;
+  /** Reason for an Adjustment line (required for kind `Adjustment`). */
+  readonly adjustmentReason: string | null;
+  /** The WO this line was billed from (traceability, `invoice_line_sources`). */
+  readonly workOrderId: WorkOrderId | null;
+}
+
+/**
+ * Invoice (SM-INV). Indexes the PRD §9 `invoices` row faithfully — one per
+ * vehicle per day (DEC-43), holding every WO completed for it that day. The
+ * running `number` is set only on Issue and never reused (DEC-46/50); totals are
+ * computed with the `@bmi/config` money helpers (REQ-BIL-004, NFR-16).
+ */
 export interface InvoiceDto {
   readonly id: InvoiceId;
-  /** Running number, e.g. `0001/BMI/04-11-26`. */
+  /** Running number, e.g. `0001/BMI/04-11-26`; `null` until Issued. */
   readonly number: string | null;
   readonly customerId: CustomerId;
+  readonly vehicleId: VehicleId;
+  /** Completion date of its WOs (WIB day, YYYY-MM-DD). */
+  readonly serviceDate: IsoDate;
   readonly status: InvoiceStatus;
+  readonly subtotal: number;
+  /** Copied from `app_settings.invoice_tax_pct` (PPN, default 11). */
+  readonly taxPct: number;
+  readonly taxAmount: number;
+  readonly total: number;
+  readonly issuedBy: UserId | null;
+  readonly issuedAt: IsoTimestamp | null;
+  readonly dueDate: IsoDate | null;
+  readonly voidReason: string | null;
+  readonly voidedBy: UserId | null;
+  readonly voidedAt: IsoTimestamp | null;
   readonly version: number;
 }
 

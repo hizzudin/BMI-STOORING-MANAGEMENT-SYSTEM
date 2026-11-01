@@ -344,7 +344,20 @@ const invoices: readonly InvoiceDto[] = [
     id: INVOICE_ID,
     number: null, // Draft invoice has no number until Issue (DEC-46)
     customerId: CUSTOMER_ID,
+    vehicleId: VEHICLE_ID,
+    // Completion date of its WOs (one per vehicle per day, DEC-43).
+    serviceDate: '2026-10-26',
     status: InvoiceStatus.Draft,
+    subtotal: 0,
+    taxPct: 11, // app_settings.invoice_tax_pct (PPN, REQ-BIL-004)
+    taxAmount: 0,
+    total: 0,
+    issuedBy: null,
+    issuedAt: null,
+    dueDate: null,
+    voidReason: null,
+    voidedBy: null,
+    voidedAt: null,
     version: 1,
   },
 ];

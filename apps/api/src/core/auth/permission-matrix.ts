@@ -59,6 +59,8 @@ export const Capabilities = {
   ScheduleManage: 'schedule.manage',
   // Invoices (FG-11)
   InvoiceManage: 'invoice.manage',
+  // Settings masters incl. the OFF-unit daily rate (FG-11 / FG-17, REQ-BIL-012)
+  SettingsManage: 'settings.manage',
   // IAM (FG-13)
   AccountsManage: 'accounts.manage',
   PlannerApprovalSwitch: 'iam.planner_approval_switch',
@@ -139,6 +141,7 @@ export const PERMISSION_MATRIX: RoleMatrix = {
     [Capabilities.CountApprove]: 'allow', // X L
     [Capabilities.ScheduleManage]: 'allow',
     [Capabilities.InvoiceManage]: 'allow',
+    [Capabilities.SettingsManage]: 'allow', // OFF-unit rate + billing settings (REQ-BIL-012)
     [Capabilities.SetupGoLive]: 'allow', // X L
   },
   // AM — Access Manager (accounts/roles/permissions only; no operational work, RL-5)

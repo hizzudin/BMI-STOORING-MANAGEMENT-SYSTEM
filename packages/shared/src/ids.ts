@@ -47,6 +47,7 @@ export type ScheduleCardId = Brand<number, 'ScheduleCardId'>;
 export type NotificationId = Brand<number, 'NotificationId'>;
 export type CustomerId = Brand<number, 'CustomerId'>;
 export type InvoiceId = Brand<number, 'InvoiceId'>;
+export type InvoiceLineId = Brand<number, 'InvoiceLineId'>;
 export type AuditLogId = Brand<number, 'AuditLogId'>;
 
 /**
@@ -82,6 +83,7 @@ interface IdBrandMap {
   NotificationId: NotificationId;
   CustomerId: CustomerId;
   InvoiceId: InvoiceId;
+  InvoiceLineId: InvoiceLineId;
   AuditLogId: AuditLogId;
 }
 
