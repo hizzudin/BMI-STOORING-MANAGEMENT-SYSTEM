@@ -8,11 +8,22 @@
   min-height: 100vh;
   position: sticky;
   top: 0;
+  transition: width 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Collapsed to the 64px icon rail (DEC-82). Labels hide; icons centre. */
+.sidebar.collapsed {
+  width: 64px;
 }
 
 .logoTile {
   padding: var(--space-lg) var(--space-md);
   border-bottom: 1px solid var(--ink-raised);
+}
+.sidebar.collapsed .logoTile {
+  padding: var(--space-md) 0;
+  display: flex;
+  justify-content: center;
 }
 
 .navList {
@@ -33,6 +44,7 @@
   color: var(--stone);
   font-size: 14px;
   font-weight: 600;
+  white-space: nowrap;
 }
 .navItem:hover {
   background: var(--ink-raised);
@@ -45,6 +57,49 @@
   color: var(--surface);
 }
 
+.sidebar.collapsed .navItem {
+  justify-content: center;
+  padding: 10px 0;
+}
+.sidebar.collapsed .navLabel {
+  display: none;
+}
+
 .icon {
   flex-shrink: 0;
+}
+
+/* Collapse/expand toggle pinned to the foot of the rail (§7.9 C-02). */
+.collapseForm {
+  margin-top: auto;
+  padding: var(--space-sm);
+}
+
+.collapseToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--stone-muted);
+  font-size: 14px;
+  font-weight: 400;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.collapseToggle:hover {
+  background: var(--ink-raised);
+  color: var(--surface);
+}
+
+.sidebar.collapsed .collapseToggle {
+  justify-content: center;
+  padding: 10px 0;
+}
+.sidebar.collapsed .collapseToggle .navLabel {
+  display: none;
 }

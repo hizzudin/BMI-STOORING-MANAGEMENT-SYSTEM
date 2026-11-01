@@ -31,6 +31,7 @@ const id: Dict = {
   'nav.signOut': 'Keluar',
   'nav.collapse': 'Perkecil menu',
   'nav.expand': 'Perbesar menu',
+  'nav.notifications': 'Notifikasi',
 
   'login.title': 'Masuk',
   'login.subtitle': 'Masuk untuk mengelola Work Order armada BMI.',
@@ -39,6 +40,8 @@ const id: Dict = {
   'login.submit': 'Masuk',
   'login.error': 'Email atau kata sandi salah.',
   'login.hint': 'Akun contoh (mode setup): sysadmin@bmi.test / Bmi12345',
+  'login.brandLead': 'Preventive maintenance, Work Order, dan inventori untuk armada.',
+  'login.brandFoot': 'Setiap tindakan terikat pada Work Order yang disetujui.',
 
   'common.loading': 'Memuat…',
   'common.save': 'Simpan',
@@ -134,6 +137,7 @@ const en: Dict = {
   'nav.signOut': 'Sign out',
   'nav.collapse': 'Collapse menu',
   'nav.expand': 'Expand menu',
+  'nav.notifications': 'Notifications',
 
   'login.title': 'Sign in',
   'login.subtitle': 'Sign in to manage the BMI fleet Work Orders.',
@@ -142,6 +146,8 @@ const en: Dict = {
   'login.submit': 'Sign in',
   'login.error': 'Wrong email or password.',
   'login.hint': 'Example account (setup mode): sysadmin@bmi.test / Bmi12345',
+  'login.brandLead': 'Preventive maintenance, Work Orders and inventory for the fleet.',
+  'login.brandFoot': 'Every action is tied to an approved Work Order.',
 
   'common.loading': 'Loading…',
   'common.save': 'Save',

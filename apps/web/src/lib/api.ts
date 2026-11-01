@@ -16,6 +16,8 @@ import { cookies } from 'next/headers';
 export const SESSION_COOKIE = 'bmi_session';
 export const ROLE_COOKIE = 'bmi_role';
 export const UID_COOKIE = 'bmi_uid';
+/** Per-user "navigation collapsed to the icon rail" preference (DEC-82, C-02). */
+export const SIDEBAR_COOKIE = 'bmi_nav_collapsed';
 
 /** The API base URL is server-only config; default to the local dev API. */
 function apiBaseUrl(): string {

@@ -333,6 +333,18 @@
         "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
         "timestamp": 1793526499759
       }
+    ],
+    "**TASK-120a** [FG-1..FG-15, PRD §7.3, §7.4, §7.9, §7.1/§7.2, NFR-A11Y; visual/layout audit of TASK-117/118 output; part of the TASK-120 reconciliation]: **Audit and align the web + mobile screens that already exist against their PRD §7.3 artboards, §7.4 layouts and §7.9 action map.** TASK-120 reconciled behaviour but did not run the visual/layout audit; this task closes that. **Scope is the already-built screens only** — the web routes shipped by TASK-117 (`login`, app shell, `dashboard`, `work-orders` list/detail/composer/step, `approvals`, `inventory`, `requests`, `schedule`, `vehicles`) and the mobile screens shipped by TASK-118 (MobileLogin, Driver inspection/odometer/breakdown/history, Field Coordinator requests/purchase, System Admin field menu, Mechanic today, Profile). Screens that do not yet exist (Settings, Invoices/Customers, Setup/Go-live, Access Manager, full step screens, ChassisMap, Documents, …) are **out of scope** — they are built by TASK-124..129. **Method (artboards are `.dc.html` code, not images):** for each existing screen read its artboard in `Design Artifact/<name>-html/<Token>.dc.html` (inline styles + `<helmet><style>` carry the exact region layout, DESIGN.md brand tokens, control set), its §7.4 \"Key screen layouts\" row and its §7.9 action-map rows, then classify CONFORMANT (leave untouched) or DIVERGENT and fix only real divergences — missing/mislaid regions, wrong master-detail/tabs/bottom-bar structure, absent controls the action-map names, colour-only status (must carry its text label, NFR-A11Y), brand tokens not applied (brand.primary #AD2713, petrol #1F4E5F, ink #14262E, mist #E6EFF1, selection #F2D98A, 2px red focus ring), the logo not on its white tile, and the app-shell header bell / collapsible rail (DEC-82) where §7.2 requires them. Artboards are an illustrative reference (PRD §7.1/§7.7), not pixel-for-pixel: match region structure + control set + tokens + status-as-text, build to the REQ + DESIGN.md. Phase-1 dummy-gateway discipline holds (web stays RSC + Server Actions + `src/lib/api.ts`, reuse `@bmi/shared`); do not change the API/shared/config/gateway, do not build new screens.": [
+      {
+        "executionId": "6d7789ce-452e-480c-aa84-a4adac150890",
+        "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
+        "timestamp": 1793527304939
+      },
+      {
+        "executionId": "6d7789ce-452e-480c-aa84-a4adac150890",
+        "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
+        "timestamp": 1793532738445
+      }
     ]
   }
 }

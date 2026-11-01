@@ -26,6 +26,38 @@
   gap: var(--space-sm);
 }
 
+/* Notification bell (§7.9 C-03 / REQ-NTF-001) with an unread-count badge. */
+.bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  color: var(--petrol);
+}
+.bell:hover {
+  background: var(--mist);
+  text-decoration: none;
+}
+
+.badge {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background: var(--danger);
+  color: var(--surface);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
 .langForm {
   display: flex;
   align-items: center;

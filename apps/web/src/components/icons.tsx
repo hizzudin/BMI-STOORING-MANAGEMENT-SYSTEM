@@ -99,3 +99,23 @@ export function IconSignOut(p: SVGProps<SVGSVGElement>): JSX.Element {
     </svg>
   );
 }
+
+/** Collapse/expand the navigation rail (§7.9 C-02 / DEC-82). */
+export function IconCollapse(p: SVGProps<SVGSVGElement>): JSX.Element {
+  return (
+    <svg {...base(p)}>
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M9 3v18M16 15l-3-3 3-3" />
+    </svg>
+  );
+}
+
+/** Notification bell in the page header (§7.9 C-03 / REQ-NTF-001). */
+export function IconBell(p: SVGProps<SVGSVGElement>): JSX.Element {
+  return (
+    <svg {...base(p)}>
+      <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+  );
+}
