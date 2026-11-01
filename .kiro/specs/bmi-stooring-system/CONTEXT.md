@@ -1,8 +1,28 @@
 # CONTEXT.md
 > BMI Stooring System — Live session journal
-> Last updated: 2026-11-11 — Session 26
+> Last updated: 2026-11-01 — Session 27
 
 ## ⚡ Resume from here
+
+### Session note — TASK-120 (whole-PRD Phase-1 conformance reconciliation; RUNS FIRST of the gap tasks)
+
+**TASK-120 is complete and verified.** Ran a whole-PRD conformance audit over the entire shipped Phase-1 implementation (TASK-101..119) and reconciled it to PRD intent **only where it diverged**; everything already faithful was left untouched. Phase-1 dummy-gateway discipline held (no concrete DB driver / cloud SDK). Full report: **`docs/TASK-120-reconciliation.md`** (every change mapped to its PRD item + the conformant-and-untouched list + the later-task gap list). **No earlier task's completion status changed** (`tasks.md` / `tasks.meta.json` untouched — orchestrator owns status). **Three confirmed divergences fixed:**
+
+1. **FIX-1 — REQ-TYR-013 / SM-TYRE §3.6 (P0): tyre_events missing for WO-driven transitions.** The warehouse-side register wrote one `tyre_events` row per transition, but the **Placement** module's chassis-side transitions (mount `Issued→Mounted`, rotate `Mounted→Mounted`, demount `Mounted→Needs_Retread/Worn_Out/In_Stock`, scrap `Mounted→Scrapped`) changed tyre status **without** recording an event — so a received→issued→mounted→demounted tyre showed only `ReceiveNew` in its history, breaching "every transition writes one `tyre_events` row". Fixed by adding a **dependency-free `TyreEventLogService` + `TyreEventLogModule`** (`apps/api/src/modules/inventory/tyre-event-log.*`) that owns the append-only log; both writer modules inject the same singleton (no import cycle). `TyreRegisterService` now delegates its event store to it (behaviour identical; `historyOf` reads the unified log); `PlacementService` records one event per SM-TYRE transition it drives, with the WO's running number as the document (BR-06), actor and time. Wired the log module into `InventoryModule` + `PlacementModule`. **Not a §9/§3 change** — statuses/transitions were already correct; only the required history row was missing, so no design.md edit needed. Tests: 2 new in `placement.service.test.ts` (REQ-TYR-013 mount→rotate→demount = 3 ordered rows carrying `WO-0700`/actor/time; scrap = `ScrapFromMounted` row).
+
+2. **FIX-2 — REQ-DSH-009 (P0): Accounting dashboard returned no data.** `DashboardService` had no `Accounting` case → `default → []` (empty dashboard). Added `accountingCards()` reading the live `InvoiceService` (drafts waiting, issued, overdue = Issued with `dueDate` < WIB-today, billed-this-month = Issued/Paid totals in the current WIB month, completed-WOs-not-billable). Cost cards stay P1 (REQ-DSH-008). Wired `BillingModule` into `MaintenanceModule` (one-directional; Billing doesn't import Maintenance, so no cycle — confirmed by clean boot). Test: 1 new in `maintenance.e2e.test.ts`.
+
+3. **FIX-3 — PRD §2.1 (10 roles): dummy seed had only 7.** The seed (`packages/data-gateway/src/dummy/seed.ts`) created accounts for Planner/Supervisor/Mechanic/Driver/Warehouse/SA/AM but **not GM, Field Coordinator or Accounting**, so their permissions + P0 dashboards (REQ-DSH-001/006/009) were unexercisable. Appended ids 8–10: `gm@bmi.test`, `fc@bmi.test`, `accounting@bmi.test` (password `Bmi12345`). Existing accounts 1–7 unchanged (FG-13 System-Admin-move still points at user 6). **Not a §9 schema change** — `users`/`role_t` unchanged, faithful §2.1 seed data.
+
+**Also added** `apps/web/README.md` — the "how to run locally" note the Phase-1 gap-task plan assigns to TASK-120 (API :3000 + web :3100 against the dummy gateway, the ten seeded accounts + Setup-mode/Go-live note).
+
+**Audit result:** across TASK-101..119, **zero unresolved divergences** — every REQ/AC/BR/NFR/SM/DEC/§9/§7.3 item is either already conformant (§2.2 matrix incl. GM-read-only invoices REQ-BIL-010, DSH-008 P1-hide, all state machines, REQ-WO-016, Off_Unit line, part-age/DQ-07, audit/idempotency/guard, Mobilisasi trail), fixed here (FIX-1/2/3), or owned by a later gap task (121..130, listed in the report — audit read/export, part-item master, Settings masters, the §7.3 web screens incl. APR-009/010 Evidence/report-photo cards on TASK-126, mobile R1 completion + MOB-002 R2 parity, FLW-* suite). Deliberate Phase-1 stubs (PDF, S3/R2, Postgres, billable facts) and deferred P1/P2 items (AI/Reports/iOS/Mechanic+Sup mobile/Protrack/WhatsApp-email/…) left as-is.
+
+**Verify (all green):** `pnpm -w run build` 6/6, `typecheck` 9/9, `lint` clean, `test` 9/9 tasks — **api 384** (381 prior intact + 3 new), shared/config/data-gateway (14, incl. seed test)/web (21)/mobile intact. Live smoke: fresh `@bmi/api` on :3001 booted clean (no DI cycle from the new Billing→Maintenance edge); Accounting dashboard returned its five P0 cards over HTTP; `@bmi/web` dev rendered `/login` (200) and 307-redirected protected `/dashboard`. No temp files; `dist/`/`coverage/` git-ignored. **Git:** branch `feat/phase1-task120-reconcile`, commit `refactor(phase1): reconcile all prior tasks to PRD intent where divergent [TASK-120]` (specific files staged; `tasks.md`/`tasks.meta.json` left unstaged).
+
+**Reuse / next:** the shared `TyreEventLogService` is the single `tyre_events` sink both the warehouse register and placement write to (TASK-201/202 re-home it behind the §9.9 table); the Accounting dashboard + the three new seed roles let TASK-126 build the FC/Accounting/GM dashboards against real data. TASK-120 leaves a clean, PRD-faithful base; TASK-121..130 build on it with no anti-overwrite constraint.
+
+---
 
 ### Session note — TASK-119 (dev-phase E2E smoke suite, all P0 FGs)
 

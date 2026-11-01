@@ -11,6 +11,9 @@ import {
 import type { DataGateway } from '@bmi/data-gateway';
 import { DATA_GATEWAY } from '../../core/data-gateway/data-gateway.module.js';
 import type { CurrentUser } from '../../core/auth/current-user.js';
+import { InvoiceStatus } from '@bmi/shared';
+import { wibDayOf } from '@bmi/config';
+import { InvoiceService } from '../billing/invoice.service.js';
 import { PmAlertService } from './pm-alert.service.js';
 import { ScheduleService } from './schedule.service.js';
 import { NotificationService } from './notification.service.js';
@@ -45,6 +48,7 @@ export class DashboardService {
     private readonly alerts: PmAlertService,
     private readonly schedule: ScheduleService,
     private readonly notifications: NotificationService,
+    private readonly invoices: InvoiceService,
   ) {}
 
   /** Compute the dashboard for the viewer's role (REQ-DSH-001..006). */
@@ -77,9 +81,50 @@ export class DashboardService {
         return this.supervisorCards(wos);
       case Role.FieldCoordinator:
         return this.fieldCoordinatorCards(wos);
+      case Role.Accounting:
+        return this.accountingCards();
       default:
         return [];
     }
+  }
+
+  /**
+   * REQ-DSH-009 Accounting: invoice drafts waiting, issued and overdue invoices,
+   * billed this month, and completed WOs that are not billable (vehicle without
+   * a customer). Reads the live invoice list + Not-billable set (FG-11). Cost
+   * cards remain P1 and are not emitted (REQ-DSH-008).
+   */
+  private accountingCards(): readonly DashboardCard[] {
+    const drafts = this.invoices.list({ status: InvoiceStatus.Draft }).length;
+    const issued = this.invoices.list({ status: InvoiceStatus.Issued });
+    const todayIso = this.wibTodayIso();
+    const overdue = issued.filter((i) => i.dueDate !== null && i.dueDate < todayIso).length;
+    const now = wibDayOf(new Date());
+    const billedThisMonth = [
+      ...this.invoices.list({ status: InvoiceStatus.Issued }),
+      ...this.invoices.list({ status: InvoiceStatus.Paid }),
+    ]
+      .filter((i) => {
+        if (i.issuedAt === null) {
+          return false;
+        }
+        const d = wibDayOf(new Date(i.issuedAt));
+        return d.year === now.year && d.month === now.month;
+      })
+      .reduce((sum, i) => sum + i.total, 0);
+    const notBillable = this.invoices.notBillable().length;
+    return [
+      { key: 'invoice_drafts', label: 'Invoice drafts waiting', count: drafts },
+      { key: 'invoices_issued', label: 'Issued invoices', count: issued.length },
+      { key: 'invoices_overdue', label: 'Overdue invoices', count: overdue },
+      { key: 'billed_this_month', label: 'Billed this month (Rp)', count: billedThisMonth },
+      { key: 'wos_not_billable', label: 'Completed WOs not billable', count: notBillable },
+    ];
+  }
+
+  private wibTodayIso(): string {
+    const d = wibDayOf(new Date());
+    return `${String(d.year).padStart(4, '0')}-${String(d.month).padStart(2, '0')}-${String(d.day).padStart(2, '0')}`;
   }
 
   /** REQ-DSH-003 Mechanic: steps open / returned / coming, submitted this week, vehicles in the workshop. */

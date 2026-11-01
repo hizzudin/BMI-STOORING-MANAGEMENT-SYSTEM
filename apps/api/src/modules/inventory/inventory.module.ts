@@ -4,6 +4,7 @@ import { StockModule } from '../stock/stock.module.js';
 import { InventoryController } from './inventory.controller.js';
 import { PartsInventoryService } from './parts-inventory.service.js';
 import { TyreRegisterService } from './tyre-register.service.js';
+import { TyreEventLogModule } from './tyre-event-log.module.js';
 
 /**
  * FG-8 — Parts baseline, inventory & tyres (REQ-BSL, REQ-INV, REQ-TYR, BR-06,
@@ -38,7 +39,7 @@ import { TyreRegisterService } from './tyre-register.service.js';
  * one-directional (Inventory → Stock), so there is no import cycle.
  */
 @Module({
-  imports: [AuditModule, StockModule],
+  imports: [AuditModule, StockModule, TyreEventLogModule],
   controllers: [InventoryController],
   providers: [PartsInventoryService, TyreRegisterService],
   exports: [PartsInventoryService, TyreRegisterService],

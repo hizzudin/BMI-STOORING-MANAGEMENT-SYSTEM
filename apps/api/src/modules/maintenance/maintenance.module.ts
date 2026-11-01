@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuditModule } from '../../core/audit/audit.module.js';
 import { WorkOrdersModule } from '../work-orders/work-orders.module.js';
 import { VehiclesModule } from '../vehicles/vehicles.module.js';
+import { BillingModule } from '../billing/billing.module.js';
 import { MaintenanceController } from './maintenance.controller.js';
 import { AlertRuleService } from './alert-rule.service.js';
 import { PmAlertService } from './pm-alert.service.js';
@@ -40,7 +41,7 @@ import { DailyJobService } from './daily-job.service.js';
  * idempotency interceptor are global.
  */
 @Module({
-  imports: [AuditModule, WorkOrdersModule, VehiclesModule],
+  imports: [AuditModule, WorkOrdersModule, VehiclesModule, BillingModule],
   controllers: [MaintenanceController],
   providers: [
     AlertRuleService,

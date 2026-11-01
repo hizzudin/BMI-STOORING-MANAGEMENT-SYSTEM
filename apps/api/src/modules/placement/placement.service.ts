@@ -25,6 +25,7 @@ import {
   type ChassisLayout,
   type PartPosition,
 } from '../vehicles/vehicle-class.service.js';
+import { TyreEventLogService } from '../inventory/tyre-event-log.service.js';
 
 /** The kinds of change logged against a position (`placement_act_t`, §9.1). */
 export type PlacementAction = 'Mount' | 'Rotate' | 'Demount' | 'Scrap';
@@ -169,7 +170,15 @@ export class PlacementService {
   private readonly snapshots = new Map<number, PlacementSnapshot>();
   private nextLogId = 1;
 
-  constructor(private readonly classes: VehicleClassService) {}
+  constructor(
+    private readonly classes: VehicleClassService,
+    /**
+     * The shared `tyre_events` log (REQ-TYR-013, SM-TYRE §3.6): every WO-driven
+     * tyre status move here (mount / rotate / demount / scrap) writes one event,
+     * so the tyre's full history (warehouse + chassis) is a single ordered list.
+     */
+    private readonly tyreEvents: TyreEventLogService,
+  ) {}
 
   // --- chassis map (data-generated, DEC-73) --------------------------------
 
@@ -320,6 +329,8 @@ export class PlacementService {
     await repos.tyres.update({ ...tyre, status: nextStatus });
 
     const at = new Date().toISOString();
+    // One tyre_events row per SM-TYRE transition (REQ-TYR-013, §3.6).
+    this.recordTyreEvent(tyre, TyreEvent.MountFromIssued, nextStatus, wo, user, at);
     const placement: Placement = {
       position: pos.code,
       tyreId: input.tyreId,
@@ -385,11 +396,14 @@ export class PlacementService {
     const movingTyre = await this.requireTyre(repos, movingPlacement.tyreId);
     const movingNext = this.transitionTyre(movingTyre, TyreEvent.Rotate);
     await repos.tyres.update({ ...movingTyre, status: movingNext });
+    // One tyre_events row per SM-TYRE transition (REQ-TYR-013, §3.6).
+    this.recordTyreEvent(movingTyre, TyreEvent.Rotate, movingNext, wo, user, at);
 
     if (swapPlacement) {
       const swapTyre = await this.requireTyre(repos, swapPlacement.tyreId);
       const swapNext = this.transitionTyre(swapTyre, TyreEvent.Rotate);
       await repos.tyres.update({ ...swapTyre, status: swapNext });
+      this.recordTyreEvent(swapTyre, TyreEvent.Rotate, swapNext, wo, user, at);
       // Swap the two placements (keep each tyre's tread/pressure).
       live.set(from.code, { ...swapPlacement, position: from.code });
       live.set(to.code, { ...movingPlacement, position: to.code });
@@ -465,6 +479,8 @@ export class PlacementService {
 
     live.delete(pos.code);
     const at = new Date().toISOString();
+    // One tyre_events row per SM-TYRE transition (REQ-TYR-013, §3.6).
+    this.recordTyreEvent(tyre, TyreEvent.Demount, nextStatus, wo, user, at);
     this.markChanged(idValue(step.id), pos.code);
     this.appendLog({
       vehicleId,
@@ -508,6 +524,8 @@ export class PlacementService {
 
     live.delete(pos.code);
     const at = new Date().toISOString();
+    // One tyre_events row per SM-TYRE transition (REQ-TYR-013, §3.6).
+    this.recordTyreEvent(tyre, TyreEvent.ScrapFromMounted, nextStatus, wo, user, at);
     this.markChanged(idValue(step.id), pos.code);
     this.appendLog({
       vehicleId,
@@ -655,6 +673,32 @@ export class PlacementService {
       throw new NotFoundException(`Unknown tyre: ${tyreId}`);
     }
     return tyre;
+  }
+
+  /**
+   * Record one `tyre_events` row for a WO-driven SM-TYRE transition
+   * (REQ-TYR-013, §3.6: "Every transition writes one `tyre_events` row with the
+   * document, user and time"). The document is the WO's running number; `tyre`
+   * carries the from-status (captured before `repos.tyres.update`).
+   */
+  private recordTyreEvent(
+    tyre: TyreDto,
+    event: TyreEvent,
+    toStatus: TyreStatus,
+    wo: WorkOrderDto,
+    user: CurrentUser,
+    at: string,
+  ): void {
+    this.tyreEvents.append({
+      tyreId: idValue(tyre.id),
+      event,
+      fromStatus: tyre.status,
+      toStatus,
+      referenceDoc: wo.number,
+      reason: null,
+      at,
+      byUserId: user.userId,
+    });
   }
 
   /**

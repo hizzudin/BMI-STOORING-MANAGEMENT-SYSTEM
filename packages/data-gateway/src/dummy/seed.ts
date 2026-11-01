@@ -64,6 +64,12 @@ const USER = {
   warehouse: toId<'UserId'>(5),
   systemAdmin: toId<'UserId'>(6),
   accessManager: toId<'UserId'>(7),
+  // The remaining PRD §2.1 roles so every role (and its dashboard/permissions)
+  // is exercisable on the Phase-1 dummy gateway (REQ-DSH-001/006/009). Appended
+  // ids 8–10; the existing accounts 1–7 are unchanged.
+  gm: toId<'UserId'>(8),
+  fieldCoordinator: toId<'UserId'>(9),
+  accounting: toId<'UserId'>(10),
 } as const;
 
 /**
@@ -132,6 +138,11 @@ const users: readonly UserDto[] = [
   seedUser(USER.systemAdmin, 'Sari Admin', 'sysadmin@bmi.test', Role.SystemAdmin),
   // Access Manager owns accounts/roles/permissions + the System-Admin move (RL-5).
   seedUser(USER.accessManager, 'Maya Access', 'access@bmi.test', Role.AccessManager),
+  // The remaining PRD §2.1 operational roles, so every role's permissions and
+  // dashboard (REQ-DSH-001/006/009) are reachable on the dummy gateway.
+  seedUser(USER.gm, 'Hendra GM', 'gm@bmi.test', Role.GM),
+  seedUser(USER.fieldCoordinator, 'Lina Korlap', 'fc@bmi.test', Role.FieldCoordinator),
+  seedUser(USER.accounting, 'Tono Accounting', 'accounting@bmi.test', Role.Accounting),
 ];
 
 // --- Vehicle B 1234 ABC (PRD §4.10 AC-VEH-004), billable to the customer -----
