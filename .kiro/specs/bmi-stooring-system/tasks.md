@@ -61,6 +61,22 @@ graph TD
     T116 --> T118
     T117 --> T119["TASK-119"]
     T118 --> T119
+    T119 --> T120["TASK-120"]
+    T120 --> T121["TASK-121"]
+    T120 --> T122["TASK-122"]
+    T120 --> T123["TASK-123"]
+    T120 --> T124["TASK-124"]
+    T121 --> T125["TASK-125"]
+    T122 --> T125
+    T123 --> T125
+    T124 --> T125
+    T124 --> T126["TASK-126"]
+    T124 --> T127["TASK-127"]
+    T123 --> T128["TASK-128"]
+    T124 --> T128
+    T125 --> T129["TASK-129"]
+    T128 --> T129
+    T129 --> T130["TASK-130"]
   end
 
   subgraph P2["Phase 2 — Setup (real Postgres)"]
@@ -94,7 +110,7 @@ graph TD
 
   T003 --> T101
   T003 --> T102
-  T119 --> T201
+  T130 --> T201
   T212 --> T301
 ```
 
@@ -113,21 +129,25 @@ Execution waves (tasks in the same wave are independent and may run in parallel;
     { "id": 7, "tasks": ["TASK-109", "TASK-110", "TASK-110a", "TASK-111", "TASK-112", "TASK-113", "TASK-114", "TASK-115"] },
     { "id": 8, "tasks": ["TASK-117", "TASK-118"] },
     { "id": 9, "tasks": ["TASK-119"] },
-    { "id": 10, "tasks": ["TASK-201"] },
-    { "id": 11, "tasks": ["TASK-202"] },
-    { "id": 12, "tasks": ["TASK-203", "TASK-204", "TASK-205", "TASK-206", "TASK-207", "TASK-208"] },
-    { "id": 13, "tasks": ["TASK-209"] },
-    { "id": 14, "tasks": ["TASK-210"] },
-    { "id": 15, "tasks": ["TASK-211"] },
-    { "id": 16, "tasks": ["TASK-212"] },
-    { "id": 17, "tasks": ["TASK-301"] },
-    { "id": 18, "tasks": ["TASK-302"] },
-    { "id": 19, "tasks": ["TASK-303"] },
-    { "id": 20, "tasks": ["TASK-304"] },
-    { "id": 21, "tasks": ["TASK-305"] },
-    { "id": 22, "tasks": ["TASK-306"] },
-    { "id": 23, "tasks": ["TASK-307"] },
-    { "id": 24, "tasks": ["TASK-308"] }
+    { "id": 10, "tasks": ["TASK-120"] },
+    { "id": 11, "tasks": ["TASK-121", "TASK-122", "TASK-123", "TASK-124"] },
+    { "id": 12, "tasks": ["TASK-125", "TASK-126", "TASK-127", "TASK-128"] },
+    { "id": 13, "tasks": ["TASK-129", "TASK-130"] },
+    { "id": 14, "tasks": ["TASK-201"] },
+    { "id": 15, "tasks": ["TASK-202"] },
+    { "id": 16, "tasks": ["TASK-203", "TASK-204", "TASK-205", "TASK-206", "TASK-207", "TASK-208"] },
+    { "id": 17, "tasks": ["TASK-209"] },
+    { "id": 18, "tasks": ["TASK-210"] },
+    { "id": 19, "tasks": ["TASK-211"] },
+    { "id": 20, "tasks": ["TASK-212"] },
+    { "id": 21, "tasks": ["TASK-301"] },
+    { "id": 22, "tasks": ["TASK-302"] },
+    { "id": 23, "tasks": ["TASK-303"] },
+    { "id": 24, "tasks": ["TASK-304"] },
+    { "id": 25, "tasks": ["TASK-305"] },
+    { "id": 26, "tasks": ["TASK-306"] },
+    { "id": 27, "tasks": ["TASK-307"] },
+    { "id": 28, "tasks": ["TASK-308"] }
   ]
 }
 ```
@@ -259,6 +279,76 @@ Execution waves (tasks in the same wave are independent and may run in parallel;
   - _Verify_: all smoke E2E green; coverage report produced.
   - _Git_: `test(e2e): dev-phase smoke suite [TASK-119]` → tag `v0.1.0-dev-mvp` on `develop`.
 
+### Phase 1 — PRD coverage closure (gap tasks; do not alter completed tasks)
+*Goal*: close every gap the Phase-1 audit found between the shipped dummy-gateway MVP and the full PRD intent — the API pockets (audit/export, part-item master, Settings masters) and the web/mobile screen inventory (PRD §7.3) that TASK-117/118 scoped to "shell + core flows" only. Each task stays on the dummy gateway (Phase-1 discipline), keeps every **completed** task (`[x]`) untouched, and is traced in `requirements.md` "PRD Coverage & Traceability".
+
+**Run order (TASK-120 first, then web-first).** **TASK-120 runs first** and reconciles **every earlier Phase-1 task (TASK-101..119)** to the PRD — but **only where an implementation diverges from the PRD intent**; anything already faithful is left untouched (see TASK-120). Only after that clean base is in place do the other gap tasks run, in this order: **Fase A — API prerequisites** (TASK-121 audit/export, TASK-122 part-item master, TASK-123 Settings masters) → **Fase B — web app to full PRD §7.3 coverage** (TASK-124 shared components → TASK-125 composer/step screens → TASK-126 dashboards/approvals → TASK-127 inventory/vehicles/documents/schedule → TASK-128 settings/invoices/setup/access-manager/shell) → **Fase C — mobile R1 completion (TASK-129) + behavioural FLW-* suite (TASK-130), last**. The product owner's priority is the **web app**: after **each** web task (TASK-124…128) the app must stay runnable end-to-end against the dummy-backed API — `pnpm --filter @bmi/api start` on :3000 + `pnpm --filter @bmi/web dev` on :3100 — so the owner can click through the new screens immediately; "done" for a web task includes a live local smoke of its screens. A "how to run locally" note lives in `apps/web/README.md` (added/updated by TASK-120).
+
+**No anti-overwrite after TASK-120 — follow the PRD freely.** Because **TASK-120 has already reconciled every prior Phase-1 task (TASK-101..119) to the PRD wherever it had diverged**, the later gap tasks are **not** bound by an "extend, never rewrite" rule: they build the full PRD §7.3 screens on TASK-120's clean base, free to restructure whatever best serves the PRD. The only standing constraints are the project-wide ones: stay on the Phase-1 dummy gateway (never import a concrete DB driver), reuse a component/endpoint a sibling task already built instead of duplicating it, keep the full workspace build/typecheck/lint/test green before each `[x]`, and follow the divergence protocol for any §9 data-model or §3 state-machine change (update `design.md`/`requirements.md` first). The API gap tasks (TASK-121/122/123) **add** endpoints/services to existing modules and the empty `SettingsModule`/`ReportsModule` stubs; combined with TASK-120's API reconciliation they leave every prior API test green.
+
+**MVP completeness guarantee.** Every one of the PRD's **251 P0 requirements** and **130 AC** is mapped in `requirements.md` "PRD Coverage & Traceability"; nothing P0 is dropped. Items the PRD itself marks **P1/P2** (AI, Reports, iOS, Mechanic/Supervisor mobile menus, Protrack, WhatsApp/email, amendment-history attachment, optional step skip, photo labels, GPS trail) are **listed as deferred with their release**, not silently removed — out of the Phase-1 MVP gate by PRD §10, built in Release 2. If any Phase-1 task is found narrower than its PRD REQ/AC/§7.3 scope, it is widened (or a conflict raised) **before** it is marked `[x]`.
+- [ ] **TASK-120** [FG-1..FG-18, PRD §1..§9 (whole-PRD audit), §7.3/§7.4/§7.9, §6, NFR-A11Y; FULL AUTHORITY over EVERY earlier Phase-1 task (TASK-101..119), used ONLY where an implementation diverges from the PRD; RUNS FIRST]: **Reconcile the entire shipped Phase-1 implementation to the original PRD intent — before any other gap task.** This is the **first** gap task. It has **full authority to change, refactor, replace or delete** anything produced by **any** earlier Phase-1 task — not only TASK-117 (web) and TASK-118 (mobile), but also the shared types (TASK-101), the dummy `DataGateway` + seed (TASK-102), the API scaffold/guard/audit/idempotency (TASK-103), IAM (TASK-104), Setup/Go-live (TASK-105), Vehicles/Documents/Odometer (TASK-106), the registry/presets (TASK-107), the WO lifecycle + assignment engine (TASK-108), Stock/Part-Purchase (TASK-109), Mechanic/Part-Check (TASK-110), Mobilisasi (TASK-110a), Part-Replacement/chassis (TASK-111), inventory/tyres (TASK-112), change-requests/approvals (TASK-113), PM/schedule/notifications/dashboards/daily-job (TASK-114), WO-document/invoices (TASK-115), files (TASK-116) and the E2E smoke (TASK-119). **This authority is strictly conditional: it is exercised ONLY on implementation that has drifted from the original PRD intent** — a REQ/AC behaviour not matched, a §2.2 permission cell wrong, a §3 state-machine transition off, a §9 field/shape missing or misused, a §7.3/§7.4/§7.9 screen/layout/action-map divergence, an NFR/BR/DEC not honoured, or a scope a completed task narrowed below its PRD REQ/AC. **Anything already faithful to the PRD is left untouched.** The task runs a **whole-PRD conformance audit** (every REQ, AC, BR, NFR, SM, DEC, §9 table and §7.3 artboard, against `requirements.md` "PRD Coverage & Traceability") and, for each confirmed divergence only, fixes it at its source — web, mobile, API endpoint/guard/DTO/behaviour, shared types, gateway seed, or a module's rule — never importing a concrete DB driver (Phase-1 dummy-gateway discipline holds). It re-runs the full workspace build/typecheck/lint/test so nothing regresses, and leaves a clean, PRD-faithful base on which TASK-121..130 build with no anti-overwrite constraint. **It does not change the completion status of earlier tasks** (TASK-101..119 stay `[x]`/`[ ]` as they are) — it corrects their output, not their ledger. Divergence protocol still applies: a **data-model (§9) or state-machine (§3)** change requires updating `design.md`/`requirements.md` first; and because the reconciliation targets real PRD conformance, any change it makes is logged in the reconciliation report with the exact PRD item (REQ/AC/BR/NFR/SM/DEC/§9/§7.3) it brings into line.
+  - _Skill_: `nextjs-developer`, `react-native-expert`, `impeccable`, `frontend-design-direction`, `nestjs-expert`, `fullstack-guardian`, `code-reviewer`, `typescript-pro`.
+  - _Artboards_ (PRD §7.3, authority to correct any): **all P0 web artboards** and **all R1 mobile artboards** (the full §7.3 inventory catalogued in design.md "Screen Inventory & Coverage"); each delivered screen must match its artboard's layout/flow (reference, not pixel-for-pixel) and satisfy its REQ/AC.
+  - _Output_: a whole-Phase-1 PRD-conformance audit + a reconciled, PRD-faithful base (web, mobile, API, shared types, gateway seed, module rules) where — and only where — an earlier task diverged; a **reconciliation report** listing every change made, each mapped to the exact PRD item (REQ/AC/BR/NFR/SM/DEC/§9/§7.3) it brings into line, and explicitly noting the parts of each earlier task left untouched because they already conform.
+  - _Verify_: the whole-PRD conformance audit shows **zero unresolved divergences** across TASK-101..119 (every REQ/AC/BR/NFR/SM/DEC/§9/§7.3 item either already conformant or fixed here); a screen-by-screen pass against PRD §7.3/§7.4/§7.9; the web app runs locally (`@bmi/api` :3000 + `@bmi/web` :3100) with every route reachable and correct; **every** prior `AC-*` still passes and no earlier task's conformant behaviour was changed; `pnpm -w run build`/`typecheck`/`lint`/`test` green; the reconciliation report maps each change to its PRD item.
+  - _Git_: `refactor(phase1): reconcile all prior tasks to PRD intent where divergent [TASK-120]`.
+- [ ] **TASK-121** [FG-13, FG-8, REQ-IAM-007, REQ-INV-008, DEC-74, §7.9 C-26]: Audit-log read + exports. Add a read/query surface over the append-only `audit_logs` (`GET /audit-logs` with user/entity/date filters; GM/System-Admin/Access-Manager view per §2.2), the **audit-log export** and the **stock-card export** (xlsx/csv, writing an `export_logs` row) — the only P0 exports (DEC-74). Audit is already written by the global interceptor (TASK-103); this task makes it readable and exportable. Powers AuditLog + StockCardExport (§7.3).
+  - _Skill_: `nestjs-expert`, `typescript-pro`.
+  - _Output_: audit read/query + audit/stock-card export endpoints against the dummy store; `export_logs` write.
+  - _Verify_: REQ-IAM-007 (every change is queryable with user/role/time), DEC-74 export produces the current filtered table and logs an `export_logs` row; a role without the audit view is refused 403.
+  - _Git_: `feat(audit): audit-log read + audit/stock-card export [TASK-121]`.
+- [ ] **TASK-122** [FG-8, REQ-BSL-003, REQ-BSL-006, REQ-BSL-007, REQ-BSL-009, DEC-62]: Part-item master + auto-reset. Implement the `part_item_types` master (normal life km/days + early-failure tolerance, maintained by Planner/System Admin, REQ-BSL-007) and `vehicle_part_items` (last replaced, next due, REQ-BSL-003); on WO completion **reset the linked part items** (REQ-BSL-006, DEC-62) and write `early_failure_events`; replace the Phase-1 manual `approvals.setPartAgeFacts` with a read from this master (the `part-age.ts` rule is unchanged).
+  - _Skill_: `nestjs-expert`, `fullstack-guardian`, `typescript-pro`.
+  - _Output_: part-item master + reset-on-complete + early-failure events against the dummy gateway; approvals read real part-age facts.
+  - _Verify_: AC-BSL-004/005 end-to-end (a completed WO resets the part item and the next review shows the recomputed life-used %/early-failure); a purchased line resets its SKU's part item (AC-PUR-004).
+  - _Git_: `feat(bsl): part-item master + reset-on-complete + early-failure [TASK-122]`.
+- [ ] **TASK-123** [FG-17, REQ-TYR-003, REQ-PM-006, REQ-BIL-004, REQ-BIL-007, REQ-BSL-007, §2.2 "Other master data"]: Complete the Settings masters. Fill the empty `SettingsModule` into a real controller that exposes every remaining P0 master not yet reachable: **tyre statuses** (REQ-TYR-003), **alert thresholds** (REQ-PM-006: dead-stock 180 d, odometer-jump 1.500 km/day, file-storage budget), the **invoices & tax editor** (REQ-BIL-004/007 — expose the existing `AppSettingsService.setTaxPct`/`setPartMarkupPct`), and the part-item-types editor (TASK-122), consolidating with the masters already shipped (alert rules, service catalog, classes/layouts, document types, presets/PM packages, stooring rates, OFF-unit rate, vendors). All `settings.manage`/`masterdata.manage`.
+  - _Skill_: `nestjs-expert`, `fullstack-guardian`, `typescript-pro`.
+  - _Output_: Settings masters controller/endpoints against the dummy gateway (powers the §7.3 Settings screens).
+  - _Verify_: each named master is readable + editable with an audit record; a non-System-Admin is refused; defaults match PRD (tax 11%, markup 50%, warning days 30, dead stock 180 d).
+  - _Git_: `feat(settings): tyre statuses, thresholds, invoices & tax, part-item types [TASK-123]`.
+- [ ] **TASK-124** [FG-16, FG-6, FG-10, PRD §7.5, NFR-A11Y, REQ-FUP-016, REQ-PLC-008]: Web shared-component library (PRD §7.5). Build the core shared components the screen inventory depends on, to `DESIGN.md` tokens + WCAG 2.2 AA + reduced-motion: **ChassisMap** (data-generated from the layout, editable/read-only/preview modes, REQ-PLC-008/010), **PhotoViewer** (REQ-FUP-016), **FileDrop** three-state (REQ-FUP-007), **StepTracker/StepBanner**, **ApprovalBlock** (+ the authored stamp motion), **AlertList**, **PartAgeCard** (REQ-APR-011), **ColumnChooser** (NAV-7), and extend StatusPill. Design artifacts are examples only.
+  - _Skill_: `nextjs-developer`, `impeccable`, `frontend-design-direction`, `typescript-pro`.
+  - _Output_: reusable web components with unit/interaction tests; used by TASK-125…127.
+  - _Artboards_ (PRD §7.3, reference only): `Component photo and file viewer (dialog)` (PhotoViewer), `Component file upload, seamless (FileDrop)` (FileUploadStates), `Step Part Replacement map` + `Vehicle classes and chassis layouts` (ChassisMap), `WO detail verification and completion`/`Work Order detail` (StepTracker/StepCard), `WO document`/`Review approval creation` (ApprovalBlock + stamp), `Dashboard (Planner)` (AlertList), `Review approval creation` (PartAgeCard), `Tyres column chooser` (ColumnChooser).
+  - _Verify_: ChassisMap draws 1–6 axle + trailer + spare layouts from data with no per-class code; PhotoViewer opens photos/PDFs with zoom/prev/next; FileDrop shows the three REQ-FUP-007 states; every status/urgency pill carries its text label (WCAG); reduced-motion honoured.
+  - _Git_: `feat(web): shared component library (ChassisMap, PhotoViewer, FileDrop, …) [TASK-124]`.
+- [ ] **TASK-125** [FG-1, FG-2, FG-3, FG-4, FG-5, FG-5a, FG-6, FG-9, REQ-WO-017, REQ-REG, §7.4, §7.9]: Create-WO composer + step screens (web). Build the full drag-and-drop **Create-WO composer** (REQ-WO-017: module palette, drop zones, per-step cards with executor/verifier/optional/details, live Checks panel, Start-from/Save-as preset) and every step screen: Stock, Part Purchase, Mechanic Action (Internal/External), Placement (using ChassisMap), DocStep, Part Check (+ verify + CreateWOFromCheck), Mobilisasi, plus StockReversal, ChangeRequest and CreateWORevision. Wired to the existing API; §7.9 action map behaviours.
+  - _Skill_: `nextjs-developer`, `impeccable`, `typescript-pro`.
+  - _Output_: composer + step screens clickable against the dummy-backed API.
+  - _Artboards_ (PRD §7.3, reference only): `Create Work Order step composer` (CreateWO), `Create WO from an alert` (CreateWOFromAlert), `Revise a WO (amendment)` (CreateWORevision), `Raise a change request` (ChangeRequest), `Step Stock` (Stock), `Stock step reversal after submit` (StockReversal), `Step Part Purchase (bought outside)` (PartPurchase), `Step Mechanic Action` (Mechanic), `Mechanic Action external team` (MechanicExternal), `Step Part Check (troubleshooting)` (PartCheck), `Verify a Part Check step` (PartCheckVerify), `Draft WO from a Part Check activate or discard` (CreateWOFromCheck), `Step Part Replacement map` (Placement), `Part Replacement replace` (PlacementReplace), `Part Replacement rotate` (PlacementRotate), `Step Part Replacement on a trailer tail (towed unit, spare)` (PlacementTrailer), `Step Document renewal` (DocStep), `Step state locked` (StepLocked), `Step state returned` (StepReturned), `Verify a step` (StepVerify).
+  - _Verify_: AC-REG-004 (drag/move renumbers + keeps details), AC-WO-003/004 (empty section refuses submit), each step screen performs its REQ (stage/submit), composer Checks panel shows REQ-REG-004 live; a11y clean.
+  - _Git_: `feat(web): Create-WO composer + step screens [TASK-125]`.
+- [ ] **TASK-126** [FG-12, FG-10, FG-1, REQ-DSH-001..010, REQ-APR, §7.4]: Role dashboards + approvals reviews (web). Build the six role dashboards (Planner, Mechanic, Warehouse, Supervisor/GM, System Admin, Field Coordinator, Accounting) per §7.4 (summary cards, "Needs my action", alert list, contextual actions) and the approval review screens — ApprovalReview, AmendmentReview (side-by-side), CompletionReview, StockOpnameApproval, TyreCountApproval — with the ApprovalBlock stamp motion and PartAgeCard (TASK-124).
+  - _Skill_: `nextjs-developer`, `impeccable`, `typescript-pro`.
+  - _Output_: dashboards + approval review screens against the API.
+  - _Artboards_ (PRD §7.3, reference only): `Dashboard (Planner)`, `Dashboard (Mechanic)`, `Dashboard (Warehouse Manager)`, `Dashboard (Supervisor, GM)`, `Dashboard (System Admin)`, `Dashboard (Field Coordinator)`, `Dashboard (Accounting)`; `Approvals (inbox)` (Approvals), `Approvals Warehouse tab (Supervisor, GM or System Admin)` (ApprovalsWarehouse), `Approvals History` (ApprovalsHistory), `Review approval creation` (ApprovalReview), `Review approval amendment` (AmendmentReview), `Review completion approval` (CompletionReview), `Review Stock opname (Supervisor, GM or System Admin)` (StockOpnameApproval), `Review Tyre count (Supervisor, GM or System Admin)` (TyreCountApproval).
+  - _Verify_: each role lands on its dashboard with its REQ-DSH cards; AC-APR-004 (no-reason reject refused), the stamp is applied on approve and Reject disabled (§7.5 motion); part-age/early-failure shown on review (REQ-APR-011).
+  - _Git_: `feat(web): role dashboards + approval reviews [TASK-126]`.
+- [ ] **TASK-127** [FG-7, FG-8, FG-12, REQ-VEH, REQ-DOC, REQ-INV, REQ-TYR, REQ-SCH, §7.4]: Inventory/Tyres, Vehicles, Documents & Schedule (web). Build the Inventory master-detail (parts: catalog/GR/stock-card/opname; tyres: receive/retread/worn-out/scrap/count/column-chooser), the Vehicles area (Overview/Documents/Chassis-and-parts/WO-history/Inspections tabs, AddVehicle, VehicleEdit, PartsBaseline, odometer+void, inspection/breakdown forms), the Documents matrix + scan viewer, and the Maintenance schedule drag calendar (+ FC read-only).
+  - _Skill_: `nextjs-developer`, `impeccable`, `typescript-pro`.
+  - _Output_: inventory/tyres, vehicles, documents and schedule screens against the API.
+  - _Artboards_ (PRD §7.3, reference only): `Inventory`, `Inventory Add part` (AddPart), `Inventory Part detail` (PartDetail), `Inventory Edit part` (PartEdit), `Deactivate part (dialog)` (PartDeactivate), `Inventory Goods Receipts` (GoodsReceipts), `New Goods Receipt` (GoodsReceiptForm), `Goods Receipt detail` (GoodsReceiptDetail), `GR correction` (GRCorrection), `Inventory Stock card` (StockCard), `Stock card Export` (StockCardExport), `Inventory Stock opname` (StockOpname), `Stock opname returned by the approver` (StockOpnameReturned), `Inventory Tyres` (Tyres), `Tyres column chooser` (TyreColumns), `Receive tyres new tyres` (ReceiveTyres), `Receive tyres retread return` (RetreadReceipt), `Send tyres to retread` (RetreadDispatch), `Inventory Tyres, Retread` (RetreadList), `Retread dispatch detail` (RetreadDispatchDetail), `Tyres confirm Worn out` (TyreWornOut), `Tyres confirm Scrap` (TyreScrap), `Inventory Tyres, Tyre count` (TyreCount); `Vehicles tab` (Vehicles), `Vehicles Overview tab` (VehicleOverview), `Vehicles Documents tab` (VehicleDocuments), `Vehicles WO history tab` (VehicleWOHistory), `Vehicles Inspections tab (System Admin, P0)` (VehicleInspections), `Add vehicle with first documents` (AddVehicle), `Edit vehicle` (VehicleEdit), `Deactivate vehicle (dialog)` (VehicleDeactivate), `Vehicles odometer history and manual reading` (VehicleOdometer), `Void odometer reading (System Admin)` (OdometerVoid), `Parts baseline (first entry)` (PartsBaseline), `Correct parts baseline (System Admin)` (BaselineCorrect), `Record inspection for a driver (P0)` (AdminInspectionForm), `Report breakdown for a driver (P0)` (AdminBreakdownForm); `Documents tab` (Documents), `Add document (first entry)` (AddDocument), `View scan` (DocumentScan), `Correct a first document entry (System Admin)` (DocumentCorrectEntry); `Maintenance schedule (Planner)` (MaintenanceSchedule), `Maintenance schedule (Field Coordinator, read only)` (ScheduleDispatcher).
+  - _Verify_: Inventory parts/tyres modes never show each other's buttons (§7.4); Vehicles tabs + ChassisMap read-only; Documents matrix one status per cell; schedule cards drag to a day and show the rolled-over/late flag (REQ-SCH-003); AC-SCH-005 FC read-only.
+  - _Git_: `feat(web): inventory, vehicles, documents, schedule [TASK-127]`.
+- [ ] **TASK-128** [FG-11, FG-13, FG-14, FG-17, FG-12, REQ-BIL, REQ-IAM, REQ-SETUP, REQ-WOD, REQ-NTF-001, §7.2 DEC-82]: Settings, Invoices/Customers, Setup/Go-live, Access Manager & shell (web). Build the Settings pages (all §7.3 masters from TASK-123), Invoices + Customers + InvoiceDocument (B/W) + payment/void dialogs, the Setup/Go-live + bulk-import + opening-balance screens, the Access Manager area (UsersRoles, AMAccountForm, AMRolesPermissions, AMAccessHistory, AuditLog via TASK-121), the NotificationCenter + header bell (REQ-NTF-001), the user menu (C-04) and the collapsible app-shell rail (DEC-82), and the WODocument render page (real PDF deferred to TASK-206).
+  - _Skill_: `nextjs-developer`, `impeccable`, `typescript-pro`.
+  - _Output_: the remaining web screens against the API; complete §7.3 web coverage (minus R2 reports).
+  - _Artboards_ (PRD §7.3, reference only): `Settings (home)` (Settings), `Settings WO presets` (SettingsWOPresets), `Settings Alert rules` (SettingsAlertRules), `Settings Alert thresholds` (SettingsAlertThresholds), `Vehicle classes and chassis layouts` (ChassisLayouts), `Settings Document types` (DocumentTypes), `Settings Service catalog` (SettingsServiceCatalog), `Settings Part item types` (SettingsPartItemTypes), `Settings PM packages and tasks` (SettingsPMPackages), `Settings Tyre statuses` (SettingsTyreStatuses), `Settings Vendors (System Admin)` (SettingsVendors), `Settings Invoices and tax` (SettingsBilling), `Settings Stooring rates (System Admin)` (SettingsStooringRates); `Invoices (Accounting)` (InvoiceList), `Invoice detail (Accounting, Supervisor)` (InvoiceDetail), `Record payment (dialog)` (InvoicePayment), `Void invoice (dialog)` (InvoiceVoid), `Invoice print (black and white)` (InvoiceDocument), `Customers`, `Add or edit customer` (CustomerForm); `WO document` (WODocument), `WO document Part Check WO (standalone)` (WODocumentCheck); `System Admin Setup mode and Go live` (SetupGoLive), `Setup bulk import of master data` (SetupImport), `Inventory opening balance in Setup mode (System Admin)` (OpeningBalance), `Change password at first sign-in` (ChangePassword); `Users and roles (Access Manager)` (UsersRoles), `New or edit account (Access Manager)` (AMAccountForm), `Users and roles Roles and permissions (Access Manager)` (AMRolesPermissions), `Users and roles Access history (Access Manager)` (AMAccessHistory), `Audit log` (AuditLog); `Notification center` (NotificationCenter), `App shell navigation collapsed` (AppShellCollapsed).
+  - _Verify_: an invoice goes Draft→Issued→Paid in the UI with the running number; Setup shows the checklist and the one-way Go-live; Access Manager area reachable only by AM; NotificationCenter opens the exact record (NAV-5); the rail collapses and the choice persists (DEC-82).
+  - _Git_: `feat(web): settings, invoices, setup, access-manager, shell [TASK-128]`.
+- [ ] **TASK-129** [FG-15, REQ-MOB-006, REQ-MOB-009, §7.11 DQ-03/04/11, NFR-A11Y]: Mobile R1 completion. Complete the R1 mobile screens TASK-118 left as logic/shell: the Field Coordinator fleet-availability, schedule (read-only) and alerts screens (REQ-MOB-006), the full Driver + System-Admin-field-menu screens, FileDrop/camera capture with offline drafts (REQ-MOB-009), and MobileProfile/history/FCDraftCancel detail (§7.11 DQ-03/04/11). Mechanic + Supervisor/GM menus stay R2.
+  - _Skill_: `react-native-expert`, `impeccable`, `typescript-pro`.
+  - _Output_: complete R1 mobile screens in Expo against the API.
+  - _Artboards_ (PRD §7.3, reference only, R1): `Mobile app sign in (menu follows the role) (P1)` (MobileLogin), `Driver home (mobile)` (DashboardDriver), `Mobile app, Driver menu daily inspection (P1)` (DriverInspection), `Mobile app, Driver menu report breakdown (P1)` (DriverBreakdown), `Mobile app, Driver menu record odometer (P1)` (DriverOdometer), `Mobile app, Driver menu history (P1)` (DriverHistory), `Mobile app, Field Coordinator menu fleet availability (P1)` (DispatcherMobileFleet), `Mobile app, Field Coordinator menu schedule, read only (P1)` (DispatcherMobileSchedule), `Mobile app, Field Coordinator menu alerts (P1)` (DispatcherMobileAlerts), `Mobile Field Coordinator requests` (FCMobileRequests), `Mobile Field Coordinator completes a draft WO` (FCMobileCreateWO), `Mobile Field Coordinator Part Purchase step` (FCMobilePurchase), `Mobile System Admin field menu` (SAMobileHome), `Cancel draft WO (Field Coordinator, dialog)` (FCDraftCancel), `Mobile app profile and settings (P1)` (MobileProfile), `Component file upload, seamless (FileDrop)` (FileUploadStates). R2 (listed, not built here): Mechanic + Supervisor/GM menus.
+  - _Verify_: AC-MOB-005 + the FC fleet/schedule/alerts screens render and follow the role; offline Save-draft/Start/photo work and sync (REQ-MOB-009); 48px targets; status-as-text pills.
+  - _Git_: `feat(mobile): R1 screen completion (FC fleet/schedule/alerts, offline, profile) [TASK-129]`.
+- [ ] **TASK-130** [all P0 FGs, PRD §6]: Behavioural FLW-* regression suite. Author end-to-end behavioural tests from the PRD §6 user flows (FLW-PLN-01…09, FLW-MEC-01…06, FLW-WHM-01…10, FLW-APR-01…08, FLW-SA-01…10, FLW-AM-01…06, FLW-DRV-01…04, FLW-FC-01…05, FLW-ACC-01…03, and the §6.9 cross-role PM-alert→WO-document flow) against the dummy gateway, re-asserting each SM transition and `AC-*` the flow exercises. Complements, not replaces, the per-module unit/e2e tests.
+  - _Skill_: `test-master`.
+  - _Output_: FLW-* behavioural suite; CI job on `develop`; coverage report.
+  - _Verify_: every FLW-* happy path + its named side paths green; each SM-WO/SM-STEP/SM-INV/SM-SCH transition the flows touch is asserted; report maps FLW → REQ/AC.
+  - _Git_: `test(e2e): PRD §6 FLW-* behavioural suite [TASK-130]`.
 ---
 
 ## Phase 2 — Setup (P0 complete, real PostgreSQL, test & debug)

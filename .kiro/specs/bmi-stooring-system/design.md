@@ -161,6 +161,84 @@ Per NFR-04/05 and the **security-reviewer** + **fullstack-guardian** skills: ser
 
 **Mobile app (Expo RN) + R1 field flows implementation notes (TASK-118, FG-15).** The Expo React Native Android app (`apps/mobile`) delivers the R1 field flows (REQ-MOB, REQ-MOB-010, REQ-MBL-002, PRD §7.11, NFR-A11Y, DEC-92) as a **pure API client** — it reaches data only through the NestJS API (`/api/v1`, JSON; NFR-18) and reuses `@bmi/shared` DTOs/enums read-only; it never imports a DB driver or the gateway. **Architecture for testability + offline verification:** all behaviour-bearing logic lives in **framework-free pure modules** (`src/api/client.ts` REST client over the global `fetch`; `src/logic/role-menu.ts` role→field-menu routing; `src/logic/field-validation.ts` the breakdown + FC-draft gates; `src/logic/mechanic-today.ts` the REQ-MOB-010 ordering; `src/theme`, `src/i18n`), so they type-check and unit-test with the repo's existing TypeScript + Vitest toolchain **without requiring the Expo/React-Native install** (the `typecheck` script uses `tsconfig.logic.json`; the RN `.tsx` screens are type-checked against the real Expo toolchain via `typecheck:app`/`tsconfig.json`). **Auth:** the client signs in via `POST /auth/login` with `platform: 'mobile'` (mobile 30-day absolute session, NFR-05) and sends the bearer token; it keeps the Phase-1 `x-user-id`/`x-user-role` dev-header shim so it works directly against the seeded dummy gateway. **MobileLogin → role menu (REQ-MOB):** `menuForRole` routes Driver → driver menu (inspection/odometer/breakdown/history), Field Coordinator → FC menu (requests/purchase), System Admin → SA field menu (breakdown on behalf/odometer/history), Mechanic → R2 today list; office-only roles are told to use the web app. **Driver breakdown (REQ-PM-005, REQ-MBL-002, REQ-WO-016):** the screen captures the device location **once** (`captureOnce` wrapping `expo-location`; not a continuous trail) and takes the **mandatory finding note** that becomes the draft's `finding_note`; `canSubmitBreakdown` blocks an empty note; submitting calls `POST /maintenance/breakdowns` — the **API** pre-seeds exactly one Mobilisasi step at the captured location and copies the note, the app does **not** re-implement the drafting (that breakdown endpoint carries `vehicle.manage`, so the System Admin field menu is the authoritative R1 trigger). **FC mobile draft (REQ-WO-016, DEC-91):** `canSendFcDraftForReview` blocks "send for review" until a finding note is typed (server refuses empty too). **Mechanic today list (R2, REQ-MOB-010):** `buildMechanicTodayList` projects the WO list + schedule cards (`isRolledOver`/`plannedDate` from the TASK-114 API) to the WOs scheduled for **today (WIB)** assigned to the signed-in mechanic, ordered by **urgency descending with rolled-over/late first**, each row rendering its urgency pill (text label present) + rolled-over flag; the WIB-day boundary mirrors `@bmi/config` `wibDayOf` (inlined to keep the bundle's dependency surface to `@bmi/shared` only). **The continuous mechanic GPS trail is R2 Mobilisasi only and is deliberately NOT in this app.** **Shared MobileProfile (DQ-01):** notification settings (push/email) + the UI language selector (Indonesian default / English; the whole app is bilingual via `src/i18n/strings.ts`, no runtime i18n lib — small bundle for Android 8.0+). **Accessibility + field ergonomics (NFR-A11Y, PRD §7.11, DESIGN.md):** every control is ≥ 48px (the `touchTarget.min` token), one task per screen, one filled BMI-red primary action per screen (Stamp Ink Rule), petrol as the information ink (Second Ink Rule), and **every status/urgency pill carries its text label — never colour alone** (Words First Rule); the theme (`src/theme/tokens.ts`) transcribes the DESIGN.md "Petrol Complement" palette; lists use `FlatList` and memoised rows. **Divergences:** none to the API, PRD §9/§3 or any state machine — the app is a client only. Two app-local build choices are recorded here: (a) the mobile `typecheck` script checks the pure logic (`tsconfig.logic.json`) so workspace typecheck stays green without the native toolchain, with the full-app check in `typecheck:app`; (b) the per-user notification settings (DQ-01) and language live client-side in Phase 1 (no persistence endpoint yet), to be persisted through the API in a later task. The 153 `Design Artifact/` artboards (incl. `MobileProfile`, `MechanicMobileHistory`) were used as illustrative references only; the UI is built to behaviour + DESIGN.md.
 
+## State Machines — full coverage (PRD §3)
+
+> The authoritative transition tables are **PRD §3.2–§3.7**; they are implemented verbatim by the `@bmi/shared` guard machines (TASK-101) and must not be re-derived. All **13** machines are listed so none is omitted; each names its PRD subsection, its shared-guard, the owning task, and the rule that a transition not tabled is refused.
+
+| Machine | PRD | Shared guard | States (summary) | Owning task | Notes |
+|---|---|---|---|---|---|
+| SM-WO | §3.2 | `smWorkOrder` | Draft, Pending_Approval, Active, In_Progress, Pending_Verification, Pending_Amendment, Rejected, Completed, Cancelled (T1–T15) | TASK-108 ✅ | T1 guard "system is Live"; T3 four-eyes; T13 completion gate |
+| SM-STEP | §3.3 | `smStep` | Locked, Open, In_Progress(+Paused), Submitted, Verified, Returned, Skipped | TASK-108 ✅ | Mobilisasi runs on this with no new states |
+| SM-VEH | §3.4 | `deriveVehicleStatus` | Inactive, **OFF**, Blocked, Repair, Active (derived, precedence 1>2>3>4>5) | TASK-106/114 ✅ | OFF = escalation of Repair (DEC-92); recalculated by daily job |
+| SM-DOC | §3.5 | `smDocument` | Missing, Valid, Warning, Expired | TASK-106 ✅ | daily warning/expiry; correct-entry recompute |
+| SM-TYRE | §3.6 | `smTyre` | (new), In_Stock, Issued, Mounted, Needs_Retread, On_Retread, Worn_Out, Scrapped, Lost | TASK-111/112 ✅ | Scrapped/Lost final; every move writes a `tyre_events` row |
+| SM-GR | §3.7 | `smGoodsReceipt` | Draft → Posted | TASK-112 ✅ | correction posted directly, no approval (BR-12) |
+| SM-SA | §3.7 | `smStockOpname` | Draft → Pending_Approval → Approved; → Draft (Returned) | TASK-112 ✅ | approval is the only posting path |
+| SM-TR | §3.7 | `smTyreReceipt` | Draft → Confirmed | TASK-112 ✅ | New / Existing / Retread-return |
+| SM-RD | §3.7 | `smRetreadDispatch` | Draft → Sent → Partial → Closed | TASK-112 ✅ | per-tyre Accepted/Rejected/NotReturned |
+| SM-TC | §3.7 | `smTyreCount` | Draft → Pending_Approval → Approved; → Draft (Returned) | TASK-112 ✅ | approved Missing → Lost |
+| SM-CR | §3.7 | `smChangeRequest` | Submitted → In_Revision → Pending_Approval → Approved/Rejected | TASK-113 ✅ | drives SM-WO T8–T10 |
+| SM-SCH | §3.7 | `smSchedule` | Not planned → Planned → Missed → Planned(moved, `is_rolled_over`) | TASK-114 ✅ | auto roll-forward each day, no limit, until Complete/Cancel; never blocks WO (BR-13) |
+| SM-INV | §3.7 | `smInvoice` | Draft → Issued → Paid; Draft/Issued → Void | TASK-115 ✅ | Paid/Void final; void returns WOs to a new Draft (BR-15) |
+
+## Data Model Catalogue — PRD §9 (all subsections 9.0–9.14)
+
+> **PRD §9 is the authoritative final PostgreSQL schema** (dependency-ordered, every decision applied — do not re-derive). Phase 1 models the business aggregates in the dummy `DataGateway` + API-layer in-memory services (per the TASK-103..116 notes above); **Phase 2 TASK-201** authors the real schema for every subsection below, and **TASK-203** implements the §9.13 integrity rules & key transactions (TX-*). No subsection is skipped.
+
+| §9 subsection | What it defines | Phase-1 home | Phase-2 task |
+|---|---|---|---|
+| 9.0 Conventions | id/version/timestamp/soft-delete conventions | gateway shape (TASK-102) | TASK-201 |
+| 9.1 Enumerations | all enums incl. `vehicle_status_t` (**OFF**), `invoice_lines.kind` (**Off_Unit**), `role_t`, `wo_status_t`, `tyre_status_t`, … | `@bmi/shared` enums (TASK-101) | TASK-201 |
+| 9.2 Identity, access, audit | `users`, `user_roles`, `role_permissions`, `audit_logs`, sessions/reset-tokens | TASK-104 in-memory | TASK-201/202 |
+| 9.3 Fleet, chassis, odometer | `vehicles`, `vehicle_classes`, `chassis_layouts`, `part_positions`, `odometer_logs`, `drivers` | TASK-106 in-memory | TASK-201 |
+| 9.4 Documents | `document_types`, `vehicle_documents`, `document_renewals`, `document_corrections`, `document_view_logs` | TASK-106 in-memory | TASK-201 |
+| 9.5 PM, part items, alerts, inspections | `pm_packages`, `pm_tasks`, `vehicle_pm_schedule`, `part_item_types`, `vehicle_part_items`, `early_failure_events`, `maintenance_alerts`, `alert_rules`, `dvir_logs`, `breakdown_reports` (+captured location) | TASK-107/114 in-memory; **part-item master → TASK-122** | TASK-201 |
+| 9.6 WO, steps, approvals | `work_orders` (+`finding_note`, `off_days`, `off_last_counted_date`), `work_order_assignments`, `work_order_approvals`, `step_time_events`, `step_time_corrections`, `mobilisation_location_trail`, `wo_change_requests` | TASK-108/110a/113 in-memory | TASK-201 |
+| 9.7 WO content | `work_order_parts`, `work_order_services`, `work_order_purchases`, `work_order_purchase_lines`, `work_order_check_items`, `wo_attachments` | TASK-109/110 in-memory | TASK-201 |
+| 9.8 Parts inventory & stock ledger | `parts_catalog`, `stock_cards`, `goods_receipts`, `gr_corrections`, `goods_issues`, `goods_issue_items`, `stock_adjustments`, `import_batches` | TASK-109/112 in-memory | TASK-201 |
+| 9.9 Tyres, tyre docs, retread | `tyres`, `tyre_statuses`, `tyre_events`, `tyre_receipts`, `retread_orders`, `retread_order_items`, `tyre_counts` | TASK-112 (`tyres` real in gateway) | TASK-201 |
+| 9.10 Placements & map | `part_placements`, `part_placement_logs`, `placement_map_snapshots` | TASK-111 in-memory | TASK-201 |
+| 9.11 Schedule | `wo_schedule` (+`is_rolled_over`), `wo_schedule_log`, `schedule_alerts` | TASK-114 in-memory | TASK-201 |
+| 9.12 Platform: settings, notifications, prefs, AI | `app_settings` (+`off_unit_daily_rate`), `notifications`, `notification_deliveries`, `push_devices`, `user_preferences`, `ai_configurations`, `ai_query_logs`, `export_logs`, `stored_files` | TASK-104/114/116 in-memory; **exports → TASK-121** | TASK-201 |
+| 9.13 Integrity rules & key transactions | TX-01…TX-* multi-table transactions, §9.13 circular keys, DB guards for BR-* | simulated in `unitOfWork` | **TASK-203** |
+| 9.14 Customers & invoices | `customers`, `invoices`, `invoice_lines` (+`Off_Unit`), `invoice_line_sources`, `invoice_payments`, `invoice_wos` | TASK-115 in-memory | TASK-201 |
+
+## Screen Inventory & Coverage — PRD §7.3 (all 153 artboards)
+
+> Per PRD §7.1/§7.7, **the artboards are an illustrative layout/flow reference, not a binding front-end contract**: the UI is built to the REQ + `DESIGN.md`, using each artboard as the example. This catalogue maps **every one of the 153 artboards** to the FG and the task that builds its screen, so none is forgotten. Web screens use `DESIGN.md` tokens (brand red #AD2713, petrol #1F4E5F, logo on a white tile, status-as-text pills, collapsible rail DEC-82, authored motion). The one artboard not built is `Main` (screen map, overview only). `SettingsIntegrations` and the AI sidebar have no artboard yet (P1/R2).
+
+**Shell & general (4)** — WebLogin → TASK-117 ✅; NotificationCenter, AppShellCollapsed → TASK-128; Main (screen map) → not built (§7.3).
+
+**Dashboards (7)** — Dashboard(Supervisor/GM), DashboardPlanner, DashboardMechanic, DashboardWarehouse, DashboardAdmin, DashboardDispatcher(FC), DashboardAccounting → **TASK-126** (data from TASK-114 ✅).
+
+**Work Orders (10)** — WOList, CreateWO, CreateWOFromAlert, WORejected, WorkOrder, WODetailVerify, StepVerify, StepLocked, StepReturned, CancelWO → **TASK-125/125** (TASK-117 ✅ shell + list/detail stubs).
+
+**Change request / revision / WO document (4)** — ChangeRequest, CreateWORevision, WODocument, WODocumentCheck → **TASK-125** (revision), **TASK-128** (WODocument render; real PDF TASK-206).
+
+**Steps (14)** — Stock, PartPurchase, StockReversal, Mechanic, MechanicExternal, PartCheck, PartCheckVerify, CreateWOFromCheck, Placement, PlacementReplace, PlacementRotate, PlacementTrailer, DocStep, MechanicMobileCheck → **TASK-125** (+ ChassisMap component TASK-124; MechanicMobileCheck is R2 mobile).
+
+**Approvals (8)** — Approvals, ApprovalsWarehouse, ApprovalsHistory, ApprovalReview, AmendmentReview, CompletionReview, StockOpnameApproval, TyreCountApproval → **TASK-126** (PartAgeCard + stamp component TASK-124).
+
+**Schedule (2)** — MaintenanceSchedule, ScheduleDispatcher → **TASK-127**.
+
+**Vehicles (14)** — Vehicles, VehicleOverview, VehicleDocuments, VehicleWOHistory, VehicleInspections, AddVehicle, VehicleEdit, VehicleDeactivate, VehicleOdometer, OdometerVoid, PartsBaseline, BaselineCorrect, AdminInspectionForm, AdminBreakdownForm → **TASK-127**.
+
+**Documents (4)** — Documents, AddDocument, DocumentScan, DocumentCorrectEntry → **TASK-127** (DocumentScan uses PhotoViewer TASK-124).
+
+**Inventory: parts (14)** — Inventory, AddPart, PartDetail, PartEdit, PartDeactivate, GoodsReceipts, GoodsReceiptForm, GoodsReceiptDetail, GRCorrection, StockCard, StockCardExport, StockOpname, StockOpnameReturned → **TASK-127** (StockCardExport also **TASK-121**).
+
+**Inventory: tyres (10)** — Tyres, TyreColumns, ReceiveTyres, RetreadReceipt, RetreadDispatch, RetreadList, RetreadDispatchDetail, TyreWornOut, TyreScrap, TyreCount → **TASK-127** (ColumnChooser component TASK-124).
+
+**Settings (13 +1 P1)** — Settings(home), SettingsWOPresets, SettingsAlertRules, ChassisLayouts, DocumentTypes, SettingsServiceCatalog, SettingsPartItemTypes, SettingsPMPackages, SettingsAlertThresholds, SettingsTyreStatuses, SettingsVendors, SettingsBilling, SettingsStooringRates, (SettingsIntegrations P1) → **TASK-123** (API masters) + **TASK-128** (UI).
+
+**Access Manager area (5)** — UsersRoles, AMAccountForm, AMRolesPermissions, AMAccessHistory, AuditLog → **TASK-128** (AuditLog read via **TASK-121**).
+
+**Reports (5)** — Reports(Cost), ReportsTyres, ReportsMaintenance, ReportsInventory, ReportsStepTime → **R2 / FG-18 (deferred, listed)**.
+
+**Mobile (24)** — MobileLogin, DashboardDriver, DriverInspection, DriverBreakdown, DriverOdometer, DriverHistory → TASK-118 ✅ (R1); DispatcherMobileFleet, DispatcherMobileSchedule, DispatcherMobileAlerts, FCMobileRequests, FCMobileCreateWO, FCMobilePurchase, SAMobileHome, MobileProfile, FCDraftCancel → TASK-118 ✅ / **TASK-129** (R1 depth); FileUploadStates, MechanicMobileUpload, PhotoViewer → **TASK-124/128**; MechanicMobileHome, MechanicMobileStep, MechanicMobilePlacement, MechanicMobileFieldReport, MechanicMobileHistory, SupervisorMobileHome, SupervisorMobileReview, SupervisorMobileFleet, SupervisorMobileHistory → **R2** (Mechanic + Supervisor/GM menus, listed).
+
+**Invoices, customers & setup (12)** — InvoiceList, InvoiceDetail, InvoicePayment, InvoiceVoid, InvoiceDocument, Customers, CustomerForm, OpeningBalance, ChangePassword, SetupGoLive, SetupImport, (DashboardAccounting above) → **TASK-128** (InvoiceDocument render; OpeningBalance/SetupImport API ✅ TASK-105; ChangePassword API ✅ TASK-104).
+
 ## Skill Integration (referenced by tasks.md)
 
 | Skill | Used for (phases) |
