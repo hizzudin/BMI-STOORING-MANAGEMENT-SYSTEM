@@ -211,6 +211,73 @@ export class WorkOrdersService {
     });
   }
 
+  /**
+   * Create one Draft WO from a triggered alert (REQ-PM-009). The WO is **never
+   * Active** — it is drafted for the Planner to compose/activate. Vehicle,
+   * source, category, workshop flag, priority and steps come from the caller
+   * (resolved from the alert rule / package / document type by the PM engine,
+   * REQ-PM-008); when `presetId` is given its steps are copied (REQ-ENG-004,
+   * never followed afterwards). This is the WO-lifecycle owner's draft path —
+   * the PM engine (TASK-114) never re-implements WO creation.
+   */
+  async createAlertDraft(input: {
+    vehicleId: number;
+    source: WorkOrderSource;
+    category: WorkOrderCategory;
+    priority: WorkOrderPriority;
+    requiresDowntime: boolean;
+    title: string;
+    findingNote?: string | null;
+    createdBy: number;
+    presetId?: number | null;
+    steps?: StepInput[];
+  }): Promise<WorkOrderDto> {
+    const vehicle = await this.gateway.repos.vehicles.getById(input.vehicleId);
+    if (!vehicle) {
+      throw new NotFoundException(`Unknown vehicle: ${input.vehicleId}`);
+    }
+    if (vehicle.status === VehicleStatus.Inactive) {
+      throw new ConflictException('Cannot create a WO for an Inactive vehicle (REQ-WO-013).');
+    }
+    // Explicit steps win; otherwise copy the preset version's steps when the
+    // preset exists. A missing/unknown preset drafts step-less for the Planner
+    // to compose (DEC-85) — the alert still drafts (REQ-PM-009/010).
+    const steps =
+      input.steps && input.steps.length > 0
+        ? input.steps
+        : input.presetId !== null && input.presetId !== undefined && this.presets.isKnown(input.presetId)
+          ? this.resolveSteps({
+              vehicleId: input.vehicleId,
+              title: input.title,
+              category: input.category,
+              description: input.title,
+              presetId: input.presetId,
+            })
+          : [];
+
+    return this.gateway.unitOfWork(async (ctx) => {
+      const number = this.nextNumber();
+      const created = await ctx.repos.workOrders.insert(
+        this.newWorkOrderRow({
+          number,
+          vehicleId: input.vehicleId,
+          source: input.source,
+          category: input.category,
+          priority: input.priority,
+          requiresDowntime: input.requiresDowntime,
+          description: input.title,
+          findingNote: input.findingNote ?? null,
+          presetId: input.presetId ?? null,
+          createdBy: input.createdBy,
+        }),
+      );
+      if (steps.length > 0) {
+        await this.insertSteps(ctx, idValue(created.id), steps);
+      }
+      return created;
+    });
+  }
+
   // --- submit (SM-WO T2 / T5) ----------------------------------------------
 
   /**

@@ -109,6 +109,13 @@ export class VehicleStatusService {
     if (isFinal(wo.status)) {
       return false;
     }
+    // DEC-92: once the daily job has counted an overrun day, `off_days` is the
+    // PERSISTENT OFF signal — it holds the vehicle OFF until the WO is
+    // Completed/Cancelled, even after the daily job rolls the missed card
+    // forward to today (which would otherwise clear the transient card signal).
+    if (wo.offDays > 0) {
+      return true;
+    }
     const cards = await this.gateway.repos.scheduleCards.findBy('workOrderId', wo.id);
     if (cards.length === 0) {
       return false;

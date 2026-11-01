@@ -40,6 +40,6 @@ import { VehicleStatusService } from './vehicle-status.service.js';
     OdometerService,
     VehicleStatusService,
   ],
-  exports: [VehiclesService, VehicleClassService, DocumentTypeService],
+  exports: [VehiclesService, VehicleClassService, DocumentTypeService, VehicleStatusService],
 })
 export class VehiclesModule {}
