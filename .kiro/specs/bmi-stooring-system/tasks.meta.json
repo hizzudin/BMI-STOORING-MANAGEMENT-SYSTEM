@@ -290,6 +290,30 @@
         "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
         "timestamp": 1793504681793
       }
+    ],
+    "**TASK-117** [FG-1..FG-14, REQ-WO-015, REQ-SCH-003, DESIGN.md, NFR-A11Y, DEC-92]: Web app shell (Next.js) + core desktop flows (sign-in, dashboards, WO list/detail/create composer, step screens, approvals, inventory, vehicles) wired to the API, using `DESIGN.md` tokens; the Requests list / Create WO composer shows the draft's `finding_note` to the Planner as read-only context, preserved even when editing `description` (REQ-WO-016). WO lists, the schedule and Create WO show the colour-coded urgency pill (always carrying its text label, WCAG) and the rolled-over/late flag on schedule cards. Design artifacts used as **examples only**.": [
+      {
+        "executionId": "b40a6a6f-23c2-46c3-81d6-49f70b8a014e",
+        "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
+        "timestamp": 1793505026117
+      },
+      {
+        "executionId": "b40a6a6f-23c2-46c3-81d6-49f70b8a014e",
+        "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
+        "timestamp": 1793509224757
+      }
+    ],
+    "**TASK-118** [FG-15, REQ-MOB, REQ-MOB-010, REQ-MBL-002, §7.11, NFR-A11Y, DEC-92]: Mobile app shell (Expo RN) + R1 field flows (MobileLogin role menu, Driver inspection/odometer/breakdown/history, Field Coordinator requests/purchase, System Admin field menu, shared MobileProfile with notification settings DQ-01) against the API. Driver breakdown flow: the app captures the driver's location once on breakdown report plus the mandatory field-finding note that becomes the draft's `finding_note` (REQ-WO-016, REQ-MOB-004), and triggers the auto-drafted WO (pre-seeded with one Mobilisasi step at that location). The Field Coordinator mobile draft flow requires a typed finding note before send-for-review. The mechanic's continuous GPS trail belongs only to an In_Progress Mobilisasi step (R2 mechanic mobile), not the driver app. The **Mechanic mobile task list** (R2 mechanic menu) shows only WOs scheduled for today (WIB) and assigned to that mechanic, ordered by urgency descending with rolled-over/late first, each carrying its urgency pill (text label present, WCAG) and rolled-over flag (REQ-MOB-010).": [
+      {
+        "executionId": "b40a6a6f-23c2-46c3-81d6-49f70b8a014e",
+        "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
+        "timestamp": 1793505032410
+      },
+      {
+        "executionId": "b40a6a6f-23c2-46c3-81d6-49f70b8a014e",
+        "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
+        "timestamp": 1793509230522
+      }
     ]
   }
 }
