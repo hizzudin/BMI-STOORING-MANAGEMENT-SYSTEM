@@ -1,0 +1,27 @@
+{
+  // Full Expo React Native app type-check. Requires the Expo toolchain to be
+  // installed (`pnpm install` resolves expo/react-native). Extends Expo's base
+  // tsconfig for the correct JSX/lib/module settings. Used by `typecheck:app`.
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "jsx": "react-native",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "index.ts",
+    "app.config.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "app/**/*.ts",
+    "app/**/*.tsx"
+  ],
+  "exclude": ["node_modules"]
+}

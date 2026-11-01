@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "BMI Stooring",
+    "slug": "bmi-stooring",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "bmistooring",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F4F7F8",
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "id.bmi.stooring",
+      "versionCode": 1,
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "BMI Stooring captures your location once when you report a breakdown, to place the Work Order at the vehicle."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "note": "R1 Android field app (Android 8.0+). Built for outdoors, sunlight, gloves (PRD §7.11)."
+    }
+  }
+}

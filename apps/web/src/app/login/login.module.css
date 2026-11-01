@@ -1,0 +1,39 @@
+.screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-page);
+  background: var(--page);
+}
+
+.frame {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Petrol-ink brand bar — logo on its white tile. */
+.brandBar {
+  background: var(--ink);
+  padding: var(--space-lg);
+}
+
+.panel {
+  padding: var(--space-page);
+}
+
+.title {
+  font-size: var(--fs-headline);
+  font-weight: 700;
+  margin: 0 0 var(--space-xs);
+  color: var(--text);
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin: 0 0 var(--space-lg);
+}

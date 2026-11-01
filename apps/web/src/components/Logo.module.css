@@ -1,0 +1,28 @@
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* The mandatory white tile — logo is never placed directly on brand red. */
+.tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: var(--surface);
+  color: var(--brand-red);
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.word {
+  color: var(--surface);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.2;
+}
