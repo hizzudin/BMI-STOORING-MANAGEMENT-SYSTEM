@@ -238,7 +238,7 @@ Execution waves (tasks in the same wave are independent and may run in parallel;
   - _Output_: WO-doc + invoice services; PDF generation stub; OFF-unit daily rate Settings master + endpoint.
   - _Verify_: AC-WOD-008, AC-BIL-001..005 (arithmetic exact per NFR-MONEY); the `Off_Unit` line equals `off_days` × `off_unit_daily_rate` at cost (no markup) and is included in subtotal and PPN.
   - _Git_: `feat(billing): WO document + invoices [TASK-115]`.
-- [ ] **TASK-116** [FG-16, REQ-FUP, NFR-FILES]: File upload pipeline against a **local/dummy object store** (device-side compress stub, signed-link issue, server re-check/compress worker, three states, append-only).
+- [x] **TASK-116** [FG-16, REQ-FUP, NFR-FILES]: File upload pipeline against a **local/dummy object store** (device-side compress stub, signed-link issue, server re-check/compress worker, three states, append-only).
   - _Skill_: `nestjs-expert`, `fullstack-guardian`, `typescript-pro`.
   - _Output_: FUP endpoints + worker against a local store.
   - _Verify_: AC-FUP-001..006 (an MP4 renamed .jpg is rejected; a 4 MB photo → <1 MB, no EXIF GPS).

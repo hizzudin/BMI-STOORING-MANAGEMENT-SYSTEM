@@ -59,6 +59,8 @@ export const Capabilities = {
   ScheduleManage: 'schedule.manage',
   // Invoices (FG-11)
   InvoiceManage: 'invoice.manage',
+  // File upload (FG-16, REQ-FUP-004) — minting a signed upload link
+  FilesUpload: 'files.upload',
   // Settings masters incl. the OFF-unit daily rate (FG-11 / FG-17, REQ-BIL-012)
   SettingsManage: 'settings.manage',
   // IAM (FG-13)
@@ -88,6 +90,7 @@ export const PERMISSION_MATRIX: RoleMatrix = {
     [Capabilities.OdometerManual]: 'allow',
     [Capabilities.CountApprove]: 'switchable',
     [Capabilities.ScheduleManage]: 'allow',
+    [Capabilities.FilesUpload]: 'allow', // report/form photos on Create WO
   },
   // MEC — Mechanic
   [Role.Mechanic]: {
@@ -95,6 +98,7 @@ export const PERMISSION_MATRIX: RoleMatrix = {
     [Capabilities.MechanicExecute]: 'allow',
     [Capabilities.MobilisasiExecute]: 'allow',
     [Capabilities.ChangeRequestRaise]: 'allow',
+    [Capabilities.FilesUpload]: 'allow', // step evidence photos (REQ-FUP-012)
   },
   // WHM — Warehouse Manager
   [Role.WarehouseManager]: {
@@ -103,6 +107,7 @@ export const PERMISSION_MATRIX: RoleMatrix = {
     [Capabilities.ChangeRequestRaise]: 'allow',
     [Capabilities.InventoryManage]: 'allow',
     [Capabilities.TyreManage]: 'allow',
+    [Capabilities.FilesUpload]: 'allow', // Stock-step invoice images (REQ-STK-009)
   },
   // SUP — Supervisor
   [Role.Supervisor]: {
@@ -142,6 +147,7 @@ export const PERMISSION_MATRIX: RoleMatrix = {
     [Capabilities.ScheduleManage]: 'allow',
     [Capabilities.InvoiceManage]: 'allow',
     [Capabilities.SettingsManage]: 'allow', // OFF-unit rate + billing settings (REQ-BIL-012)
+    [Capabilities.FilesUpload]: 'allow', // SA uploads on every field/office form
     [Capabilities.SetupGoLive]: 'allow', // X L
   },
   // AM — Access Manager (accounts/roles/permissions only; no operational work, RL-5)
@@ -160,10 +166,12 @@ export const PERMISSION_MATRIX: RoleMatrix = {
     [Capabilities.PurchaseLine]: 'allow',
     [Capabilities.ChangeRequestRaise]: 'allow',
     [Capabilities.ScheduleManage]: 'view',
+    [Capabilities.FilesUpload]: 'allow', // Part Purchase receipt photos (REQ-PUR-004)
   },
   // ACC — Accounting
   [Role.Accounting]: {
     [Capabilities.InvoiceManage]: 'allow',
+    [Capabilities.FilesUpload]: 'allow', // invoice scans/attachments
   },
 };
 

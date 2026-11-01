@@ -278,6 +278,18 @@
         "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
         "timestamp": 1793502389101
       }
+    ],
+    "**TASK-116** [FG-16, REQ-FUP, NFR-FILES]: File upload pipeline against a **local/dummy object store** (device-side compress stub, signed-link issue, server re-check/compress worker, three states, append-only).": [
+      {
+        "executionId": "1d647575-94e1-4925-b4a3-8d5aa7217856",
+        "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
+        "timestamp": 1793502907890
+      },
+      {
+        "executionId": "1d647575-94e1-4925-b4a3-8d5aa7217856",
+        "chatSessionId": "sess_aac236a4-7d88-45df-b9d7-b3c3994708ed",
+        "timestamp": 1793504681793
+      }
     ]
   }
 }
