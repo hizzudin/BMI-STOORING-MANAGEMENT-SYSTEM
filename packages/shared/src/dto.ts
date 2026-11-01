@@ -27,6 +27,7 @@ import type {
   CustomerId,
   InvoiceId,
   InvoiceLineId,
+  StoredFileId,
   ScheduleCardId,
   MaintenanceAlertId,
 } from './ids.js';
@@ -408,4 +409,110 @@ export interface PartAgeSignal {
   readonly tolerancePct: number;
   /** True when lifeUsedPct is below the tolerance (REQ-BSL-009). */
   readonly earlyFailure: boolean;
+}
+
+// =========================================================================
+// FUP — uploaded files (PRD §9 `stored_files`, REQ-FUP, NFR-06/NFR-13)
+// =========================================================================
+
+/**
+ * `stored_files.profile` (PRD §9 CHECK). Every upload slot has exactly one
+ * profile (REQ-FUP-001); the profile fixes the output limits:
+ *   - `Photo`    — images resized to a 1600 px long edge (NFR-06, §8.1).
+ *   - `Document` — document images resized to a 2400 px long edge (NFR-06).
+ *   - `PDF`      — a PDF, stored unchanged with a first-page thumbnail (AC-FUP-005).
+ */
+export const FileProfile = {
+  Photo: 'Photo',
+  Document: 'Document',
+  PDF: 'PDF',
+} as const;
+export type FileProfile = (typeof FileProfile)[keyof typeof FileProfile];
+
+/**
+ * `stored_files.status` (PRD §9 CHECK — authoritative, do not re-derive). The
+ * server-side lifecycle of a stored file:
+ *   - `Pending`  — row created, awaiting (or running) the re-check/compress
+ *                  worker. This single server state backs every in-progress
+ *                  word the UI shows on a thumbnail (checking / compressing /
+ *                  uploading / processing — REQ-FUP-007, AC-FUP-009); those are
+ *                  presentation only and never a distinct persisted state.
+ *   - `Ready`    — the worker validated + compressed it; `sha256` is set (the
+ *                  PRD §9 CHECK `status <> 'Ready' OR sha256 IS NOT NULL`). Only
+ *                  a Ready file may be referenced by a submitted record.
+ *   - `Rejected` — the worker refused it by content/size/dimensions with a
+ *                  `rejectReason` (REQ-FUP-005, AC-FUP-002).
+ *   - `Expired`  — a Pending/Rejected file not attached to any record after 24 h
+ *                  was removed from storage by the orphan cleanup (REQ-FUP-009,
+ *                  AC-FUP-006). Not a core record; append-only (BR-10) keeps the
+ *                  row and never hard-deletes it.
+ */
+export const FileStatus = {
+  Pending: 'Pending',
+  Ready: 'Ready',
+  Rejected: 'Rejected',
+  Expired: 'Expired',
+} as const;
+export type FileStatus = (typeof FileStatus)[keyof typeof FileStatus];
+
+/** `stored_files.capture_source` (PRD §9 CHECK) — where the file came from. */
+export const CaptureSource = {
+  Camera: 'Camera',
+  Gallery: 'Gallery',
+  File: 'File',
+} as const;
+export type CaptureSource = (typeof CaptureSource)[keyof typeof CaptureSource];
+
+/** `stored_files.mime_type` (PRD §9 CHECK) — the stored OUTPUT type only. */
+export const StoredMimeType = {
+  Jpeg: 'image/jpeg',
+  Pdf: 'application/pdf',
+} as const;
+export type StoredMimeType = (typeof StoredMimeType)[keyof typeof StoredMimeType];
+
+/**
+ * One uploaded file (PRD §9 `stored_files`, REQ-FUP). Indexes the §9 row
+ * faithfully: the object-storage key + thumb key (NFR-13 — the DB keeps only the
+ * key, never the bytes), the profile/mime/size/dimension metadata shown in the
+ * file's detail panel (REQ-FUP-007), the SHA-256 set when Ready, the single kept
+ * EXIF field `capturedAt` (every other EXIF field, GPS included, is stripped —
+ * REQ-FUP-003/AC-FUP-001), and the append-only lifecycle (`status`,
+ * `attachedAt` — once set it is never changed or deleted, REQ-FUP-008/BR-10).
+ *
+ * Phase-1 modelling (not a data-model change): the dummy gateway models only the
+ * nine business aggregates, so `stored_files` is an API-layer in-memory home
+ * (the TASK-103/104/115 precedent) behind the `LocalObjectStore` seam; the bytes
+ * live in a local/dummy store. TASK-204 re-homes the row behind the §9
+ * `stored_files` table and the store behind the S3-compatible adapter (R2),
+ * both contracts unchanged.
+ */
+export interface StoredFileDto {
+  readonly id: StoredFileId;
+  /** Object key in the private bucket, e.g. `dev/2026/11/wo/<uuid>.jpg` (NFR-13). */
+  readonly storageKey: string;
+  /** Key of the 320 px JPEG thumbnail; `null` until the worker makes it. */
+  readonly thumbKey: string | null;
+  readonly profile: FileProfile;
+  /** The stored OUTPUT mime type (image/jpeg or application/pdf). */
+  readonly mimeType: StoredMimeType;
+  readonly originalName: string | null;
+  /** Bytes before compression (REQ-FUP-003). */
+  readonly originalBytes: number | null;
+  /** Bytes after compression (REQ-FUP-003); for a PDF equals originalBytes. */
+  readonly storedBytes: number | null;
+  readonly width: number | null;
+  readonly height: number | null;
+  readonly pageCount: number | null;
+  /** Content hash, set only when Ready (§9 CHECK). */
+  readonly sha256: string | null;
+  /** The only EXIF field kept (REQ-FUP-003); the capture time. */
+  readonly capturedAt: IsoTimestamp | null;
+  readonly captureSource: CaptureSource | null;
+  readonly status: FileStatus;
+  readonly rejectReason: string | null;
+  readonly uploadedBy: UserId;
+  readonly uploadedAt: IsoTimestamp;
+  /** Set when a record references it; then never changed or deleted (REQ-FUP-008). */
+  readonly attachedAt: IsoTimestamp | null;
+  readonly version: number;
 }

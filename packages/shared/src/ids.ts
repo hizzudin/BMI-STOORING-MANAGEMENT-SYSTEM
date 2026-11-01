@@ -48,6 +48,7 @@ export type NotificationId = Brand<number, 'NotificationId'>;
 export type CustomerId = Brand<number, 'CustomerId'>;
 export type InvoiceId = Brand<number, 'InvoiceId'>;
 export type InvoiceLineId = Brand<number, 'InvoiceLineId'>;
+export type StoredFileId = Brand<number, 'StoredFileId'>;
 export type AuditLogId = Brand<number, 'AuditLogId'>;
 
 /**
@@ -84,6 +85,7 @@ interface IdBrandMap {
   CustomerId: CustomerId;
   InvoiceId: InvoiceId;
   InvoiceLineId: InvoiceLineId;
+  StoredFileId: StoredFileId;
   AuditLogId: AuditLogId;
 }
 
