@@ -1,0 +1,61 @@
+# TASK-119 — Dev-phase E2E smoke suite CI job.
+#
+# Runs the one-per-functional-group happy-path smoke suite
+# (apps/api/src/app.smoke.e2e.test.ts) against the Phase-1 in-memory dummy
+# DataGateway on every push / PR to `develop`. No database, cloud or secret is
+# needed — the suite boots the NestJS AppModule on the dummy gateway, which is
+# the whole point of the Phase-1 seam. Produces a coverage report and uploads it
+# as a build artifact (the task's "coverage report produced" gate).
+name: dev-phase E2E smoke
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop]
+
+# Cancel an in-flight run when a newer commit lands on the same ref.
+concurrency:
+  group: dev-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: API smoke suite (dummy gateway)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.4.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The smoke suite imports the workspace packages (@bmi/shared,
+      # @bmi/data-gateway, @bmi/config) from their built `dist/`; build the API's
+      # upstream deps before running. Turbo prunes to just what's needed.
+      - name: Build workspace packages
+        run: pnpm --filter @bmi/api^... run build
+
+      - name: Run dev-phase smoke suite with coverage
+        run: pnpm --filter @bmi/api run test:smoke:cov
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dev-smoke-coverage
+          path: apps/api/coverage/
+          if-no-files-found: warn
+          retention-days: 14

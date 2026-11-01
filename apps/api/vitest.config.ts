@@ -42,5 +42,14 @@ export default defineConfig({
     // assertions and logic are unchanged.
     testTimeout: 30000,
     hookTimeout: 30000,
+    // Coverage is produced on demand (`--coverage`, e.g. the TASK-119 dev-phase
+    // smoke CI job) via the v8 provider. The default `test` run is unaffected.
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'lcov', 'html'],
+      reportsDirectory: './coverage',
+      include: ['src/**/*.ts'],
+      exclude: ['src/**/*.test.ts', 'src/main.ts'],
+    },
   },
 });
