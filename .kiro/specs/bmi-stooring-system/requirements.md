@@ -101,8 +101,8 @@ Role rules and the full permission matrix: PRD §2 (RL-1…RL-10, BR-03, BR-04, 
   - _Acceptance_: AC-PM-001…003; AC-SCH-001…004.
 
 ### FG-13 Accounts, access & audit
-- **REQ-IAM**: The system shall manage accounts (exactly one role each, exactly one System Admin), the editable-but-locked permission matrix, the Planner-approval switch, System-Admin handover, password/session rules, email password reset (DQ-02), and an append-only audit log.
-  - _PRD_: REQ-IAM-001…011; BR-03, BR-10, BR-14; RL-1…RL-5; NFR-02, NFR-05; §7.11 (DQ-02).
+- **REQ-IAM**: The system shall manage accounts (exactly one role each, exactly one System Admin), the editable-but-locked permission matrix, the Planner-approval switch, one effective-capability function feeding the guard, record policies, `GET /me` menu and per-record `allowedActions` (DEC-93, PRD §2.4), System-Admin handover, password/session rules, email password reset (DQ-02), and an append-only audit log.
+  - _PRD_: REQ-IAM-001…014; PRD §2.4, NAV-9, DEC-93; BR-03, BR-10, BR-14; RL-1…RL-5; NFR-02, NFR-05; §7.11 (DQ-02).
   - _Acceptance_: AC-IAM-001…007.
 
 ### FG-14 Setup mode & Go live
@@ -195,7 +195,7 @@ Each row lists the **full REQ range** of a PRD area; the FG that owns it; the P0
 | SCH | REQ-SCH-001…007 | FG-12 | TASK-114 (API ✅), TASK-127 (schedule calendar UI gap) | — | API ✅ / UI gap |
 | DSH | REQ-DSH-001…010 | FG-12 | TASK-114 (data ✅), TASK-126 (6 role dashboards UI, incl. **DSH-008 P0: hide P1 cards until R2**) | **DSH-010 only (P1 step-time card)** | data ✅ / UI gap |
 | NTF | REQ-NTF-001…005 | FG-12 | TASK-114 (in-app ✅), TASK-128 (NotificationCenter UI gap), TASK-129 (push) | NTF-003/004 WhatsApp/email (P2) | in-app ✅ / UI+push gap |
-| IAM | REQ-IAM-001…011 | FG-13 | TASK-104/105 (API ✅), TASK-128 (Access Manager + audit UI gap), **TASK-121 (audit read/export gap)** | — | API ✅ / UI+export gap |
+| IAM | REQ-IAM-001…014 | FG-13 | TASK-104/105 (API ✅), TASK-128 (Access Manager + audit UI gap), **TASK-121 (audit read/export gap)** | — | API ✅ / UI+export gap |
 | MOB | REQ-MOB-001…010 | FG-15 | **P0 (R1 step 7): MOB-001/003/006/008** → TASK-118 ✅ + **TASK-129** (FC fleet/schedule/alerts, Driver/SA depth, offline). **MOB-002 is P0** but is the parity rule for the **Mechanic mobile menu (R2 per §10)**, so it is built with that menu in R2 and is not an R1 gate. **P1 (R2): MOB-004/005/007/010** (field finding, Supervisor review/fleet/history, mechanic today-list). | MOB-002 (P0, with R2 Mechanic menu); MOB-004/005/007/010 (P1/R2) | P0 R1 shell ✅ → TASK-129; MOB-002 + P1 with R2 menus (listed) |
 | FUP | REQ-FUP-001…016 | FG-16 | TASK-116 (API ✅), TASK-124 (PhotoViewer/FileDrop UI gap), TASK-204 (real S3/R2, P2) | — | API ✅ / UI gap |
 | SET | (REQ-REG-007, REQ-MEC-005/010, REQ-INV-014, REQ-TYR-003, REQ-PM-006…010, REQ-BIL-004/007/012, REQ-DOC-002, REQ-PLC-013) | FG-17 | partial across TASK-106/107/110a/115, **TASK-123 (complete masters gap)**, TASK-128 (settings UI gap) | SettingsIntegrations (DQ-05, P1) | partial → TASK-123 |
